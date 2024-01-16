@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Infrastructure/Data/DataStorageApp_local_db.mdf
+/Infrastructure/Data/DataStorageApp_local_db_log.ldf
