@@ -1,14 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Entities;
 
-[Index(nameof(Email), IsUnique = true)]
 public class CustomerEntity
 {
     [Key]
-    public int CustomerId { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     
     [Required]
     [StringLength(50)]
@@ -28,13 +26,8 @@ public class CustomerEntity
     [Column(TypeName = "varchar")]
     public string Password { get; set; } = null!;
 
+    [StringLength(16)]
+    [Column(TypeName = "varchar")]
     public string PhoneNumber { get; set; } = null!;
 
 }
-
-
-
-// [ForeignKey(nameof(ProductEntity))]
-// public virtual ProductEntity Product { get; set; } = null!;
-
-
