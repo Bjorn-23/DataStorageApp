@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /Infrastructure/Data/DataStorageApp_local_db.mdf
 /Infrastructure/Data/DataStorageApp_local_db_log.ldf
+/Infrastructure/Data/New_DataStorageApp_db.mdf
