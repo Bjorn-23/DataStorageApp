@@ -200,8 +200,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.PriceListEntity", b =>
                 {
                     b.HasOne("Infrastructure.Entities.ProductEntity", "Product")
-                        .WithOne("PriceList")
-                        .HasForeignKey("Infrastructure.Entities.PriceListEntity", "ArticleNumber")
+                        .WithMany()
+                        .HasForeignKey("ArticleNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -222,12 +222,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.CategoryEntity", b =>
                 {
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.ProductEntity", b =>
-                {
-                    b.Navigation("PriceList")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

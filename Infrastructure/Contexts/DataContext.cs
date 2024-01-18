@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Contexts;
@@ -55,29 +56,28 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         modelBuilder.Entity<ProductEntity>()
             .HasKey(x => x.ArticleNumber);
 
+
         modelBuilder.Entity<ProductEntity>()
             .HasOne(x => x.Category)
             .WithMany()
             .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
 
+
         modelBuilder.Entity<PriceListEntity>()
             .HasKey(x => x.ArticleNumber);
 
+
         modelBuilder.Entity<PriceListEntity>()
-            .HasOne(priceList => priceList.Product)
-            .WithOne(product => product.PriceList)
-            .HasForeignKey<PriceListEntity>(p => p.ArticleNumber)
+            .HasOne(x => x.Product)
+            .WithMany()
+            .HasForeignKey(x => x.ArticleNumber)
             .OnDelete(DeleteBehavior.Cascade);
 
 
         modelBuilder.Entity<CategoryEntity>()
             .HasKey(x => x.Id);
-
-        //modelBuilder.Entity<CategoryEntity>()
-        //    .HasOne(x => x.Product)
-        //    .WithMany()
-        //    .HasForeignKey(x => x.CategoryName);
+        
 
         modelBuilder.Entity<CategoryEntity>()
             .HasMany(category => category.Product)

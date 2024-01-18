@@ -1,15 +1,21 @@
-﻿using Infrastructure.Contexts;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public abstract class BaseRepository<TEntity>(DataContext context) : IBaseRepository<TEntity> where TEntity : class
+
+// this works//public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity, TContext> where TEntity : class where TContext : DbContext
+public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity, TContext> where TEntity : class where TContext : DbContext
 {
-    private readonly DataContext _context = context;
+    private readonly TContext _context;
+
+    protected BaseRepository(TContext context)
+    {
+        _context = context;
+    }
 
     public virtual TEntity Create(TEntity entity)
     {
@@ -30,6 +36,36 @@ public abstract class BaseRepository<TEntity>(DataContext context) : IBaseReposi
         try
         {
             var result = _context.Set<TEntity>().ToList();
+            if (result != null)
+            {
+                return result;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public virtual IEnumerable<TEntity> GetAllWithPredicate(Expression<Func<TEntity, bool>> predicate)
+    {
+        try
+        {
+            var result = _context.Set<TEntity>().Where(predicate).ToList();
+            if (result != null)
+            {
+                return result;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public TEntity GetOne(Expression<Func<TEntity, bool>> predicate)
+    {
+        try
+        {
+            var result = _context.Set<TEntity>().Where(predicate).FirstOrDefault();
             if (result != null)
             {
                 return result;
@@ -62,7 +98,7 @@ public abstract class BaseRepository<TEntity>(DataContext context) : IBaseReposi
     {
         try
         {
-            var entityToUpdate = _context.Set<TEntity>().FirstOrDefault(predicate, entity);
+            var entityToUpdate = _context.Set<TEntity>().Where(predicate).FirstOrDefault();
             if (entityToUpdate != null)
             {
                 entityToUpdate = entity;
@@ -76,6 +112,27 @@ public abstract class BaseRepository<TEntity>(DataContext context) : IBaseReposi
         return null!;
     }
 
+    //SUGGESTED BY CHATGPT AS UPDATE ALTERNATIVE
+    public virtual TEntity UpdateDeluxe(Expression<Func<TEntity, bool>> predicate, TEntity entity)
+    {
+        try
+        {
+            var entityToUpdate = _context.Set<TEntity>().Where(predicate).FirstOrDefault(predicate);
+            if (entityToUpdate != null)
+            {
+                // Update properties of the existing entity with values from the new entity
+                _context.Entry(entityToUpdate).CurrentValues.SetValues(entity);
+                _context.SaveChanges();
+                return entityToUpdate;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("ERROR :: " + ex.Message);
+        }
+
+        return null!;
+    }
     //    public abstract TEntity UpdateAbstract(TEntity entity); //kan instansieras av en annan service
 
 

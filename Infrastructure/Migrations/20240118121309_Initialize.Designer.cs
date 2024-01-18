@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240117204502_Init")]
-    partial class Init
+    [Migration("20240118121309_Initialize")]
+    partial class Initialize
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,8 +203,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.PriceListEntity", b =>
                 {
                     b.HasOne("Infrastructure.Entities.ProductEntity", "Product")
-                        .WithOne("PriceList")
-                        .HasForeignKey("Infrastructure.Entities.PriceListEntity", "ArticleNumber")
+                        .WithMany()
+                        .HasForeignKey("ArticleNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -225,12 +225,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.CategoryEntity", b =>
                 {
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.ProductEntity", b =>
-                {
-                    b.Navigation("PriceList")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

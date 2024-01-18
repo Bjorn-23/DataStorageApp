@@ -4,6 +4,6 @@ using Infrastructure.Entities;
 
 namespace Infrastructure.Interfaces;
 
-public interface ICustomerRepository : IBaseRepository<CustomerEntity, DataContext>
+public interface ICustomer_AddressRepository : IBaseRepository<Customer_AddressEntity, DataContext>
 {
 }

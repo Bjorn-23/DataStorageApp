@@ -1,7 +1,8 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Contexts;
+using Infrastructure.Entities;
 
 namespace Infrastructure.Interfaces;
 
-public interface IAddressRepository : IBaseRepository<AddressEntity>
+public interface IAddressRepository : IBaseRepository<AddressEntity, DataContext>
 {
 }

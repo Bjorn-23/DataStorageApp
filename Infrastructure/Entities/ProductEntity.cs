@@ -7,7 +7,7 @@ public class ProductEntity
 {
     [Key]
     public string ArticleNumber { get; set; } = null!;
-    public PriceListEntity PriceList { get; set; } = null!;
+    //public PriceListEntity PriceList { get; set; } = null!;
 
     [Required]
     [StringLength(50)]

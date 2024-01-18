@@ -10,11 +10,11 @@ public class CustomerEntity
     
     [Required]
     [StringLength(50)]
-    public string Firstname { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
 
     [Required]
     [StringLength(50)]
-    public string Lastname { get; set; } = null!;
+    public string LastName { get; set; } = null!;
 
     [Required]
     [StringLength(200)]

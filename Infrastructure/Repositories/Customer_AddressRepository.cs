@@ -4,9 +4,7 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories;
 
-public class CustomerRepository(DataContext context) : BaseRepository<CustomerEntity, DataContext>(context), ICustomerRepository
+public class Customer_AddressRepository(DataContext context) : BaseRepository<Customer_AddressEntity, DataContext>(context), ICustomer_AddressRepository
 {
-
     private readonly DataContext _context = context;
 }
-
