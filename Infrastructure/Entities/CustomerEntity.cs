@@ -19,12 +19,8 @@ public class CustomerEntity
     [Required]
     [StringLength(200)]
     [Column(TypeName = "varchar")]
-    public string Email { get; set; } = null!;
-
-    [Required]
-    [StringLength(200)]
-    [Column(TypeName = "varchar")]
-    public string Password { get; set; } = null!;
+    public string EmailId { get; set; } = null!;
+    public UserEntity Email { get; set; } = null!;
 
     [StringLength(16)]
     [Column(TypeName = "varchar")]

@@ -34,6 +34,7 @@ internal class MenuService
             Console.WriteLine($"{"\n2.",-5} Create an address");
             Console.WriteLine($"{"\n3.",-5} Create a customer address");
             Console.WriteLine($"{"\n4.",-5} Show customer details");
+            Console.WriteLine($"{"\n5.",-5} Show all customers");
             Console.WriteLine($"{"\n0",-5} Exit application");
             Console.Write("\nOption: ");
             var option = Console.ReadLine();
@@ -52,6 +53,9 @@ internal class MenuService
                 case "4":
                     ShowCustomerDetails();
                     break;
+                case "5":
+                    ShowAllCustomers();
+                    break;
                 case "0":
                     Environment.Exit(0);
                     break;
@@ -68,7 +72,7 @@ internal class MenuService
             Console.WriteLine("---------------------------------------------------");
             Console.WriteLine("----------Type-in-details-of-new-customer----------");
             Console.Write("\nEmail: ");
-            customer.Email = Console.ReadLine()!;
+            customer.EmailId = Console.ReadLine()!;
             var exists = _customerService.CustomerExists(customer);
             if (exists)
             {
@@ -82,11 +86,11 @@ internal class MenuService
             customer.LastName = Console.ReadLine()!;
             Console.Write("\nPhone number: ");
             customer.PhoneNumber = Console.ReadLine()!;
-            Console.Write("\nPassword: ");
-            var password = Console.ReadLine()!;
-            customer.Password = GenerateSecurePassword(password);
+            //Console.Write("\nPassword: ");
+            //var password = Console.ReadLine()!;
+            /*customer.Password = GenerateSecurePassword(password);*/ // Change this to be on Create User.
 
-            Console.WriteLine($"\n{customer.FirstName} {customer.LastName}\n{customer.Email}\n{customer.PhoneNumber}\n");
+            Console.WriteLine($"\n{customer.FirstName} {customer.LastName}\n{customer.EmailId}\n{customer.PhoneNumber}\n");
             Console.Write("Do you want to create this Customer? ");
             var customerAnswer = Console.ReadLine()!;
             if (customerAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
@@ -98,7 +102,7 @@ internal class MenuService
 
                     Console.WriteLine("---------------------------------------------------");
                     Console.WriteLine("---------------New-Customer-Created----------------");
-                    Console.WriteLine($"\n{newCustomer.FirstName} {newCustomer.LastName}\n{newCustomer.Email}\n{newCustomer.PhoneNumber}\n");
+                    Console.WriteLine($"\n{newCustomer.FirstName} {newCustomer.LastName}\n{newCustomer.EmailId}\n{newCustomer.PhoneNumber}\n");
                     Console.Write("Would you like to Attach an address to this customer? ");
                     var addresAnswer = Console.ReadLine()!;
 
@@ -108,12 +112,12 @@ internal class MenuService
                         var result = _customer_addressService.CreateCustomer_Addresses(newCustomer, address);
 
                         if (result)
-                            Console.WriteLine("\nCustomer Address created.");
+                            Console.WriteLine("\nCustomer address created.");
                         else
-                            Console.WriteLine("\nCustomer Address could not be created or already exists.");
+                            Console.WriteLine("\nCustomer address could not be created or already exists.");
                     }
                     else
-                        Console.WriteLine("\nYou can add a customer_address later from option 3 in Main menu.");
+                        Console.WriteLine("\nYou can add a customer address from option 3 in Main menu.");
                 }
             }
             else
@@ -170,7 +174,7 @@ internal class MenuService
             AddressDto address = new();
 
             Console.Write("Please enter email of customer: ");
-            customer.Email = Console.ReadLine()!;
+            customer.EmailId = Console.ReadLine()!;
 
             Console.Write("Please enter Street name of address: ");
             address.StreetName = Console.ReadLine()!;
@@ -196,7 +200,7 @@ internal class MenuService
             
 
             Console.Write("\nPlease enter email of customer: ");
-            customer.Email = Console.ReadLine()!;
+            customer.EmailId = Console.ReadLine()!;
 
             //NEED TO FIX LOGIC AS TO NOT EXPOSE THE ID and Password
             CustomerEntity existingCustomer = _customerService.GetOneCustomer(customer);
@@ -205,19 +209,45 @@ internal class MenuService
             Console.Clear();
             Console.WriteLine("---------------------------------------------------");
             Console.WriteLine("-----------------Customer-details------------------");
-            Console.WriteLine($"\nFirst name: {existingCustomer.FirstName}\nLast name: {existingCustomer.LastName}\nEmail: {existingCustomer.Email}\nPhone number: {existingCustomer.PhoneNumber}\n");
 
-            Console.WriteLine($"\nList of addresses associated with {existingCustomer.FirstName} {existingCustomer.LastName}:");
-
-            var i = 1;
-            foreach (var address in customerAddresses)
+            if (existingCustomer != null)
             {
-                Console.WriteLine($"\n{i++}{".",-4}{address.StreetName}\n{"",-5}{address.PostalCode}\n{"",-5}{address.City}\n{"",-5}{address.Country}");
+                Console.WriteLine($"\nFirst name: {existingCustomer.FirstName}\nLast name: {existingCustomer.LastName}\nEmail: {existingCustomer.Email}\nPhone number: {existingCustomer.PhoneNumber}\n");
+
+                Console.WriteLine($"\nList of addresses associated with {existingCustomer.FirstName} {existingCustomer.LastName}:");
+
+                if (customerAddresses != null)
+                {
+                    var i = 1;
+                    foreach (var address in customerAddresses)
+                    {
+                        Console.WriteLine($"\n{i++}{".",-4}{address.StreetName}\n{"",-5}{address.PostalCode}\n{"",-5}{address.City}\n{"",-5}{address.Country}");
+                    }
+                }
+                else
+                    Console.WriteLine("\nThere are currently no addresses linked to this customer");
             }
+            else
+                Console.WriteLine($"\nThere are currently no customers linked to {customer.EmailId}");
 
             Continue();
         }
 
+        void ShowAllCustomers()
+        {
+            Console.Clear();
+            Console.WriteLine("---------------------------------------------------");
+            Console.WriteLine("-----------------Show-all-Customers----------------");
+
+            var allCustomers = _customerService.GetAll();
+
+            var i = 1;
+            foreach (var customer in allCustomers)
+            {
+                Console.WriteLine($"\n{i++}{".",-4}First name: {customer.FirstName}\n{"",-5}Last name: {customer.LastName}\n{"",-5}Email: {customer.EmailId}\n{"",-5}Phone number: {customer.PhoneNumber}\n");
+            }
+            Continue();
+        }
     }
 
     void Continue()

@@ -2,6 +2,7 @@
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
+using System.Diagnostics;
 
 namespace Business.Services;
 
@@ -18,62 +19,84 @@ public class AddressService
 
     public bool AddressExists (AddressDto address)
     {
-        var exists = _addressRepository.Exists(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-        return exists;
+        try
+        {
+            var exists = _addressRepository.Exists(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            return exists;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        
+        return false;
     }
 
     public AddressDto CreateAddress(AddressDto address)
     {
-        var exists = _addressRepository.Exists(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-        if (exists)
+        try
         {
-            return address;
-        }
+            var addressExists = _addressRepository.Exists(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            if (addressExists)
+            {
+                return address;
+            }
 
-        AddressEntity entity = new()
-        {
-            StreetName = address.StreetName,
-            PostalCode = address.PostalCode,
-            City = address.City,
-            Country = address.Country,
-        };
+            AddressEntity entity = new()
+            {
+                StreetName = address.StreetName,
+                PostalCode = address.PostalCode,
+                City = address.City,
+                Country = address.Country,
+            };
 
-        var result = _addressRepository.Create(entity);
-        if (result != null)
-        {
-            return address;
+            var result = _addressRepository.Create(entity);
+            if (result != null)
+            {
+                return address;
+            }
         }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         
         return null!;
     }
 
     public IEnumerable<AddressDto> GetOneAddressWithCustomerId(CustomerEntity customer)
     {
-
-        var allCustomerAddresses = _customer_AddressRepository.GetAllWithPredicate(x => x.CustomerId == customer.Id);
-
-        if (allCustomerAddresses != null)
+        try
         {
-            List<AddressDto> addressDtos = new();
+            var allCustomerAddresses = _customer_AddressRepository.GetAllWithPredicate(x => x.CustomerId == customer.Id);
 
-            foreach (var addressId in allCustomerAddresses)
+            if (allCustomerAddresses.Any())
             {
-                var address = _addressRepository.GetOne(x => x.Id == addressId.AddressId);
+                List<AddressDto> addressDtos = new();
 
-                var addressDto = new AddressDto ()
+                foreach (var addressId in allCustomerAddresses)
                 {
-                    StreetName = address.StreetName,
-                    PostalCode = address.PostalCode,
-                    City = address.City,
-                    Country = address.Country,
-                };
+                    var address = _addressRepository.GetOne(x => x.Id == addressId.AddressId);
 
-                addressDtos.Add(addressDto);
+                    var addressDto = new AddressDto ()
+                    {
+                        StreetName = address.StreetName,
+                        PostalCode = address.PostalCode,
+                        City = address.City,
+                        Country = address.Country,
+                    };
+
+                    addressDtos.Add(addressDto);
+                }
+
+                return addressDtos;
             }
 
-            return addressDtos;
         }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
         return null!;
     }
-
 }
+
+
+        //try
+        //{
+
+        //}
+        //catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+

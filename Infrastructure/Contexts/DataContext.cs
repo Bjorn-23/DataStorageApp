@@ -1,34 +1,47 @@
 ﻿using Infrastructure.Entities;
-using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Infrastructure.Contexts;
 
 public partial class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
+    public virtual DbSet<UserEntity> Users { get; set; }
+
+    public virtual DbSet<UserRoleEntity> Roles { get; set; }
+  
+    public virtual DbSet<CustomerEntity> Customers { get; set; }
 
     public virtual DbSet<AddressEntity> Address { get; set; }
     
-    public virtual DbSet<CustomerEntity> Customers { get; set; }
-
     public virtual DbSet<Customer_AddressEntity> Customer_Addresses { get; set; }
-
-    public virtual DbSet<PriceListEntity> PriceLists { get; set; }
-
-    public virtual DbSet<CategoryEntity> Categories { get; set; }
-
-    public virtual DbSet<ProductEntity> Products { get; set; }
-
-
 
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //---------------------------------------Customers
+        //----------------------Users & UserRoles--------------------
+
+        modelBuilder.Entity<UserEntity>()
+            .HasOne(x => x.UserRoleName)
+            .WithOne()
+            .HasForeignKey<UserRoleEntity>(x => x.RoleName)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        //----------------------Users & UserRoles--------------------
+
+        //---------------------Customers & Adresses------------------
+
         modelBuilder.Entity<CustomerEntity>()
-            .HasIndex(x =>  x.Email)
-            .IsUnique();
+            .HasOne(x => x.EmailId)
+            .WithOne()
+            .HasForeignKey<UserEntity>(x => x.Email)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        //Is this needed now that its a foreign key?
+        //modelBuilder.Entity<CustomerEntity>()
+        //    .HasIndex(x =>  x.Email)
+        //    .IsUnique();
 
         modelBuilder.Entity<AddressEntity>()
             .HasKey(x => x.Id);
@@ -50,42 +63,8 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             .WithMany()
             .HasForeignKey(ca => ca.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
-        //---------------------------------------Customers
 
-        //---------------------------------------Products
-        modelBuilder.Entity<ProductEntity>()
-            .HasKey(x => x.ArticleNumber);
-
-
-        modelBuilder.Entity<ProductEntity>()
-            .HasOne(x => x.Category)
-            .WithMany()
-            .HasForeignKey(x => x.CategoryId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-
-        modelBuilder.Entity<PriceListEntity>()
-            .HasKey(x => x.ArticleNumber);
-
-
-        modelBuilder.Entity<PriceListEntity>()
-            .HasOne(x => x.Product)
-            .WithMany()
-            .HasForeignKey(x => x.ArticleNumber)
-            .OnDelete(DeleteBehavior.Cascade);
-
-
-        modelBuilder.Entity<CategoryEntity>()
-            .HasKey(x => x.Id);
-        
-
-        modelBuilder.Entity<CategoryEntity>()
-            .HasMany(category => category.Product)
-            .WithOne(product => product.Category)
-            .HasForeignKey(product => product.CategoryId)
-            .OnDelete(DeleteBehavior.Cascade); 
-
-        //---------------------------------------Products
+        //---------------------Customers & Adresses------------------
 
     }
 }
