@@ -6,6 +6,7 @@ using Infrastructure.Repositories;
 using Infrastructure.Interfaces;
 using Presentation.ConsoleApp;
 using Business.Services;
+using System.Diagnostics;
 
 
 var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
@@ -18,185 +19,36 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
     services.AddScoped<CustomerService>();
 
     services.AddScoped<IAddressRepository, AddressRepository>();
-    services.AddSingleton<AddressService>();
+    services.AddScoped<AddressService>();
 
     services.AddScoped<ICustomer_AddressRepository, Customer_AddressRepository>();
     services.AddScoped<Customer_AddressService>();
+     
+    services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+
+    services.AddScoped<IUserRepository, UserRepository>();
+    services.AddScoped<UserService>();
 
 
-    services.AddSingleton<MenuService>();
+
+    services.AddScoped<MenuService>();
 
 
 }).Build();
 
-builder.Start();
+try
+{
 
-var menuService = builder.Services.GetRequiredService<MenuService>();
+    builder.Start();
 
-menuService.MenuStart();
+    var menuService = builder.Services.GetRequiredService<MenuService>();
 
-
-
-//var customerRepository = builder.Services.GetRequiredService<ICustomerRepository>();
-//var customer_AddressRepository = builder.Services.GetRequiredService<ICustomer_AddressRepository>();
-//var addressRepository = builder.Services.GetRequiredService<IAddressRepository>();
-
-
-
-
-
-//var address = new AddressEntity();
-//var customer = new CustomerEntity();
+    menuService.MenuStart();
+}
+catch (Exception ex)
+{
+    Debug.WriteLine("ERROR :: " + ex.Message);
+    Console.WriteLine("There was an error while starting the app.");
+}
 
 
-//void CreateCustomer()
-//{
-
-//}
-
-//customer = customerRepository.Create(new CustomerEntity()
-//{
-//    Id = Guid.NewGuid(),
-//    Firstname = "Björn",
-//    Lastname = "Andersson",
-//    Email = "bjorn@domain.com",
-//    Password = "Password123!",
-//    PhoneNumber = "1234567890",
-//});
-
-//if (customer != null)
-//    Console.WriteLine($"Success!\nNew Customer Created:\nId: {customer.Id}\nName: {customer.Firstname} {customer.Lastname}\nEmail: {customer.Email}\n");
-//else
-//    Console.WriteLine("Something went wrong, Customer not created");
-
-
-
-//address = addressRepository.Create(new AddressEntity()
-//{
-//    City = "Lerberget",
-//    Country = "Sweden",
-//    PostalCode = "263 54",
-//    StreetName = "Plöjargränd 143",
-
-//});
-
-//if (address != null)
-//    Console.WriteLine($"Success!\nNew Address Created:\nId: {address.Id}\nStreet: {address.StreetName}\nPostal code: {address.PostalCode}\nCity: {address.City}\nCountry: {address.Country}\n");
-//else
-//    Console.WriteLine("Something went wrong, Address not created");
-
-
-
-//AddressEntity addressA = new()
-//{
-//    City = "Lerberget",
-//    Country = "Sweden",
-//    PostalCode = "263 54",
-//    StreetName = "Plöjargränd 143",
-
-//};
-
-//CustomerEntity customerC = new()
-//{
-//    Id = Guid.NewGuid(),
-//    Firstname = "Björn",
-//    Lastname = "Andersson",
-//    Email = "bjorn@domain.com",
-//    Password = "Password123!",
-//    PhoneNumber = "1234567890",
-//};
-
-//if (addressA != null && customerC != null)
-//{
-//    var resultC = customerRepository.GetOne(c => c.Email == customerC.Email);
-//    var resultA = addressRepository.GetOne(a => a.StreetName == addressA.StreetName);
-
-//    var customer_Address = customer_AddressRepository.Create(new Customer_AddressEntity
-//    {
-//        AddressId = resultA.Id,
-//        CustomerId = resultC.Id
-//    });
-//}
-
-
-
-//CreateCustomer();
-//CreateAddress();
-//CreateCustomer_Address();
-
-//void CreateCustomer()
-//{
-
-//    customer = customerRepository.Create(new CustomerEntity()
-//    {
-//        Id = Guid.NewGuid(),
-//        Firstname = "Björn",
-//        Lastname = "Andersson",
-//        Email = "bjorn@domain.com",
-//        Password = "Password123!",
-//        PhoneNumber = "1234567890",
-//    });
-
-//    if (customer != null)
-//        Console.WriteLine($"Success!\nNew Customer Created:\nId: {customer.Id}\nName: {customer.Firstname} {customer.Lastname}\nEmail: {customer.Email}\n");
-//    else
-//        Console.WriteLine("Something went wrong, Customer not created");
-
-//}
-
-//void CreateAddress()
-//{
-
-//    address = addressRepository.Create(new AddressEntity()
-//    {
-//        City = "Lerberget",
-//        Country = "Sweden",
-//        PostalCode = "263 54",
-//        StreetName = "Plöjargränd 143",
-
-//    });
-
-//    if (address != null)
-//        Console.WriteLine($"Success!\nNew Address Created:\nId: {address.Id}\nStreet: {address.StreetName}\nPostal code: {address.PostalCode}\nCity: {address.City}\nCountry: {address.Country}\n");
-//    else
-//        Console.WriteLine("Something went wrong, Address not created");
-//}
-
-//void CreateCustomer_Address()
-//{
-//    AddressEntity addressA = new()
-//    {
-//        City = "Lerberget",
-//        Country = "Sweden",
-//        PostalCode = "263 54",
-//        StreetName = "Plöjargränd 143",
-
-//    };
-
-//    CustomerEntity customerC = new()
-//    {
-//        Id = Guid.NewGuid(),
-//        Firstname = "Björn",
-//        Lastname = "Andersson",
-//        Email = "bjorn@domain.com",
-//        Password = "Password123!",
-//        PhoneNumber = "1234567890",
-//    };
-
-//    if (addressA != null && customerC != null)
-//    {
-//        var resultC = customerRepository.GetOne(c => c.Email == customerC.Email);
-//        var resultA = addressRepository.GetOne(a => a.StreetName == addressA.StreetName);
-
-//        var customer_Address = customer_AddressRepository.Create(new Customer_AddressEntity
-//        {
-//            AddressId = resultA.Id,
-//            CustomerId = resultC.Id
-//        });
-//    }
-
-//}
-
-
-
-Console.ReadKey();

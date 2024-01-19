@@ -6,14 +6,14 @@ namespace Infrastructure.Contexts;
 
 public partial class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
+    public virtual DbSet<UserRoleEntity> Roles { get; set; }
+
     public virtual DbSet<UserEntity> Users { get; set; }
 
-    public virtual DbSet<UserRoleEntity> Roles { get; set; }
-  
     public virtual DbSet<CustomerEntity> Customers { get; set; }
 
     public virtual DbSet<AddressEntity> Address { get; set; }
-    
+
     public virtual DbSet<Customer_AddressEntity> Customer_Addresses { get; set; }
 
 
@@ -23,9 +23,9 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         //----------------------Users & UserRoles--------------------
 
         modelBuilder.Entity<UserEntity>()
-            .HasOne(x => x.UserRoleName)
-            .WithOne()
-            .HasForeignKey<UserRoleEntity>(x => x.RoleName)
+            .HasOne(x => x.UserRole)
+            .WithMany()
+            .HasForeignKey(x => x.UserRoleName)
             .OnDelete(DeleteBehavior.Cascade);
 
         //----------------------Users & UserRoles--------------------
@@ -33,16 +33,11 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         //---------------------Customers & Adresses------------------
 
         modelBuilder.Entity<CustomerEntity>()
-            .HasOne(x => x.EmailId)
+            .HasOne(x => x.User)
             .WithOne()
-            .HasForeignKey<UserEntity>(x => x.Email)
+            .HasForeignKey<CustomerEntity>(x => x.EmailId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        //Is this needed now that its a foreign key?
-        //modelBuilder.Entity<CustomerEntity>()
-        //    .HasIndex(x =>  x.Email)
-        //    .IsUnique();
-
+          
         modelBuilder.Entity<AddressEntity>()
             .HasKey(x => x.Id);
 
@@ -67,4 +62,5 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         //---------------------Customers & Adresses------------------
 
     }
+
 }

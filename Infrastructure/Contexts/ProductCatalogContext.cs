@@ -1,7 +1,7 @@
-﻿using Infrastructure.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿//using Infrastructure.Entities;
+//using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Contexts;
+//namespace Infrastructure.Contexts;
 
 //public partial class ProductCatalogContext(DbContextOptions options) : DbContext(options)
 //{
@@ -14,7 +14,7 @@ namespace Infrastructure.Contexts;
 
 //    public virtual DbSet<ProductEntity> Products { get; set; }
 
-      
+
 
 //    protected override void OnModelCreating(ModelBuilder modelBuilder)
 //    {

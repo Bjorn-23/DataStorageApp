@@ -20,7 +20,7 @@ public class CustomerEntity
     [StringLength(200)]
     [Column(TypeName = "varchar")]
     public string EmailId { get; set; } = null!;
-    public UserEntity Email { get; set; } = null!;
+    public UserEntity User { get; set; } = null!;
 
     [StringLength(16)]
     [Column(TypeName = "varchar")]

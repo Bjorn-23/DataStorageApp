@@ -1,4 +1,5 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
@@ -58,7 +59,7 @@ public class AddressService
         return null!;
     }
 
-    public IEnumerable<AddressDto> GetOneAddressWithCustomerId(CustomerEntity customer)
+    public IEnumerable<AddressDto> GetAddressesWithCustomerId(CustomerDetailsDto customer)
     {
         try
         {
@@ -72,7 +73,7 @@ public class AddressService
                 {
                     var address = _addressRepository.GetOne(x => x.Id == addressId.AddressId);
 
-                    var addressDto = new AddressDto ()
+                    var addressDto = new AddressDto()
                     {
                         StreetName = address.StreetName,
                         PostalCode = address.PostalCode,
@@ -85,12 +86,45 @@ public class AddressService
 
                 return addressDtos;
             }
-
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
+
+    public AddressDto GetOneAddress(AddressDto address)
+    {
+        try
+        {
+            var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            if (existingAddress != null)
+            {
+                var addressDto = AddressFactory.Create(existingAddress);
+                return addressDto;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public IEnumerable<AddressDto> GetAll()
+    {
+        try
+        {
+            var addresses = _addressRepository.GetAll();
+            if (addresses.Any())
+            {
+                var addressList = AddressFactory.Create(addresses);
+                return addressList;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+
 }
 
 

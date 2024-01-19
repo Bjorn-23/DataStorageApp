@@ -1,6 +1,8 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
+using Infrastructure.Repositories;
 using System.Diagnostics;
 
 namespace Business.Services;
@@ -8,10 +10,16 @@ namespace Business.Services;
 public class CustomerService
 {
     private readonly ICustomerRepository _customerRepository;
+    private readonly ICustomer_AddressRepository _customer_AddressRepository;
+    private readonly AddressService _addressService;
+    private readonly UserService _userService;
 
-    public CustomerService(ICustomerRepository customerRepository)
+    public CustomerService(ICustomerRepository customerRepository, AddressService addressService, UserService userService, ICustomer_AddressRepository customerAddressRepository)
     {
         _customerRepository = customerRepository;
+        _addressService = addressService;
+        _userService = userService;
+        _customer_AddressRepository = customerAddressRepository;
     }
 
     public bool CustomerExists(CustomerDto customer)
@@ -24,7 +32,7 @@ public class CustomerService
                 EmailId = customer.EmailId
             };
             
-            var exists = _customerRepository.Exists(x => x.Email == entity.Email);
+            var exists = _customerRepository.Exists(x => x.EmailId == entity.EmailId);
             if (exists)
             {
                 return true;
@@ -39,14 +47,7 @@ public class CustomerService
     {
         try
         {
-            CustomerEntity entity = new()
-            {
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                EmailId = customer.EmailId,
-                //Password = customer.Password, // should be in UserDto
-                PhoneNumber = customer.PhoneNumber,
-            };
+            var entity = CustomerFactory.Create(customer);
                 
             var result = _customerRepository.Create(entity);
             if (result != null)
@@ -74,6 +75,59 @@ public class CustomerService
         return null!;
     }
 
+    public CustomerDetailsDto GetCustomerDetails(CustomerDto customer)
+    {
+        try
+        {
+            var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+            if (existingCustomer != null)
+            {
+                var userRole = _userService.GetOneUserRole(existingCustomer);
+
+                var customerDetails = CustomerFactory.CreateCustomerDetails(existingCustomer, userRole);
+
+                return customerDetails;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public IEnumerable<CustomerDto> GetCustomersWithAddressId(AddressDto address)
+    {
+        try
+        {
+            var allCustomerAtAddress = _customer_AddressRepository.GetAllWithPredicate(x => x.AddressId == address.Id);
+
+            if (allCustomerAtAddress.Any())
+            {
+                List<CustomerDto> customerDtos = new();
+
+                foreach (var customer in allCustomerAtAddress)
+                {
+                    var existingCustomer = _customerRepository.GetOne(x => x.Id == customer.CustomerId);
+
+                    var customerDto = new CustomerDto()
+                    {
+                        FirstName = existingCustomer.FirstName,
+                        LastName = existingCustomer.LastName,
+                        EmailId = existingCustomer.EmailId,
+                        PhoneNumber = existingCustomer.PhoneNumber,
+                    };
+
+                    customerDtos.Add(customerDto);
+                }
+
+                return customerDtos;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+
     public IEnumerable<CustomerDto> GetAll()
     {
         try
@@ -81,21 +135,7 @@ public class CustomerService
             var allCustomers = _customerRepository.GetAll();
             if (allCustomers != null)
             {
-                List<CustomerDto> customerList = new();
-
-                foreach (var customer in allCustomers)
-                {
-                    CustomerDto customerDto = new()
-                    {
-                        FirstName = customer.FirstName,
-                        LastName = customer.LastName,
-                        EmailId = customer.EmailId,
-                        PhoneNumber = customer.PhoneNumber
-                    };
-
-                    customerList.Add(customerDto);
-                }
-
+                var customerList = CustomerFactory.Create(allCustomers);
                 return customerList;
             }
         }

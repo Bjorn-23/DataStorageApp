@@ -10,10 +10,10 @@ public class PriceListEntity
     public ProductEntity Product { get; set; } = null!;
 
     [Required]
-    [Column(TypeName = "decimal(8, 2)")]
+    [Column(TypeName = "money")]
     public decimal Price { get; set; }
 
-    [Column(TypeName = "decimal(8, 2)")]
+    [Column(TypeName = "money")]
     public decimal? DiscountPrice { get; set; }
 
     [Required]
