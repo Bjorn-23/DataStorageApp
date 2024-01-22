@@ -29,6 +29,8 @@ public interface IBaseRepository<TEntity, TContext> where TEntity : class where 
     /// <returns>True if Deleted, else false.</returns>
     bool Delete(Expression<Func<TEntity, bool>> predicate);
 
+    bool Delete(TEntity entity);
+
     /// <summary>
     /// Checks if something exists in database.
     /// </summary>
@@ -64,5 +66,5 @@ public interface IBaseRepository<TEntity, TContext> where TEntity : class where 
     /// </summary>
     /// <param name="entity">The updated TEntity details, the Id will be the same.</param>
     /// <returns>A TEntity</returns>
-    TEntity Update(TEntity entity);
+    TEntity Update(TEntity existingEntity, TEntity updatedEntity);
 }

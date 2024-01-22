@@ -12,6 +12,7 @@ public static class CustomerFactory
         {
             return new CustomerEntity
             {
+                Id = dto.Id,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 EmailId = dto.EmailId,
@@ -29,6 +30,7 @@ public static class CustomerFactory
         {
             return new CustomerDto
             {
+                Id = entity.Id,
                 FirstName = entity.FirstName,
                 LastName = entity.LastName,
                 EmailId = entity.EmailId,

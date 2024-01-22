@@ -10,7 +10,7 @@ public class Customer_AddressEntity
     public virtual AddressEntity Address { get; set; } = null!;
 
     [Required]
-    public Guid CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
     public virtual CustomerEntity Customer { get; set; } = null!;
 
 }

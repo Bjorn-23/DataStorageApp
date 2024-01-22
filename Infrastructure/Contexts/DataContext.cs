@@ -28,6 +28,10 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             .HasForeignKey(x => x.UserRoleName)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<UserEntity>()
+            .HasIndex(x => x.Email)
+            .IsUnique();
+
         //----------------------Users & UserRoles--------------------
 
         //---------------------Customers & Adresses------------------
@@ -35,9 +39,15 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         modelBuilder.Entity<CustomerEntity>()
             .HasOne(x => x.User)
             .WithOne()
-            .HasForeignKey<CustomerEntity>(x => x.EmailId)
+            .HasForeignKey<CustomerEntity>(x => x.Id)
             .OnDelete(DeleteBehavior.Cascade);
-          
+
+        //modelBuilder.Entity<CustomerEntity>()
+        //    .HasOne(x => x.User)
+        //    .WithOne()
+        //    .HasForeignKey<CustomerEntity>(x => x.EmailId)
+        //    .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<AddressEntity>()
             .HasKey(x => x.Id);
 

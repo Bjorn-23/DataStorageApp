@@ -6,8 +6,9 @@ namespace Infrastructure.Entities;
 public class CustomerEntity
 {
     [Key]
-    public Guid Id { get; set; } = Guid.NewGuid();
-    
+    public string Id { get; set; } = null!;
+    public UserEntity User { get; set; } = null!;
+
     [Required]
     [StringLength(50)]
     public string FirstName { get; set; } = null!;
@@ -20,7 +21,6 @@ public class CustomerEntity
     [StringLength(200)]
     [Column(TypeName = "varchar")]
     public string EmailId { get; set; } = null!;
-    public UserEntity User { get; set; } = null!;
 
     [StringLength(16)]
     [Column(TypeName = "varchar")]

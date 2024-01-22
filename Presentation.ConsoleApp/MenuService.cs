@@ -1,5 +1,6 @@
 ﻿using Business.Dtos;
 using Business.Services;
+using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -32,14 +33,15 @@ internal class MenuService
         while (loop)
         {
             Console.Clear();
-            Console.WriteLine("------------------------------------");
-            Console.WriteLine("----------Choose-an-option----------");
+            Console.WriteLine($"{"",-5}Main Menu - Choose an option");
+            string hyphens = new string('-', $"{"", -5 }Main Menu - Choose an option".Length);
+            Console.WriteLine(hyphens);
             Console.WriteLine($"{"\n1.",-5} User Menu");
             Console.WriteLine($"{"\n2.",-5} Customer Menu");
             Console.WriteLine($"{"\n3.",-5} Address Menu");
             Console.WriteLine($"{"\n4.",-5} Create a new customer address");
             Console.WriteLine($"{"\n0.",-5} Exit application");
-            Console.Write("\nOption: ");
+            Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
 
             switch (option)
@@ -74,14 +76,7 @@ internal class MenuService
 
         while (userLoop)
         {
-            Console.Clear();
-            Console.WriteLine("--------------User-Menu-------------");
-            Console.WriteLine("----------Choose-an-option----------");
-            Console.WriteLine($"{"\n1.",-5} Create a new user");
-            //Console.WriteLine($"{"\n2.",-5} Show user details");
-            //Console.WriteLine($"{"\n3.",-5} Show all users");
-            Console.WriteLine($"{"\n0.",-5} Go back");
-            Console.Write("\nOption: ");
+            MenuTemplate("User", "Users");
             var option = Console.ReadLine();
 
             switch (option)
@@ -101,45 +96,45 @@ internal class MenuService
                 default:
                     break;
             }
-        }
-    }
 
-    bool ShowCreateUserMenu()
-    {
-        UserDto user = new();
-
-        Console.Clear();
-        Console.WriteLine("---------------------------------------------------");
-        Console.WriteLine("------------Type-in-details-of-new-user------------");
-
-        Console.Write("\nEmail: ");
-        user.Email = Console.ReadLine()!;
-
-        Console.Write("\nPassword: ");
-        var password = Console.ReadLine()!;
-
-        Console.Write("\nRole: ");
-        user.UserRoleName = Console.ReadLine()!;
-
-        var result = _userService.CreateUser(user, password);
-
-        if (result != null)
-        {
-            Console.WriteLine($"\nUser: {user.Email} was created\n");
-            Console.Write($"Do you want to create a new Customer associated with {user.Email}? ");
-            var answer = Console.ReadLine()!;
-
-            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+            void ShowCreateUserMenu()
             {
-                ShowCreateCustomerMenu(result);
+                UserDto user = new();
+
+                Console.Clear();
+                Console.WriteLine("---------------------------------------------------");
+                Console.WriteLine("------------Type-in-details-of-new-user------------");
+
+                Console.Write("\nEmail: ");
+                user.Email = Console.ReadLine()!;
+
+                Console.Write("\nPassword: ");
+                var password = Console.ReadLine()!;
+
+                Console.Write("\nRole: ");
+                user.UserRoleName = Console.ReadLine()!;
+
+                var result = _userService.CreateUser(user, password);
+
+                if (result != null)
+                {
+                    Console.WriteLine($"\nUser: {user.Email} was created\n");
+                    Console.Write($"Do you want to create a new Customer associated with {user.Email}? ");
+                    var answer = Console.ReadLine()!;
+
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        ShowCreateCustomerMenu(result);
+                    }
+                }
+                else
+                    Console.Write($"User: {user.Email} was not created and/or is already in use.\nPlease try again");
+                Continue();
             }
         }
-        else
-            Console.Write($"User: {user.Email} was not created and/or is already in use.\nPlease try again");
-        Continue();
-
-        return true;
     }
+
+   
   
 
     // Customers Start
@@ -149,15 +144,7 @@ internal class MenuService
         bool customerLoop = true;
         while (customerLoop)
         {
-
-            Console.Clear();
-            Console.WriteLine("------------Customer-Menu-----------");
-            Console.WriteLine("----------Choose-an-option----------");
-            Console.WriteLine($"{"\n1.",-5} Create a new customer");
-            Console.WriteLine($"{"\n2.",-5} Show customer details");
-            Console.WriteLine($"{"\n3.",-5} Show all customers");
-            Console.WriteLine($"{"\n0.",-5} Go back");
-            Console.Write("\nOption: ");
+            MenuTemplate("Customer", "Customers");
             var option = Console.ReadLine();
 
             switch (option)
@@ -174,6 +161,12 @@ internal class MenuService
                 case "3":
                     ShowAllCustomers();
                     break;
+                case "4":
+                    ShowUpdateCustomer();
+                    break;
+                case "5":
+                    ShowDeleteCustomer();
+                    break;
                 case "0":
                     customerLoop = false;
                     break;
@@ -181,16 +174,13 @@ internal class MenuService
                     break;
             }
         }
-
     }
 
-    bool ShowCreateCustomerMenu(UserDto user)
+    void ShowCreateCustomerMenu(UserDto user)
     {
         CustomerDto customer = new();
-
-        Console.Clear();
-        Console.WriteLine("---------------------------------------------------");
-        Console.WriteLine("----------Type-in-details-of-new-customer----------");
+          
+        SubMenuTemplate("Type in details of new customer");
 
         customer.EmailId = user.Email;
         Console.Write("\nFirst name: ");
@@ -222,7 +212,7 @@ internal class MenuService
                     var result = _customer_addressService.CreateCustomer_Addresses(newCustomer, address);
 
                     if (result)
-                        Console.WriteLine("\nCustomer address created.");
+                        Console.WriteLine("\nAddress and Customer-address created.");
                     else
                         Console.WriteLine("\nCustomer address could not be created or already exists.");
                 }
@@ -234,17 +224,13 @@ internal class MenuService
         }
 
         Continue();
-        return true;
     }
 
     void ShowCustomerDetails()
     {
-        Console.Clear();
-        Console.WriteLine("---------------------------------------------------");
-        Console.WriteLine("----------------Get-customer-details---------------");
-
         CustomerDto customer = new();
 
+        SubMenuTemplate("Get customer details");
 
         Console.Write("\nPlease enter email of customer: ");
         customer.EmailId = Console.ReadLine()!;
@@ -283,22 +269,115 @@ internal class MenuService
 
     void ShowAllCustomers()
     {
-        Console.Clear();
-        Console.WriteLine("---------------------------------------------------");
-        Console.WriteLine("--------------------All-Customers------------------");
+        SubMenuTemplate("All current customers");
 
-        //List<CustomerDto> allCustomers
         var allCustomers = _customerService.GetAll();
-
-
-        var i = 1;
-        foreach (var customer in allCustomers)
+        if (allCustomers.Count() >= 1) 
         {
-            Console.WriteLine($"\n{i++}{".",-4}First name: {customer.FirstName}\n{"",-5}Last name: {customer.LastName}\n{"",-5}Email: {customer.EmailId}\n{"",-5}Phone number: {customer.PhoneNumber}\n");
+            var i = 1;
+            foreach (var customer in allCustomers)
+            {
+                Console.WriteLine($"\n{i++}{".",-4}First name: {customer.FirstName}\n{"",-5}Last name: {customer.LastName}\n{"",-5}Email: {customer.EmailId}\n{"",-5}Phone number: {customer.PhoneNumber}\n");
+            }
         }
+        else
+            Console.WriteLine("There are currently no customers to display.");
+
         Continue();
     }
 
+    void ShowUpdateCustomer()
+    {
+        CustomerDto customer = new();
+
+        SubMenuTemplate("Update customer - Please choose an option");
+
+        Console.WriteLine("\n1. (Update by email).");
+        Console.WriteLine("\n2. (Update by ID).");
+        Console.WriteLine("\n3. (Update by Phone number).");
+
+        Console.Write("Option: ");
+        var answer = Console.ReadLine()!;
+
+        var updateChoice = OptionsSwitch(answer);
+
+        var customerToUpdate = _customerService.GetOneCustomer(updateChoice);
+
+        Console.WriteLine($"\n{customerToUpdate.Id}\n{customerToUpdate.FirstName} {customerToUpdate.LastName}\n{customerToUpdate.EmailId}\n{customerToUpdate.PhoneNumber}\n");
+        Console.Write("Is this the customer you wish to update? ");
+        var customerAnswer = Console.ReadLine()!;
+        if (customerAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+        {           
+            Console.Write("\n\nFirst name: ");
+            customer.FirstName = Console.ReadLine()!;
+            Console.Write("\nLast name: ");
+            customer.LastName = Console.ReadLine()!;
+            Console.Write("\nEmail: ");
+            customer.EmailId = Console.ReadLine()!;
+            Console.Write("\nPhone number: ");
+            customer.PhoneNumber = Console.ReadLine()!;
+
+            Console.WriteLine($"\n{customer.FirstName} {customer.LastName}\n{customer.EmailId}\n{customer.PhoneNumber}\n");
+            Console.WriteLine("\nDo you want to update customer with these details?\n(This will also update User with new email and requires your user password.)");
+            Console.Write("Continue with update? ");
+            var updateAnswer = Console.ReadLine()!;
+            if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+            {
+                UserDto existingUser = new()
+                {
+                    Email = customerToUpdate.EmailId
+                };
+
+                Console.Write("Password ");
+                var password = Console.ReadLine()!; 
+                var userResult = _userService.UpdateUser(existingUser, customer, password);
+
+                if (userResult)
+                {
+                    Console.WriteLine("User updated succesfully");
+                    var customerResult = _customerService.UpdateCustomer(customerToUpdate, customer);
+                    if (customerResult != null)
+                    {
+                        Console.WriteLine("Customer updated succesfully");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Customer failed to update");
+
+                    }
+                }
+                else
+                    Console.WriteLine("User failed to update");
+                Continue();
+            }
+        }
+    }
+
+    void ShowDeleteCustomer()
+    {
+        SubMenuTemplate("Delete customer - Please choose an option");
+
+        CustomerDto customer = new();
+
+        Console.WriteLine("\nPlease choose an option.");
+        Console.WriteLine("\n1. (Delete by email).");
+        Console.WriteLine("\n2. (Delete by ID).");
+        Console.WriteLine("\n3. (Delete by Phone number).");
+
+        Console.Write("Option: ");
+        var answer = Console.ReadLine()!;
+        customer = OptionsSwitch(answer);
+
+        var result = _customerService.DeleteCustomer(customer, answer);
+        if (result)
+        {
+            Console.WriteLine($"Id: {customer.Id}\n {customer.FirstName} {customer.LastName}\nEmail: {customer.EmailId}\nPhone Number: {customer.PhoneNumber}Has been deleted.");
+        }
+        else
+            Console.WriteLine($"Customer could not be deleted");
+
+        Continue();
+    }
 
 
     // Addresses Start
@@ -309,14 +388,7 @@ internal class MenuService
 
         while (addressloop)
         {
-            Console.Clear();
-            Console.WriteLine("-------------Address-Menu-----------");
-            Console.WriteLine("----------Choose-an-option----------");
-            Console.WriteLine($"{"\n1.",-5} Create a new address");
-            Console.WriteLine($"{"\n2.",-5} Show address details");
-            Console.WriteLine($"{"\n3.",-5} Show all addresses");
-            Console.WriteLine($"{"\n0.",-5} Go back");
-            Console.Write("\nOption: ");
+            MenuTemplate("Adress", "Adresses");
             var option = Console.ReadLine();
 
             switch (option)
@@ -343,9 +415,8 @@ internal class MenuService
     {
         AddressDto address = new();
 
-        Console.Clear();
-        Console.WriteLine("---------------------------------------------------");
-        Console.WriteLine("----------Type-in-details-of-new-address----------");
+        SubMenuTemplate("Type in details of new address");
+
         Console.Write("\nStreet name: ");
         address.StreetName = Console.ReadLine()!;
         Console.Write("\nPostal code: ");
@@ -371,7 +442,7 @@ internal class MenuService
             }
         }
         else
-            Console.WriteLine("Adderss could not be created, please try again.");
+            Console.WriteLine("Address could not be created, please try again.");
         Continue();
         ShowAddressOptionsMenu();
         return null!;
@@ -379,13 +450,9 @@ internal class MenuService
 
     void ShowAddressDetails()
     {
-        Console.Clear();
-        Console.WriteLine("---------------------------------------------------");
-        Console.WriteLine("----------------Get-Address-details---------------");
-
         AddressDto address = new();
 
-
+        SubMenuTemplate("Get address details");
         Console.Write("\nPlease enter Street name and postal code of Address: \n");
 
         Console.Write("Street name: ");
@@ -425,11 +492,8 @@ internal class MenuService
 
     void ShowAllAddresses()
     {
-        Console.Clear();
-        Console.WriteLine("---------------------------------------------------");
-        Console.WriteLine("--------------------All-Addresses------------------");
+        SubMenuTemplate("All current addresses");
 
-        //List<CustomerDto> allCustomers
         var allAddresses = _addressService.GetAll();
 
         var i = 1;
@@ -438,7 +502,6 @@ internal class MenuService
             Console.WriteLine($"\n{i++}{".",-4}{address.StreetName}\n{"",-5}{address.PostalCode}\n{"",-5}{address.City}\n{"",-5}{address.Country}");
         }
         Continue();
-        ShowAddressOptionsMenu();
     }
 
 
@@ -477,5 +540,52 @@ internal class MenuService
     {
         Console.WriteLine("\nPress any key to continue.");
         Console.ReadKey();
+    }
+
+    void MenuTemplate(string singularDto, string pluralDto)
+    {
+        Console.Clear();
+        Console.WriteLine($"{"", -5}{singularDto} Menu - Choose an option");
+        string hyphens = new string('-', $"{"",5}{singularDto} Menu - Choose an option".Length);
+        Console.WriteLine(hyphens);
+        Console.WriteLine($"{"\n1.",-5} Create a new {singularDto}");
+        Console.WriteLine($"{"\n2.",-5} Show {singularDto} details");
+        Console.WriteLine($"{"\n3.",-5} Show all {pluralDto}");
+        Console.WriteLine($"{"\n4.",-5} Update {singularDto}");
+        Console.WriteLine($"{"\n5.",-5} Delete {singularDto}");
+        Console.WriteLine($"{"\n0.",-5} Go back");
+        Console.Write($"\n\n{"", -5}Option: ");
+    }
+
+    void SubMenuTemplate(string menuName)
+    {
+        Console.Clear();
+        Console.WriteLine($"{"",-5}{menuName}");
+        string hyphens = new string('-', $"{"",5}{menuName}".Length);
+        Console.WriteLine(hyphens);
+    }
+
+    CustomerDto OptionsSwitch(string answer)
+    {
+        CustomerDto customer = new CustomerDto();
+
+        switch (answer)
+        {
+            case "1":
+                Console.Write("\nPlease enter email of customer to delete: ");
+                customer.EmailId = Console.ReadLine()!;
+                break;
+            case "2":
+                Console.Write("\nPlease enter Id of customer to delete: ");
+                customer.Id = Console.ReadLine()!;
+                break;
+            case "3":
+                Console.Write("\nPlease enter Phone number of customer to delete: ");
+                customer.PhoneNumber = Console.ReadLine()!;
+                break;
+            default:
+                break;
+        }
+        return customer;
     }
 }

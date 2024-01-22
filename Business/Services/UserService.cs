@@ -3,6 +3,7 @@ using Business.Factories;
 using Business.Utils;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Diagnostics;
 
 namespace Business.Services;
@@ -23,7 +24,7 @@ public class UserService
         try
         {
             var userRoleEntity = UserRoleFactory.Create(user);
-            var userRole = _roleRepository.GetOne(x => x.RoleName == userRoleEntity.RoleName);
+            UserRoleEntity userRole = _roleRepository.GetOne(x => x.RoleName == userRoleEntity.RoleName);
 
             if (userRole == null)
                 userRole = _roleRepository.Create(userRoleEntity);           
@@ -31,10 +32,13 @@ public class UserService
             var userExists = _userRepository.GetOne(x => x.Email == user.Email);
             if (userExists == null)
             {
+                var result = PasswordGenerator.GenerateSecurePasswordAndKey(password);
+                                
                 UserEntity userEntity = new()
                 {
                     Email = user.Email,
-                    Password = PasswordGenerator.GenerateSecurePassword(password),
+                    Password = result.password,
+                    SecurityKey = result.securitykey,
                     UserRoleName = userRole.RoleName
                 };
 
@@ -50,6 +54,33 @@ public class UserService
         } catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
+    }
+
+    public bool UpdateUser(UserDto user, CustomerDto newUserDetails, string password)
+    {
+        try
+        {
+            var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
+            var result = PasswordGenerator.VerifyPassword(password, existingUser.SecurityKey, existingUser.Password);
+
+            if (result)
+            {
+                UserEntity updatedUserDetails = new()
+                {
+                    Id = existingUser.Id,
+                    Email = newUserDetails.EmailId,
+                    Password = existingUser.Password,
+                    SecurityKey = existingUser.SecurityKey,
+                    UserRoleName = existingUser.UserRoleName
+                };
+                _userRepository.Update(existingUser, updatedUserDetails);
+
+                return true;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return false;
     }
 
     public UserEntity GetOne(CustomerEntity entity)

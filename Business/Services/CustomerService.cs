@@ -3,6 +3,7 @@ using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 
 namespace Business.Services;
 
@@ -25,9 +26,10 @@ public class CustomerService
     {
         try
         {
-            var userExists = _userRepository.Exists(x => x.Email == customer.EmailId);
-            if (userExists)
+            var existingUser = _userRepository.GetOne(x => x.Email == customer.EmailId);
+            if (existingUser != null)
             {
+                customer.Id = existingUser.Id;
                 var entity = CustomerFactory.Create(customer);
                 
                 var result = _customerRepository.Create(entity);
@@ -107,7 +109,59 @@ public class CustomerService
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
+        return new List<CustomerDto>();
+    }
+
+    public CustomerDto UpdateCustomer(CustomerEntity existingCustomer, CustomerDto newDetails)
+    {
+        try
+        {
+            var newEntity = CustomerFactory.Create(newDetails);
+
+            
+            var result = _customerRepository.Update(x => x.EmailId == existingCustomer.EmailId, newEntity);
+            if (result != null)
+            {
+               var customer = CustomerFactory.Create(result);
+                return customer;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
         return null!;
+    }
+
+    public bool DeleteCustomer(CustomerDto customer, string option)
+    {
+        try
+        {
+            CustomerEntity entity = new();
+
+            switch (option)
+            {
+                case "1":
+                    entity = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+                    break;
+                case "2":
+                    entity = _customerRepository.GetOne(x => x.Id == customer.Id);
+                    break;
+                case "3":
+                    entity = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
+                    break;
+            }
+            
+            if (entity != null)
+            {
+                var result =_customerRepository.Delete(entity);
+                if (result)
+                    return true;
+            }
+
+
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return false;
     }
 
     
@@ -146,5 +200,35 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         
         return null!;
+    }
+
+    public CustomerDto GetOneCustomer(CustomerDto customer, string option)
+    {
+        try
+        {
+            CustomerEntity existingCustomer = new();
+
+            switch (option)
+            {
+                case "1":
+                    existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+                    break;
+                case "2":
+                    existingCustomer = _customerRepository.GetOne(x => x.Id == customer.Id);
+                    break;
+                case "3":
+                    existingCustomer = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
+                    break;
+            }
+
+            if (existingCustomer != null)
+            {
+                var customerDto = CustomerFactory.Create(existingCustomer); 
+                return customerDto;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!; ;
     }
 }

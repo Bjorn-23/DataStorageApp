@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System;
 using System.Linq.Expressions;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Repositories;
 
 
-// this works//public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity, TContext> where TEntity : class where TContext : DbContext
 public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity, TContext> where TEntity : class where TContext : DbContext
 {
     private readonly TContext _context;
@@ -76,18 +74,13 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
         return null!;
     }
 
-    public virtual TEntity Update(TEntity entity)
+    public virtual TEntity Update(TEntity existingEntity, TEntity updatedEntity)
     {
         try
         {
-            var entityToUpdate = _context.Set<TEntity>().Find(entity);
-            if (entityToUpdate != null)
-            {
-                entityToUpdate = entity;
+                _context.Entry(existingEntity).CurrentValues.SetValues(updatedEntity);
                 _context.SaveChanges();
-
-                return entityToUpdate;
-            }
+                return updatedEntity;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -95,25 +88,6 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
     }
 
     public virtual TEntity Update(Expression<Func<TEntity, bool>> predicate, TEntity entity)
-    {
-        try
-        {
-            var entityToUpdate = _context.Set<TEntity>().Where(predicate).FirstOrDefault();
-            if (entityToUpdate != null)
-            {
-                entityToUpdate = entity;
-                _context.Set<TEntity>().Update(entityToUpdate);
-                _context.SaveChanges();
-                var updatedEntity = entityToUpdate;
-                return updatedEntity;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-        return null!;
-    }
-
-    //SUGGESTED BY CHATGPT AS UPDATE ALTERNATIVE
-    public virtual TEntity UpdateDeluxe(Expression<Func<TEntity, bool>> predicate, TEntity entity)
     {
         try
         {
@@ -133,15 +107,32 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
 
         return null!;
     }
-    //    public abstract TEntity UpdateAbstract(TEntity entity); //kan instansieras av en annan service
-
 
     public virtual bool Delete(Expression<Func<TEntity, bool>> predicate)
     {
         try
         {
-            var result = _context.Set<TEntity>().Any(predicate);
-            return result;
+            var entititesToDelete = _context.Set<TEntity>().Where(predicate).ToList();
+
+            if (entititesToDelete.Any())
+            {
+                _context.RemoveRange(entititesToDelete);
+                _context.SaveChanges();
+                return true;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return false;
+    }
+
+    public virtual bool Delete(TEntity entity)
+    {
+        try
+        {
+            _context.RemoveRange(entity);
+            _context.SaveChanges();
+            return true;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -159,5 +150,24 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
 
         return false;
     }
+
+    //CURRENTLY NOT USED
+    //public virtual TEntity Update(Expression<Func<TEntity, bool>> predicate, TEntity entity)
+    //{
+    //    try
+    //    {
+    //        var entityToUpdate = _context.Set<TEntity>().Where(predicate).FirstOrDefault();
+    //        if (entityToUpdate != null)
+    //        {
+    //            entityToUpdate = entity;
+    //            _context.Set<TEntity>().Update(entityToUpdate);
+    //            _context.SaveChanges();
+    //            var updatedEntity = entityToUpdate;
+    //            return updatedEntity;
+    //        }
+    //    }
+    //    catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+    //    return null!;
+    //}
 
 }

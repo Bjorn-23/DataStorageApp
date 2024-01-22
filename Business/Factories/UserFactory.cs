@@ -12,8 +12,10 @@ public static class UserFactory
         {
             return new UserEntity
             {
+                Id = dto.Id,
                 Email = dto.Email,
                 Password = dto.Password,
+                SecurityKey = dto.SecurityKey,
                 UserRoleName = dto.UserRoleName
             };
         }
@@ -28,8 +30,10 @@ public static class UserFactory
         {
             return new UserDto
             {
+                Id = entity.Id,
                 Email = entity.Email,
                 Password = entity.Password,
+                SecurityKey = entity.SecurityKey,
                 UserRoleName = entity.UserRoleName
             };
         }
