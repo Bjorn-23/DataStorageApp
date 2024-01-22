@@ -20,6 +20,20 @@ public static class UserRoleFactory
         return null!;
     }
 
+    public static UserRoleEntity Create(UserDto dto)
+    {
+        try
+        {
+            return new UserRoleEntity
+            {
+                RoleName = dto.UserRoleName,
+            };
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
     public static UserRoleDto Create(UserRoleEntity entity)
     {
         try

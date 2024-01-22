@@ -1,4 +1,6 @@
 ﻿using Business.Dtos;
+using Business.Factories;
+using Business.Utils;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
@@ -16,68 +18,53 @@ public class UserService
         _roleRepository = roleRepository;
     }
 
-    public UserDto CreateUser(UserDto user)
+    public UserDto CreateUser(UserDto user, string password)
     {
         try
         {
-            UserRoleEntity userRoleEntity = new()
-            {
-                RoleName = user.UserRoleName
-            };
-                
-            var roleExists = _roleRepository.Exists(x => x.RoleName == user.UserRoleName);
+            var userRoleEntity = UserRoleFactory.Create(user);
+            var userRole = _roleRepository.GetOne(x => x.RoleName == userRoleEntity.RoleName);
 
-            if (roleExists)
-            {
-                userRoleEntity = _roleRepository.GetOne(x => x.RoleName == user.UserRoleName);
-            }
-            else
-            {
-                userRoleEntity = _roleRepository.Create(userRoleEntity);
-            }
+            if (userRole == null)
+                userRole = _roleRepository.Create(userRoleEntity);           
 
-            var userExists = _userRepository.Exists(x => x.Email == user.Email);
-            if (!userExists)
+            var userExists = _userRepository.GetOne(x => x.Email == user.Email);
+            if (userExists == null)
             {
                 UserEntity userEntity = new()
                 {
                     Email = user.Email,
-                    Password = user.Password,
-                    UserRoleName = userRoleEntity.RoleName  
+                    Password = PasswordGenerator.GenerateSecurePassword(password),
+                    UserRoleName = userRole.RoleName
                 };
 
                 var newUserEntity = _userRepository.Create(userEntity);
                 if (newUserEntity != null)
                 {
-                    return user;
+                    return user = UserFactory.Create(newUserEntity);
                 }
             }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+            else
+                return user = UserFactory.Create(userExists);
+
+        } catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
 
-    public UserDto GetOneUserRole(CustomerEntity entity)
+    public UserEntity GetOne(CustomerEntity entity)
     {
         try
         {
             var result = _userRepository.GetOne(x => x.Email == entity.EmailId);
             if (result != null)
             {
-                UserDto user = new()
-                {
-                    UserRoleName = result.UserRoleName,
-                };
-
-                return user;
+                return result;
             }
-
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
-
     }
 }
 

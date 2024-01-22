@@ -117,12 +117,11 @@ internal class MenuService
 
         Console.Write("\nPassword: ");
         var password = Console.ReadLine()!;
-        user.Password = GenerateSecurePassword(password); // Change method to be better...
 
         Console.Write("\nRole: ");
         user.UserRoleName = Console.ReadLine()!;
 
-        var result = _userService.CreateUser(user);
+        var result = _userService.CreateUser(user, password);
 
         if (result != null)
         {
@@ -230,9 +229,9 @@ internal class MenuService
                 else
                     Console.WriteLine("\nYou can add a customer address from the Main menu.");
             }
+            else
+                Console.WriteLine("Customer could not be created.\nPlease ensure that a valid User email exists and no fields are empty, then try again.");
         }
-        else
-            Console.WriteLine("Customer could not be created.\nPlease ensure that no fields are empty and try again.");
 
         Continue();
         return true;
@@ -259,7 +258,9 @@ internal class MenuService
 
         if (customerDetails != null)
         {
-            Console.WriteLine($"\nFirst name: {customerDetails.FirstName}\nLast name: {customerDetails.LastName}\nEmail: {customerDetails.EmailId}\nPhone number: {customerDetails.PhoneNumber}\nRole: {customerDetails.UserRoleName}\n");
+            Console.WriteLine($"\nCustomer: {customerDetails.FirstName} {customerDetails.LastName}.");
+
+            Console.WriteLine($"\nId: {"",-10}{customerDetails.Id}\nFirst name: {"",-2}{customerDetails.FirstName}\nLast name: {"",-3}{customerDetails.LastName}\nEmail: {"",-7}{customerDetails.EmailId}\nPhone number: {"",-0}{customerDetails.PhoneNumber}\nRole: {"",-8}{customerDetails.UserRoleName}\n");
 
             Console.WriteLine($"\nList of addresses associated with {customerDetails.FirstName} {customerDetails.LastName}:");
 
@@ -268,7 +269,7 @@ internal class MenuService
                 var i = 1;
                 foreach (var address in customerAddresses)
                 {
-                    Console.WriteLine($"\n{i++}{".",-4}{address.StreetName}\n{"",-5}{address.PostalCode}\n{"",-5}{address.City}\n{"",-5}{address.Country}");
+                    Console.WriteLine($"\n{i++}{".",-13}{address.StreetName}\n{"",-14}{address.PostalCode}\n{"",-14}{address.City}\n{"",-14}{address.Country}");
                 }
             }
             else
@@ -477,37 +478,4 @@ internal class MenuService
         Console.WriteLine("\nPress any key to continue.");
         Console.ReadKey();
     }
-
-    private static string GenerateSecurePassword(string input)
-    {
-        //Convert the string to bytes
-        byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-
-        //Use a secure random number generator
-        using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-        {
-            //Create a byte array to store the random bytes
-            byte[] randomBytes = new byte[32]; // Adjust the size based on your requirements
-
-            //Fill the byte array with random bytes
-            rng.GetBytes(randomBytes);
-
-            //Combine the original bytes with the random bytes
-            byte[] combinedBytes = new byte[inputBytes.Length + randomBytes.Length];
-            Buffer.BlockCopy(inputBytes, 0, combinedBytes, 0, inputBytes.Length);
-            Buffer.BlockCopy(randomBytes, 0, combinedBytes, inputBytes.Length, randomBytes.Length);
-
-            //Use a secure hash function(SHA - 256) to generate a fixed-size hash
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] hashedBytes = sha256.ComputeHash(combinedBytes);
-
-                //Encode the hashed bytes using Base64
-                string base64Password = Convert.ToBase64String(hashedBytes);
-
-                return base64Password;
-            }
-        }
-    }
-
 }

@@ -76,18 +76,18 @@ public static class CustomerFactory
         return null!;
     }
 
-    public static CustomerDetailsDto CreateCustomerDetails(CustomerEntity entity, UserDto uDto)
+    public static CustomerDetailsDto CreateCustomerDetails(CustomerEntity cEntity, UserEntity uEntity)
     {
         try
         {
             return new CustomerDetailsDto
             {
-                Id  = entity.Id,
-                FirstName = entity.FirstName,
-                LastName = entity.LastName,
-                EmailId = entity.EmailId,
-                PhoneNumber = entity.PhoneNumber,
-                UserRoleName = uDto.UserRoleName
+                Id  = cEntity.Id,
+                FirstName = cEntity.FirstName,
+                LastName = cEntity.LastName,
+                EmailId = cEntity.EmailId,
+                PhoneNumber = cEntity.PhoneNumber,
+                UserRoleName = uEntity.UserRoleName
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

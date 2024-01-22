@@ -2,72 +2,39 @@
 using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using Infrastructure.Repositories;
 using System.Diagnostics;
 
 namespace Business.Services;
 
 public class CustomerService
 {
-    private readonly ICustomerRepository _customerRepository;
     private readonly ICustomer_AddressRepository _customer_AddressRepository;
-    private readonly AddressService _addressService;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IUserRepository _userRepository;
     private readonly UserService _userService;
 
-    public CustomerService(ICustomerRepository customerRepository, AddressService addressService, UserService userService, ICustomer_AddressRepository customerAddressRepository)
+    public CustomerService(ICustomerRepository customerRepository, UserService userService, ICustomer_AddressRepository customerAddressRepository, IUserRepository userRepository)
     {
-        _customerRepository = customerRepository;
-        _addressService = addressService;
-        _userService = userService;
         _customer_AddressRepository = customerAddressRepository;
-    }
-
-    public bool CustomerExists(CustomerDto customer)
-    {
-        try
-        {
-            CustomerEntity entity = new()
-            {
-
-                EmailId = customer.EmailId
-            };
-            
-            var exists = _customerRepository.Exists(x => x.EmailId == entity.EmailId);
-            if (exists)
-            {
-                return true;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-        
-        return false;
+        _customerRepository = customerRepository;
+        _userRepository = userRepository;
+        _userService = userService;
     }
 
     public CustomerDto CreateCustomer(CustomerDto customer)
     {
         try
         {
-            var entity = CustomerFactory.Create(customer);
+            var userExists = _userRepository.Exists(x => x.Email == customer.EmailId);
+            if (userExists)
+            {
+                var entity = CustomerFactory.Create(customer);
                 
-            var result = _customerRepository.Create(entity);
-            if (result != null)
-            {
-                return customer;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-        
-        return null!;
-    }
-
-    public CustomerEntity GetOneCustomer(CustomerDto customer)
-    {
-        try
-        {
-            var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-            if (existingCustomer != null)
-            {
-                return existingCustomer;
+                var result = _customerRepository.Create(entity);
+                if (result != null)
+                {
+                    return customer;
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -82,7 +49,7 @@ public class CustomerService
             var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
             if (existingCustomer != null)
             {
-                var userRole = _userService.GetOneUserRole(existingCustomer);
+                var userRole = _userService.GetOne(existingCustomer);
 
                 var customerDetails = CustomerFactory.CreateCustomerDetails(existingCustomer, userRole);
 
@@ -127,7 +94,6 @@ public class CustomerService
         return null!;
     }
 
-
     public IEnumerable<CustomerDto> GetAll()
     {
         try
@@ -143,11 +109,42 @@ public class CustomerService
 
         return null!;
     }
+
+    
+    //------- CURRENTLY NOT USED --------
+    public bool CustomerExists(CustomerDto customer)
+    {
+        try
+        {
+            CustomerEntity entity = new()
+            {
+
+                EmailId = customer.EmailId
+            };
+            
+            var exists = _customerRepository.Exists(x => x.EmailId == entity.EmailId);
+            if (exists)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        
+        return false;
+    }
+
+    public CustomerEntity GetOneCustomer(CustomerDto customer)
+    {
+        try
+        {
+            var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+            if (existingCustomer != null)
+            {
+                return existingCustomer;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        
+        return null!;
+    }
 }
-
-
-        //try
-        //{
-
-        //}
-        //catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
