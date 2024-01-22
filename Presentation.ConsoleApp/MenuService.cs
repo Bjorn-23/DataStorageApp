@@ -101,9 +101,7 @@ internal class MenuService
             {
                 UserDto user = new();
 
-                Console.Clear();
-                Console.WriteLine("---------------------------------------------------");
-                Console.WriteLine("------------Type-in-details-of-new-user------------");
+                SubMenuTemplate("Type in details of new user");
 
                 Console.Write("\nEmail: ");
                 user.Email = Console.ReadLine()!;
