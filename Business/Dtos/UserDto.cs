@@ -14,6 +14,10 @@ public class UserDto
 
     public string SecurityKey { get; set; } = null!;
 
+    public DateTime Created {  get; set; }
+
+    public bool isActive { get; set; }
+
     public string UserRoleName { get; set; } = null!;
 
 }

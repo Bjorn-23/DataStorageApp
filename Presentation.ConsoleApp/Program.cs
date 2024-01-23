@@ -29,6 +29,7 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<UserService>();
 
+    services.AddScoped<UserRegistrationService>();
 
 
     services.AddScoped<MenuService>();

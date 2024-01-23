@@ -19,7 +19,7 @@ public class UserService
         _roleRepository = roleRepository;
     }
 
-    public UserDto CreateUser(UserDto user, string password)
+    public UserDto CreateUser(UserDto user)
     {
         try
         {
@@ -31,14 +31,12 @@ public class UserService
 
             var userExists = _userRepository.GetOne(x => x.Email == user.Email);
             if (userExists == null)
-            {
-                var result = PasswordGenerator.GenerateSecurePasswordAndKey(password);
-                                
+            {                                
                 UserEntity userEntity = new()
                 {
                     Email = user.Email,
-                    Password = result.password,
-                    SecurityKey = result.securitykey,
+                    Password = user.Password,
+                    SecurityKey = user.SecurityKey,
                     UserRoleName = userRole.RoleName
                 };
 
@@ -97,11 +95,54 @@ public class UserService
 
         return null!;
     }
+
+    public UserEntity GetOne(UserDto dto)
+    {
+        try
+        {
+            var result = _userRepository.GetOne(x => x.Email == dto.Email);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public bool UserLogin(UserDto user)
+    {
+        try
+        {
+            var existingUser = GetOne(user);
+            if (existingUser != null)
+            {
+                var checkPassword = PasswordGenerator.VerifyPassword(user.Password, existingUser.SecurityKey, existingUser.Password);
+                if (checkPassword)
+                {
+                    UserEntity activeUser = new()
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        Password = user.Password,
+                        SecurityKey = user.SecurityKey,
+                        Created = user.Created,
+                        isActive = true,
+                        UserRoleName = user.UserRoleName    
+                    };
+
+                    var setIsActive = _userRepository.Update(existingUser, activeUser);
+                    if (setIsActive != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return false;
+    }
+
 }
-
-
-//try
-//{
-
-//}
-//catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

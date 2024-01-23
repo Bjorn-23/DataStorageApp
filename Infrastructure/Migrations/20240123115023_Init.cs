@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -47,6 +48,8 @@ namespace Infrastructure.Migrations
                     Email = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
                     Password = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
                     SecurityKey = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    isActive = table.Column<bool>(type: "bit", nullable: false),
                     UserRoleName = table.Column<string>(type: "nvarchar(50)", nullable: false)
                 },
                 constraints: table =>
