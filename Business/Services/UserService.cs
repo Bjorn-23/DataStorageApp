@@ -111,7 +111,7 @@ public class UserService
         return false;
     }
 
-    public UserDto LogoutUsers()
+    public UserDto LogoutUsers() //Inefficient in large databases, but works for now as a logout button that doesnt require user input.
     {
         try
         {
@@ -139,7 +139,7 @@ public class UserService
         {
             var existingUser = GetOne(user);
 
-            if (existingUser.isActive)
+            if (existingUser.isActive) // add || statement to if user role == "Admin" so an admin can change when logged in.
             {
 
                 UserEntity updatedUserDetails = new()
@@ -175,7 +175,7 @@ public class UserService
         try
         {
             var existingUser = GetOne(user);
-            if (existingUser != null)
+            if (existingUser.isActive) // add || statement to if user role == "Admin" so an admin can change when logged in.
             {
                 var result = _userRepository.Delete(existingUser);
                 if (result)
@@ -201,4 +201,17 @@ public class UserService
 
         return null!;
     }
+    
+    public UserEntity GetOne(CustomerEntity entity)
+    {
+        try
+        {
+            var result = _userRepository.GetOne(x => x.Email == entity.EmailId);
+            if (result != null)
+                return result;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }// Currently only used in customer service, change it so we can delete!
 }

@@ -272,9 +272,8 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 SubMenuTemplate("Delete Status");
                 if (deleteCheck != null)
                 {
-                    Console.WriteLine($"\nIs this the user you wish to delete?");
-                    Console.WriteLine($"\nId:{"",-12}{deleteCheck.Id}\nEmail:{"",-9}{deleteCheck.Email}\n{"",-15}\nRole: {"", -9}{deleteCheck.UserRoleName}");
-
+                    Console.WriteLine($"\nId:{"",-12}{deleteCheck.Id}\nEmail:{"",-9}{deleteCheck.Email}\nRole: {"", -9}{deleteCheck.UserRoleName}");
+                    Console.Write($"\nIs this the user you wish to delete?\n(Y)es / (N)o: ");
                     var answer = Console.ReadLine()!;
                     if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
@@ -282,7 +281,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         SubMenuTemplate("Delete status");
                         if (result != null)
                         {
-                            Console.WriteLine($"\nId:{"",-12}{result.Id}\nEmail:{"",-9}{result.Email}\n{"",-15}Was deleted!");
+                            Console.WriteLine($"\nUser with email: {result.Email} Was deleted!");
                         }
                         else
                         {
