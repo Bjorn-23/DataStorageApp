@@ -30,6 +30,7 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
     services.AddScoped<UserService>();
 
     services.AddScoped<UserRegistrationService>();
+    services.AddScoped<UserRoleService>();
 
 
     services.AddScoped<MenuService>();
@@ -39,8 +40,13 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 
 try
 {
-
     builder.Start();
+
+    AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+    {
+        var userService = builder.Services.GetRequiredService<UserService>();
+        userService.LogoutUsers();
+    };
 
     var menuService = builder.Services.GetRequiredService<MenuService>();
 

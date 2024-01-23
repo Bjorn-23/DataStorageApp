@@ -19,7 +19,6 @@ internal class MenuService(CustomerService customerService, AddressService addre
     private readonly UserRegistrationService _userRegistrationService = userRegistrationService;
 
 
-
     // Main Menu Start
     //-----------------
     internal void MenuStart()
@@ -75,11 +74,11 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.WriteLine($"{"",-5}User menu - Choose an option");
             string hyphens = new string('-', $"{"",5}User menu - Choose an option".Length);
             Console.WriteLine(hyphens);
-            Console.WriteLine($"{"\n1.",-5} Login User");
-            Console.WriteLine($"{"\n2.",-5} Register new User");
-            Console.WriteLine($"{"\n3.",-5} Update User");
-            Console.WriteLine($"{"\n4.",-5} Show User");
-            Console.WriteLine($"{"\n5.",-5} Delete User");
+            Console.WriteLine($"{"\n1.",-5} Register new User");
+            Console.WriteLine($"{"\n2.",-5} Login User");
+            Console.WriteLine($"{"\n3.",-5} Logout User");
+            Console.WriteLine($"{"\n4.",-5} Update User (requires user to be logged in)");
+            Console.WriteLine($"{"\n5.",-5} Delete User (requires user to be logged in)");
             Console.WriteLine($"{"\n0.",-5} Go back");
             Console.Write($"\n\n{"",-5}Option: ");
 
@@ -88,16 +87,16 @@ internal class MenuService(CustomerService customerService, AddressService addre
             switch (option)
             {
                 case "1":
-                    UserLoginMenu();
-                    break;
-                case "2":
                     UserCreateMenu();
                     break;
+                case "2":
+                    UserLoginMenu();
+                    break;
                 case "3":
-                    UserUpdateMenu();
+                    UserLogoutMenu();
                     break;
                 case "4":
-                    UserDisplayMenu();
+                    UserUpdateMenu();
                     break;
                 case "5":
                     UserDeleteMenu();
@@ -107,37 +106,6 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     break;
                 default:
                     break;
-            }
-
-
-            void UserLoginMenu()
-            {
-                UserDto user = new();
-
-                SubMenuTemplate("Login user");
-
-                Console.Write("Email: ");
-                user.Email = Console.ReadLine()!;
-
-                Console.Write("Password: ");
-                user.Password = Console.ReadLine()!;
-
-                if (user.Email.IsNullOrEmpty() || user.Password.IsNullOrEmpty())
-                {
-                    Console.WriteLine("Please make sure no fields are blank and try again");
-                }
-                else
-                {
-                    var result = _userService.UserLogin(user);
-                    if (result)
-                    {
-                        Console.WriteLine($"{user.Email} was succesfully logged in.");
-                    }
-                    else
-                        Console.WriteLine("Login attempt failed - password or email not recognized.");
-                }
-
-                PressKeyAndContinue();
             }
 
             void UserCreateMenu()
@@ -176,9 +144,8 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.Write("Password: ");
                 user.Password = Console.ReadLine()!;
 
-                Console.WriteLine("Please make a note of your password for future reference.");
-
-                Console.WriteLine($"Do you wish to create a User with the following information:");
+                SubMenuTemplate("Create user Status");
+                Console.WriteLine($"\nDo you wish to create a User with the following information:");
 
                 Console.WriteLine($"\nFirst name: {"",-2}{user.FirstName}\nLast name: {"",-3}{user.LastName}\nEmail: {"",-7}{user.Email}\nPhone number: {"",-0}{user.PhoneNumber}\nRole: {"",-8}{user.UserRoleName}\n");
                 Console.WriteLine($"\n{"",-15}{user.StreetName}\n{"",-14}{user.PostalCode}\n{"",-14}{user.City}\n{"",-14}{user.Country}");
@@ -188,30 +155,148 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 if (customerAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                 {
                     var result = _userRegistrationService.CreateNewUser(user);
-                    if (result.Item1 != null && result.Item2 != null && result.Item3 != null)
+                    SubMenuTemplate("Create user Status");
+                    if (result.Item1 != null && result.Item2 != null)
                     {
-                        Console.WriteLine("\nUser, Customer and Address created - Please Login to access your account.");
+                        Console.WriteLine("\nUser, Customer and Address created succesfully.\nMake a note of your password for future reference.");
+                        Console.WriteLine("Please Login to access your account"); 
                     }
                     else
-                        Console.WriteLine("\nSomething went wrong, please make sure all fields are filled in and try again.");
+                    {  
+                        Console.WriteLine("\nSomething went wrong, user not created.\nPlease make sure no fields are empty and try again.");
+                    }
                 }
                 else
+                {
+                    SubMenuTemplate("Create user cancelled");
                     Console.WriteLine("\nUser was not created.");
+                }
+
+                PressKeyAndContinue();
+            }
+
+            void UserLoginMenu()
+            {
+                UserDto user = new();
+
+                SubMenuTemplate("Login user");
+
+                Console.Write("Email: ");
+                user.Email = Console.ReadLine()!;
+
+                Console.Write("Password: ");
+                user.Password = Console.ReadLine()!;
+
+                if (user.Email.IsNullOrEmpty() || user.Password.IsNullOrEmpty())
+                {
+                    SubMenuTemplate("Login error");
+                    Console.WriteLine("\nPlease make sure no fields are blank and try again");
+                }
+                else
+                {
+                    var result = _userService.UserLogin(user);
+                    SubMenuTemplate("Login status");
+                    if (result)
+                    {
+                        Console.WriteLine($"\n{user.Email} was succesfully logged in.");
+                    }
+                    else
+                        Console.WriteLine("\nLogin attempt failed - password or email not recognized.");
+                }
+
+                PressKeyAndContinue();
+            }
+
+            void UserLogoutMenu()
+            {
+                var result = _userService.LogoutUsers();
+                SubMenuTemplate("Logout status");
+                if (result != null)
+                {
+                    Console.WriteLine($"\n{result.Email} was succesfully logged out.");
+                }
+                else
+                    Console.WriteLine("\nLogout attempt failed - email not recognized / no users currently logged in.");
+
 
                 PressKeyAndContinue();
             }
 
             void UserUpdateMenu()
             {
+                UserDto existingUser = new();
+                UserDto newUserDetails = new();
+
+                SubMenuTemplate("Update user");
+
+                Console.WriteLine("\nType in email of the user to update.");
+                Console.Write("Email: ");
+                existingUser.Email = Console.ReadLine()!;
+
+                Console.WriteLine($"\nFill in details to update {existingUser.Email}.");
+
+                Console.Write("Email: ");
+                newUserDetails.Email = Console.ReadLine()!;
+
+                Console.Write("Password: ");
+                newUserDetails.Password = Console.ReadLine()!;
+
+                Console.Write("Role: ");
+                newUserDetails.UserRoleName = Console.ReadLine()!;
+
+                var result = _userService.UpdateUser(existingUser, newUserDetails);
+                SubMenuTemplate("Update status");
+                if (result != null)
+                {
+                    Console.WriteLine($"\nId:{"", -12}{result.Id}\n\n{"", -15}Was updated to:\n\nEmail:{"", -9}{result.Email}\n\nIf you made changes to your password please store it in a secure location.");
+                }
+                else
+                {
+                    Console.WriteLine($"\n{existingUser.Email} could not be updated!\nPlease make sure {existingUser.Email} is logged in and is a valid email.");
+                }
+
+                PressKeyAndContinue();
             }
-            void UserDisplayMenu()
-            {
-            }
+
             void UserDeleteMenu()
             {
+                UserDto existingUser = new();
 
+                SubMenuTemplate("Delete user");
+
+                Console.WriteLine("\nType in email of the user to delete.");
+                Console.Write("Email: ");
+                existingUser.Email = Console.ReadLine()!;
+                
+                var deleteCheck = _userService.GetOne(existingUser);
+                SubMenuTemplate("Delete Status");
+                if (deleteCheck != null)
+                {
+                    Console.WriteLine($"\nIs this the user you wish to delete?");
+                    Console.WriteLine($"\nId:{"",-12}{deleteCheck.Id}\nEmail:{"",-9}{deleteCheck.Email}\n{"",-15}\nRole: {"", -9}{deleteCheck.UserRoleName}");
+
+                    var answer = Console.ReadLine()!;
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        var result = _userService.DeleteUser(existingUser);
+                        SubMenuTemplate("Delete status");
+                        if (result != null)
+                        {
+                            Console.WriteLine($"\nId:{"",-12}{result.Id}\nEmail:{"",-9}{result.Email}\n{"",-15}Was deleted!");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"\n{existingUser.Email} could not be deleted!\nPlease make sure {existingUser.Email} is logged in and is a valid email.");
+                        }                        
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"No user with email: {existingUser.Email} was found.\nPlease try again with a valid email.");
+                }
+
+                PressKeyAndContinue();
             }
-
         }
     }
 
@@ -240,7 +325,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     ShowAllCustomers();
                     break;
                 case "4":
-                    ShowUpdateCustomer();
+                    //ShowUpdateCustomer();
                     break;
                 case "5":
                     ShowDeleteCustomer();
@@ -363,72 +448,72 @@ internal class MenuService(CustomerService customerService, AddressService addre
             PressKeyAndContinue();
         }
 
-        void ShowUpdateCustomer()
-        {
-            CustomerDto customer = new();
+        //void ShowUpdateCustomer()
+        //{
+        //    CustomerDto customer = new();
 
-            SubMenuTemplate("Update customer - Please choose an option");
+        //    SubMenuTemplate("Update customer - Please choose an option");
 
-            Console.WriteLine("\n1. (Update by email).");
-            Console.WriteLine("\n2. (Update by ID).");
-            Console.WriteLine("\n3. (Update by Phone number).");
+        //    Console.WriteLine("\n1. (Update by email).");
+        //    Console.WriteLine("\n2. (Update by ID).");
+        //    Console.WriteLine("\n3. (Update by Phone number).");
 
-            Console.Write("Option: ");
-            var answer = Console.ReadLine()!;
+        //    Console.Write("Option: ");
+        //    var answer = Console.ReadLine()!;
 
-            var updateChoice = OptionsSwitch(answer);
+        //    var updateChoice = OptionsSwitch(answer);
 
-            var customerToUpdate = _customerService.GetOneCustomer(updateChoice);
+        //    var customerToUpdate = _customerService.GetOneCustomer(updateChoice);
 
-            Console.WriteLine($"\n{customerToUpdate.Id}\n{customerToUpdate.FirstName} {customerToUpdate.LastName}\n{customerToUpdate.EmailId}\n{customerToUpdate.PhoneNumber}\n");
-            Console.Write("Is this the customer you wish to update? ");
-            var customerAnswer = Console.ReadLine()!;
-            if (customerAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
-            {
-                Console.Write("\n\nFirst name: ");
-                customer.FirstName = Console.ReadLine()!;
-                Console.Write("\nLast name: ");
-                customer.LastName = Console.ReadLine()!;
-                Console.Write("\nEmail: ");
-                customer.EmailId = Console.ReadLine()!;
-                Console.Write("\nPhone number: ");
-                customer.PhoneNumber = Console.ReadLine()!;
+        //    Console.WriteLine($"\n{customerToUpdate.Id}\n{customerToUpdate.FirstName} {customerToUpdate.LastName}\n{customerToUpdate.EmailId}\n{customerToUpdate.PhoneNumber}\n");
+        //    Console.Write("Is this the customer you wish to update? ");
+        //    var customerAnswer = Console.ReadLine()!;
+        //    if (customerAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+        //    {
+        //        Console.Write("\n\nFirst name: ");
+        //        customer.FirstName = Console.ReadLine()!;
+        //        Console.Write("\nLast name: ");
+        //        customer.LastName = Console.ReadLine()!;
+        //        Console.Write("\nEmail: ");
+        //        customer.EmailId = Console.ReadLine()!;
+        //        Console.Write("\nPhone number: ");
+        //        customer.PhoneNumber = Console.ReadLine()!;
 
-                Console.WriteLine($"\n{customer.FirstName} {customer.LastName}\n{customer.EmailId}\n{customer.PhoneNumber}\n");
-                Console.WriteLine("\nDo you want to update customer with these details?\n(This will also update User with new email and requires your user password.)");
-                Console.Write("Continue with update? ");
-                var updateAnswer = Console.ReadLine()!;
-                if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    UserDto existingUser = new()
-                    {
-                        Email = customerToUpdate.EmailId
-                    };
+        //        Console.WriteLine($"\n{customer.FirstName} {customer.LastName}\n{customer.EmailId}\n{customer.PhoneNumber}\n");
+        //        Console.WriteLine("\nDo you want to update customer with these details?\n(This will also update User with new email and requires your user password.)");
+        //        Console.Write("Continue with update? ");
+        //        var updateAnswer = Console.ReadLine()!;
+        //        if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+        //        {
+        //            UserDto existingUser = new()
+        //            {
+        //                Email = customerToUpdate.EmailId
+        //            };
 
-                    Console.Write("Password ");
-                    var password = Console.ReadLine()!;
-                    var userResult = _userService.UpdateUser(existingUser, customer, password);
+        //            Console.Write("Password ");
+        //            var password = Console.ReadLine()!;
+        //            var userResult = _userService.UpdateUser(existingUser, customer, password);
 
-                    if (userResult)
-                    {
-                        Console.WriteLine("User updated succesfully");
-                        var customerResult = _customerService.UpdateCustomer(customerToUpdate, customer);
-                        if (customerResult != null)
-                        {
-                            Console.WriteLine("Customer updated succesfully");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Customer failed to update");
+        //            if (userResult)
+        //            {
+        //                Console.WriteLine("User updated succesfully");
+        //                var customerResult = _customerService.UpdateCustomer(customerToUpdate, customer);
+        //                if (customerResult != null)
+        //                {
+        //                    Console.WriteLine("Customer updated succesfully");
+        //                }
+        //                else
+        //                {
+        //                    Console.WriteLine("Customer failed to update");
 
-                        }
-                    }
-                    else
-                        Console.WriteLine("User failed to update");
-                    PressKeyAndContinue();
-                }
-            }
-        }
+        //                }
+        //            }
+        //            else
+        //                Console.WriteLine("User failed to update");
+        //            PressKeyAndContinue();
+        //        }
+        //    }
+        //}
 
         void ShowDeleteCustomer()
         {

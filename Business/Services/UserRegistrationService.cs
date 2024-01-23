@@ -20,12 +20,12 @@ public class UserRegistrationService
         _customerAddressService = customerAddressService;
     }
 
-    public (UserDto, CustomerDto, AddressDto) CreateNewUser(UserRegistrationDto registration)
+    public (CustomerDto, AddressDto) CreateNewUser(UserRegistrationDto registration)
     {
-        bool noEmptyProps = AreAllPropertiesSet(registration);
-        if(noEmptyProps)
+        try
         {
-            try
+            bool noEmptyProps = PropCheck.CheckAllPropertiesAreSet(registration);
+            if (noEmptyProps)
             {
                 var securePassAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(registration.Password);
 
@@ -64,37 +64,17 @@ public class UserRegistrationService
                         {
                             var customer_AddressResult = _customerAddressService.CreateCustomer_Addresses(customerResult, addressResult);
                             if (customer_AddressResult)
-                                return (userDto, customerDto, addressDto);
+                                return (customerDto, addressDto);
                         }
                     }
                 }
                 else
-                    return (null!, null!, null!); // Need rollback feature here!
+                    return (null!, null!); // Need rollback feature here!
             }
-            catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-            return (null!, null!, null!);
-        }
-        return (null!, null!, null!);
-    }
-
-    private bool AreAllPropertiesSet(UserRegistrationDto registration)
-    {
-        try
-        {
-            // Get all properties of the object
-            var properties = registration.GetType().GetProperties();
-
-            // Check if all string properties have non-empty values
-            return properties.All(property =>
-            {
-                var value = (string)property.GetValue(registration, null)!;
-                return !string.IsNullOrEmpty(value);
-            });
-
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return false;
+        return (null!, null!);    
     }
+    
 }
