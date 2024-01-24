@@ -85,11 +85,11 @@ public static class CustomerFactory
             return new CustomerDetailsDto
             {
                 Id  = cEntity.Id,
+                EmailId = cEntity.EmailId,
+                UserRoleName = uEntity.UserRoleName,
                 FirstName = cEntity.FirstName,
                 LastName = cEntity.LastName,
-                EmailId = cEntity.EmailId,
                 PhoneNumber = cEntity.PhoneNumber,
-                UserRoleName = uEntity.UserRoleName
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

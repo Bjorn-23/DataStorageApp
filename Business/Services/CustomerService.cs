@@ -43,6 +43,52 @@ public class CustomerService
         return null!;
     }
 
+    public CustomerDto GetOneCustomer(CustomerDto customer)
+    {
+        try
+        {
+            var existingEntity = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+            if (existingEntity != null)
+            {
+                var existingCustomer = CustomerFactory.Create(existingEntity);
+                return existingCustomer;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public CustomerDto GetOneCustomer(CustomerDto customer, string option)
+    {
+        try
+        {
+            CustomerEntity existingCustomer = new();
+
+            switch (option)
+            {
+                case "1":
+                    existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+                    break;
+                case "2":
+                    existingCustomer = _customerRepository.GetOne(x => x.Id == customer.Id);
+                    break;
+                case "3":
+                    existingCustomer = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
+                    break;
+            }
+
+            if (existingCustomer != null)
+            {
+                var customerDto = CustomerFactory.Create(existingCustomer);
+                return customerDto;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!; ;
+    }
+
     public CustomerDetailsDto GetCustomerDetails(CustomerDto customer)
     {
         try
@@ -171,53 +217,8 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return false;
-    }
+    } // Currently undecided if I should let Users delete customer.
    
-    public CustomerDto GetOneCustomer(CustomerDto customer)
-    {
-        try
-        {
-            var existingEntity = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-            if (existingEntity != null)
-            {
-                var existingCustomer = CustomerFactory.Create(existingEntity);
-                return existingCustomer;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
-    public CustomerDto GetOneCustomer(CustomerDto customer, string option)
-    {
-        try
-        {
-            CustomerEntity existingCustomer = new();
-
-            switch (option)
-            {
-                case "1":
-                    existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-                    break;
-                case "2":
-                    existingCustomer = _customerRepository.GetOne(x => x.Id == customer.Id);
-                    break;
-                case "3":
-                    existingCustomer = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
-                    break;
-            }
-
-            if (existingCustomer != null)
-            {
-                var customerDto = CustomerFactory.Create(existingCustomer);
-                return customerDto;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!; ;
-    }
 
 
     //------- CURRENTLY NOT USED --------

@@ -118,17 +118,13 @@ public class UserService
     {
         try
         {
-            var userEntities = _userRepository.GetAll();
+            var userEntities = _userRepository.GetAllWithPredicate(x => x.isActive == true);
             var UserDtos = UserFactory.Create(userEntities);
 
             foreach (var user in UserDtos)
             {
-                if (user.isActive)
-                {
-                    var result = UserLogout(user);
-                    if (result)
-                        return user;               
-                }
+                var result = UserLogout(user);
+                return user;
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -140,12 +136,11 @@ public class UserService
     {
         try
         {
-            var userEntities = _userRepository.GetAll();
+            var userEntities = _userRepository.GetAllWithPredicate(x => x.isActive == true);
 
             foreach (var user in userEntities)
             {
-                if (user.isActive)
-                    return user;
+                return user;
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -252,7 +247,7 @@ public class UserService
         return null!;
     }
     
-    public UserEntity GetOne(CustomerEntity entity) // Currently only used in customer service, change it so we can delete!
+    public UserEntity GetOne(CustomerEntity entity) // Currently only used in customer service.
     {
         try
         {
@@ -264,4 +259,5 @@ public class UserService
 
         return null!;
     }
+
 }
