@@ -208,43 +208,43 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
             void UserLogoutMenu()
             {
-                UserDto user = new();
+                // //use when email is needed.
+                //UserDto user = new();
 
-                SubMenuTemplate("Login user");
+                // SubMenuTemplate("Logout user");
 
-                Console.Write("Email: ");
-                user.Email = Console.ReadLine()!;
+                // Console.Write("Email: ");
+                // user.Email = Console.ReadLine()!;
 
-                Console.Write("Password: ");
-                user.Password = Console.ReadLine()!;
+                // //Console.Write("Password: ");
+                // //user.Password = Console.ReadLine()!;
 
-                if (string.IsNullOrWhiteSpace(user.Email) || string.IsNullOrWhiteSpace(user.Password))
+                // if (string.IsNullOrWhiteSpace(user.Email))
+                // {
+                //     SubMenuTemplate("Logout error");
+                //     Console.WriteLine("\nPlease make sure no fields are blank and try again");
+                // }
+                // else
+                // {
+                //     var result = _userService.UserLogout(user);
+                //     if (result)
+                //     {
+                //         Console.WriteLine($"\n{user.Email} was succesfully logged out.");
+                //     }
+                //     else
+                //         Console.WriteLine("\nLogout attempt failed - email not recognized / no users currently logged in.");
+                // }
+
+                // Comment put If more than one user can be active at any time on a single machine
+                var result = _userService.LogoutUsers;
+                    SubMenuTemplate("Logout status");
+                if (result != null)
                 {
-                    SubMenuTemplate("Login error");
-                    Console.WriteLine("\nPlease make sure no fields are blank and try again");
+                    Console.WriteLine($"\nUser was succesfully logged out.");
                 }
                 else
-                {
-                    var result = _userService.UserLogout(user);
-                    SubMenuTemplate("Logout status");
-                    if (result)
-                    {
-                        Console.WriteLine($"\n{user.Email} was succesfully logged out.");
-                    }
-                    else
-                        Console.WriteLine("\nLogout attempt failed - email not recognized / no users currently logged in.");
-                }
-                // Remove comment If only one user can be active at any time on a single machine.
-                //var result = _userService.LogoutUsers();
-                //SubMenuTemplate("Logout status");
-                //if (result != null)
-                //{
-                //    Console.WriteLine($"\n{result.Email} was succesfully logged out.");
-                //}
-                //else
-                //    Console.WriteLine("\nLogout attempt failed - email not recognized / no users currently logged in.");
-
-
+                    Console.WriteLine("\nLogout attempt failed - email not recognized / no users currently logged in.");
+ 
                 PressKeyAndContinue();
             }
 

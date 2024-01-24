@@ -62,7 +62,7 @@ public class UserService
                 var checkPassword = PasswordGenerator.VerifyPassword(user.Password, existingUser.SecurityKey, existingUser.Password);
                 if (checkPassword)
                 {
-                    //LogoutUsers(); // Remove comment If only one user should be active at any time on a single machine.
+                    LogoutUsers(); // Remove comment If only one user should be active at any time on a single machine.
 
                     UserEntity activeUser = new()
                     {
@@ -93,7 +93,7 @@ public class UserService
             var existingUser = GetOne(user);
             if (existingUser != null)
             {
-                UserEntity inActiveUser = new()
+                UserEntity inactiveUser = new()
                 {
                     Id = existingUser.Id,
                     Email = existingUser.Email,
@@ -104,7 +104,7 @@ public class UserService
                     UserRoleName = existingUser.UserRoleName
                 };
 
-                var setIsActive = _userRepository.Update(existingUser, inActiveUser);
+                var setIsActive = _userRepository.Update(existingUser, inactiveUser);
                 if (setIsActive != null)
                     return true;
             }
@@ -136,13 +136,31 @@ public class UserService
         return null!;
     }
 
+    public UserEntity FindRoleOfActiveUser() //Inefficient in large databases, but works for now as a logout button that doesnt require user input.
+    {
+        try
+        {
+            var userEntities = _userRepository.GetAll();
+
+            foreach (var user in userEntities)
+            {
+                if (user.isActive)
+                    return user;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
     public UserDto UpdateUser(UserDto user, UserDto newUserDetails)
     {
         try
         {
             var existingUser = GetOne(user);
+            var checkRole = FindRoleOfActiveUser();
 
-            if (existingUser.isActive) // add || statement to if user role == "Admin" so an admin can change when logged in.
+            if (existingUser.isActive || checkRole.UserRoleName.ToString() == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
             {
 
                 UserEntity updatedUserDetails = new()
@@ -161,8 +179,7 @@ public class UserService
                 {
                     var newPasswordAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(updatedUserDetails.Password);
                     updatedUserDetails.Password = newPasswordAndKey.Password;
-                    updatedUserDetails.SecurityKey = newPasswordAndKey.SecurityKey;
-                                        
+                    updatedUserDetails.SecurityKey = newPasswordAndKey.SecurityKey;                                        
                 }
 
                 //Changes .EmailId in Customers table if a new email was submitted
@@ -204,7 +221,11 @@ public class UserService
         try
         {
             var existingUser = GetOne(user);
-            if (existingUser.isActive) // add || statement to if user role == "Admin" so an admin can change when logged in.
+            var checkRole = FindRoleOfActiveUser();
+
+            // Add extra check to see if user should be deleted?
+
+            if (existingUser.isActive || checkRole.UserRole.ToString() == "Admin")
             {
                 var result = _userRepository.Delete(existingUser);
                 if (result)

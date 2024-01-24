@@ -41,16 +41,17 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 try
 {
     builder.Start();
+   
+    var userService = builder.Services.GetRequiredService<UserService>();
+    userService.LogoutUsers();
+
+    var menuService = builder.Services.GetRequiredService<MenuService>();
+    menuService.MenuStart();
 
     AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
     {
-        var userService = builder.Services.GetRequiredService<UserService>();
         userService.LogoutUsers();
     };
-
-    var menuService = builder.Services.GetRequiredService<MenuService>();
-
-    menuService.MenuStart();
 }
 catch (Exception ex)
 {
