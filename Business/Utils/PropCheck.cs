@@ -16,7 +16,7 @@ public static class PropCheck
             return properties.All(property =>
             {
                 var value = (string)property.GetValue(registration, null)!;
-                return !string.IsNullOrEmpty(value);
+                return !string.IsNullOrWhiteSpace(value);
             });
 
         }

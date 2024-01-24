@@ -12,13 +12,16 @@ namespace Business.Services;
 public class UserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly ICustomerRepository _customerRepository;
     private readonly UserRoleService _userRoleService;
 
-    public UserService(IUserRepository userRepository, UserRoleService userRoleService)
+    public UserService(IUserRepository userRepository, UserRoleService userRoleService, ICustomerRepository customerRepository)
     {
         _userRepository = userRepository;
+        _customerRepository = customerRepository;
         _userRoleService = userRoleService;
     }
+
 
     public UserDto CreateUser(UserDto user)
     {
@@ -59,7 +62,7 @@ public class UserService
                 var checkPassword = PasswordGenerator.VerifyPassword(user.Password, existingUser.SecurityKey, existingUser.Password);
                 if (checkPassword)
                 {
-                    LogoutUsers();
+                    //LogoutUsers(); // Remove comment If only one user should be active at any time on a single machine.
 
                     UserEntity activeUser = new()
                     {
@@ -144,25 +147,51 @@ public class UserService
 
                 UserEntity updatedUserDetails = new()
                 {
-                Id = existingUser.Id,
-                Email = string.IsNullOrWhiteSpace(newUserDetails.Email) ? existingUser.Email : newUserDetails.Email,
-                Password = existingUser.Password,
-                SecurityKey = existingUser.SecurityKey,
-                Created = existingUser.Created,
-                isActive = existingUser.isActive,
-                UserRoleName = string.IsNullOrWhiteSpace(newUserDetails.UserRoleName) ? existingUser.UserRoleName : _userRoleService.GetOrCreateRole(newUserDetails).UserRoleName
+                    Id = existingUser.Id,
+                    Email = string.IsNullOrWhiteSpace(newUserDetails.Email) ? existingUser.Email : newUserDetails.Email,
+                    Password = existingUser.Password,
+                    SecurityKey = existingUser.SecurityKey,
+                    Created = existingUser.Created,
+                    isActive = existingUser.isActive,
+                    UserRoleName = string.IsNullOrWhiteSpace(newUserDetails.UserRoleName) ? existingUser.UserRoleName : _userRoleService.GetOrCreateRole(newUserDetails).UserRoleName
                 };
 
-                if (!string.IsNullOrWhiteSpace(newUserDetails.Password)) // If string has a value in it.
+                // Generates new .SecurityKey and .Password combination if a new password was submitted
+                if (!string.IsNullOrWhiteSpace(newUserDetails.Password))
                 {
                     var newPasswordAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(updatedUserDetails.Password);
                     updatedUserDetails.Password = newPasswordAndKey.Password;
                     updatedUserDetails.SecurityKey = newPasswordAndKey.SecurityKey;
+                                        
                 }
-                
-                var result = _userRepository.Update(existingUser, updatedUserDetails);
-                if (result != null)
-                    return UserFactory.Create(result);
+
+                //Changes .EmailId in Customers table if a new email was submitted
+                if (!string.IsNullOrWhiteSpace(newUserDetails.Email))
+                {
+                    var result = _userRepository.Update(existingUser, updatedUserDetails);
+                    if (result != null)
+                    {
+                        var existingCustomer = _customerRepository.GetOne(x => x.Id == result.Id);
+
+                        CustomerEntity newEmail = new()
+                        {
+                            Id = existingCustomer.Id,
+                            FirstName = existingCustomer.FirstName,
+                            LastName = existingCustomer.LastName,
+                            EmailId = result.Email,
+                            PhoneNumber = existingCustomer.PhoneNumber,
+                        };
+                        var updateCustomerEmail = _customerRepository.Update(x => x.Id == result.Id, newEmail);
+                        if (updateCustomerEmail != null)
+                            return UserFactory.Create(result);
+                    }
+                }
+                else
+                {
+                    var result = _userRepository.Update(existingUser, updatedUserDetails);
+                    if (result != null)
+                        return UserFactory.Create(result);
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -202,7 +231,7 @@ public class UserService
         return null!;
     }
     
-    public UserEntity GetOne(CustomerEntity entity)
+    public UserEntity GetOne(CustomerEntity entity) // Currently only used in customer service, change it so we can delete!
     {
         try
         {
@@ -213,5 +242,5 @@ public class UserService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
-    }// Currently only used in customer service, change it so we can delete!
+    }
 }

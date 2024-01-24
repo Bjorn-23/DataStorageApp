@@ -15,7 +15,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
     {
         try
         {
-            if (!user.UserRoleName.IsNullOrEmpty())
+            if (!string.IsNullOrWhiteSpace(user.UserRoleName)) // changed from is nullOrEmpty
             {
                 var userRoleEntity = UserRoleFactory.Create(user);
                 UserRoleEntity userRole = _userRoleRepository.GetOne(x => x.RoleName == userRoleEntity.RoleName);
@@ -47,7 +47,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
     {
         try
         {
-            if (!user.UserRoleName.IsNullOrEmpty())
+            if (!string.IsNullOrWhiteSpace(user.UserRoleName)) // changed from is nullOrEmpty
             {
                 var userRoleEntity = UserRoleFactory.Create(user);
                 UserRoleEntity userRole = _userRoleRepository.GetOne(x => x.RoleName == userRoleEntity.RoleName);
