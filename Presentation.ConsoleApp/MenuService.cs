@@ -438,7 +438,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     }                    
                 }
                 else
-                    Console.WriteLine("User failed to update");
+                    Console.WriteLine("Customer failed to update");
 
                 PressKeyAndContinue();
             }
@@ -501,6 +501,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     break;
                 case "3":
                     ShowAllAddresses();
+                    break;
+                case "4":
+                    ShowUpdateAddress();
                     break;
                 case "0":
                     addressloop = false;
@@ -601,6 +604,60 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.WriteLine($"\n{i++}{".",-4}{address.StreetName}\n{"",-5}{address.PostalCode}\n{"",-5}{address.City}\n{"",-5}{address.Country}");
             }
             PressKeyAndContinue();
+        }
+
+        void ShowUpdateAddress() // Should this be an accessible function for users or only admins? what if an address has multiple users and one of them wants to change it, better they create a new one?
+        {
+            AddressDto address = new();
+            AddressDto newAddressDetails = new();
+
+            SubMenuTemplate("Get address details");
+            Console.Write("\nPlease enter Street name and postal code of Address: \n");
+
+            Console.Write("Street name: ");
+            address.StreetName = Console.ReadLine()!;
+            Console.Write("Postal Code: ");
+            address.PostalCode = Console.ReadLine()!;
+
+            var existingAddress = _addressService.GetOneAddress(address);
+            SubMenuTemplate("Update status");
+            Console.WriteLine($"\n{existingAddress.StreetName}\n{existingAddress.PostalCode} {existingAddress.City}\n{existingAddress.Country}\n");
+            Console.Write("Is this the address you wish to update? ");
+            var answer = Console.ReadLine()!;
+            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+            {
+                SubMenuTemplate($"Update {existingAddress.StreetName}, {existingAddress.PostalCode} - fill in new address details.");
+                Console.WriteLine("\nAny fields left empty will keep their current value.");
+                Console.Write("\nStreet name: ");
+                newAddressDetails.StreetName = Console.ReadLine()!;
+                Console.Write("\nPostal code: ");
+                newAddressDetails.PostalCode = Console.ReadLine()!;
+                Console.Write("\nCity: ");
+                newAddressDetails.City = Console.ReadLine()!;
+                Console.Write("\nCountry: ");
+                newAddressDetails.Country = Console.ReadLine()!;
+
+                Console.WriteLine($"\n{newAddressDetails.StreetName}\n{newAddressDetails.PostalCode}\n{newAddressDetails.City}\n{newAddressDetails.Country}\n");
+                Console.WriteLine("\nDo you want to update customer with these details? ");
+                Console.Write("Continue with update? ");
+                var updateAnswer = Console.ReadLine()!;
+                if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var addressResult = _addressService.UpdateAddress(existingAddress, newAddressDetails);
+                    if (addressResult != null)
+                    {
+                        Console.WriteLine($"Address updated succesfully\n\nNew address details:\nStreet name: {addressResult.StreetName}\nPoastal code: {addressResult.PostalCode}\nCity: {addressResult.City}\nCountry: {addressResult.Country}\n"); // add feedback as to new user details.
+                    }
+                    else
+                    {
+                        Console.WriteLine("Address failed to update, please try again - if issue persists contact support.");  // add feedback as to new user details.
+                    }
+                }
+                else
+                    Console.WriteLine("Address failed to update");
+
+                PressKeyAndContinue();
+            }
         }
     }
 

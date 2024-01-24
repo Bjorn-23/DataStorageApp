@@ -18,29 +18,18 @@ public class AddressService
         _customer_AddressRepository = customer_AddressRepository;
     }
 
-    public bool AddressExists (AddressDto address)
-    {
-        try
-        {
-            var exists = _addressRepository.Exists(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-            return exists;
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-        
-        return false;
-    }
-
     public AddressDto CreateAddress(AddressDto address)
     {
         try
         {
-            var addressExists = _addressRepository.Exists(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-            if (addressExists)
+            var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            if (existingAddress != null)
             {
-                return address;
+                var addressDto = AddressFactory.Create(existingAddress);
+                return addressDto;
             }
 
-            AddressEntity entity = new()
+            AddressEntity addressEntity = new()
             {
                 StreetName = address.StreetName,
                 PostalCode = address.PostalCode,
@@ -48,11 +37,10 @@ public class AddressService
                 Country = address.Country,
             };
 
-            var result = _addressRepository.Create(entity);
+            var result = _addressRepository.Create(addressEntity);
             if (result != null)
-            {
-                return address;
-            }
+                 return address;
+
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         
@@ -73,7 +61,7 @@ public class AddressService
                 {
                     var address = _addressRepository.GetOne(x => x.Id == addressId.AddressId);
 
-                    var addressDto = new AddressDto()
+                    AddressDto addressDto = new()
                     {
                         StreetName = address.StreetName,
                         PostalCode = address.PostalCode,
@@ -124,13 +112,32 @@ public class AddressService
         return null!;
     }
 
+    public AddressDto UpdateAddress(AddressDto address, AddressDto newAddressDetails)
+    {
+        try
+        {
+            var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            if ( existingAddress != null)
+            {
+                AddressEntity addressEntity = new()
+                {
+                    StreetName = string.IsNullOrWhiteSpace(newAddressDetails.StreetName) ? existingAddress.StreetName : newAddressDetails.StreetName,
+                    PostalCode = string.IsNullOrWhiteSpace(newAddressDetails.PostalCode) ? existingAddress.PostalCode : newAddressDetails.PostalCode,
+                    City = string.IsNullOrWhiteSpace(newAddressDetails.City) ? existingAddress.City : newAddressDetails.City,
+                    Country = string.IsNullOrWhiteSpace(newAddressDetails.Country) ? existingAddress.Country : newAddressDetails.Country,
+                };
+
+                var result = _addressRepository.Update(x => x.StreetName == newAddressDetails.StreetName && x.PostalCode == newAddressDetails.PostalCode, addressEntity);
+                if (result != null)
+                {
+                    AddressDto addressDto = AddressFactory.Create(result);
+                    return addressDto;
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
 
 }
-
-
-        //try
-        //{
-
-        //}
-        //catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
