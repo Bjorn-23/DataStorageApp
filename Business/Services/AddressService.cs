@@ -11,11 +11,13 @@ public class AddressService
 {
     private readonly IAddressRepository _addressRepository;
     private readonly ICustomer_AddressRepository _customer_AddressRepository;
+    private readonly UserService _userService;
 
-    public AddressService(IAddressRepository addressRepository, ICustomer_AddressRepository customer_AddressRepository)
+    public AddressService(IAddressRepository addressRepository, ICustomer_AddressRepository customer_AddressRepository, UserService userService)
     {
         _addressRepository = addressRepository;
         _customer_AddressRepository = customer_AddressRepository;
+        _userService = userService;
     }
 
     public AddressDto CreateAddress(AddressDto address)
@@ -117,17 +119,20 @@ public class AddressService
         try
         {
             var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-            if ( existingAddress != null)
+            var checkRole = _userService.FindRoleOfActiveUser();
+
+            if (existingAddress != null && checkRole.UserRoleName == "Admin")
             {
                 AddressEntity addressEntity = new()
                 {
+                    Id = existingAddress.Id,
                     StreetName = string.IsNullOrWhiteSpace(newAddressDetails.StreetName) ? existingAddress.StreetName : newAddressDetails.StreetName,
                     PostalCode = string.IsNullOrWhiteSpace(newAddressDetails.PostalCode) ? existingAddress.PostalCode : newAddressDetails.PostalCode,
                     City = string.IsNullOrWhiteSpace(newAddressDetails.City) ? existingAddress.City : newAddressDetails.City,
                     Country = string.IsNullOrWhiteSpace(newAddressDetails.Country) ? existingAddress.Country : newAddressDetails.Country,
                 };
 
-                var result = _addressRepository.Update(x => x.StreetName == newAddressDetails.StreetName && x.PostalCode == newAddressDetails.PostalCode, addressEntity);
+                var result = _addressRepository.Update(x => x.Id == existingAddress.Id, addressEntity);
                 if (result != null)
                 {
                     AddressDto addressDto = AddressFactory.Create(result);

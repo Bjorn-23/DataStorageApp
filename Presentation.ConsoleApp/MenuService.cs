@@ -487,6 +487,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.WriteLine($"{"\n1.",-5} Create address (requires user to be logged in)");
             Console.WriteLine($"{"\n2.",-5} Show Adress details");
             Console.WriteLine($"{"\n3.",-5} Show all Adresses");
+            Console.WriteLine($"{"\n4.",-5} Update Adress (requires Admin privileges)");
             Console.WriteLine($"{"\n0.",-5} Go back");
             Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
@@ -620,44 +621,57 @@ internal class MenuService(CustomerService customerService, AddressService addre
             address.PostalCode = Console.ReadLine()!;
 
             var existingAddress = _addressService.GetOneAddress(address);
-            SubMenuTemplate("Update status");
-            Console.WriteLine($"\n{existingAddress.StreetName}\n{existingAddress.PostalCode} {existingAddress.City}\n{existingAddress.Country}\n");
-            Console.Write("Is this the address you wish to update? ");
-            var answer = Console.ReadLine()!;
-            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+            if (existingAddress != null)
             {
-                SubMenuTemplate($"Update {existingAddress.StreetName}, {existingAddress.PostalCode} - fill in new address details.");
-                Console.WriteLine("\nAny fields left empty will keep their current value.");
-                Console.Write("\nStreet name: ");
-                newAddressDetails.StreetName = Console.ReadLine()!;
-                Console.Write("\nPostal code: ");
-                newAddressDetails.PostalCode = Console.ReadLine()!;
-                Console.Write("\nCity: ");
-                newAddressDetails.City = Console.ReadLine()!;
-                Console.Write("\nCountry: ");
-                newAddressDetails.Country = Console.ReadLine()!;
-
-                Console.WriteLine($"\n{newAddressDetails.StreetName}\n{newAddressDetails.PostalCode}\n{newAddressDetails.City}\n{newAddressDetails.Country}\n");
-                Console.WriteLine("\nDo you want to update customer with these details? ");
-                Console.Write("Continue with update? ");
-                var updateAnswer = Console.ReadLine()!;
-                if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                SubMenuTemplate("Update status");
+                Console.WriteLine($"\n{existingAddress.StreetName}\n{existingAddress.PostalCode}\n{existingAddress.City}\n{existingAddress.Country}\n");
+                Console.Write("Is this the address you wish to update? ");
+                var answer = Console.ReadLine()!;
+                if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    var addressResult = _addressService.UpdateAddress(existingAddress, newAddressDetails);
-                    if (addressResult != null)
+                    SubMenuTemplate($"Update {existingAddress.StreetName}, {existingAddress.PostalCode} - fill in new address details.");
+                    Console.WriteLine("\nAny fields left empty will keep their current value.");
+                    Console.Write("\nStreet name: ");
+                    newAddressDetails.StreetName = Console.ReadLine()!;
+                    Console.Write("\nPostal code: ");
+                    newAddressDetails.PostalCode = Console.ReadLine()!;
+                    Console.Write("\nCity: ");
+                    newAddressDetails.City = Console.ReadLine()!;
+                    Console.Write("\nCountry: ");
+                    newAddressDetails.Country = Console.ReadLine()!;
+
+                    Console.WriteLine($"" +
+                        $"\n{(string.IsNullOrWhiteSpace(newAddressDetails.StreetName) ? existingAddress.StreetName : newAddressDetails.StreetName)}" +
+                        $"\n{(string.IsNullOrWhiteSpace(newAddressDetails.PostalCode) ? existingAddress.PostalCode : newAddressDetails.PostalCode)}" +
+                        $"\n{(string.IsNullOrWhiteSpace(newAddressDetails.City) ? existingAddress.City : newAddressDetails.City)}" +
+                        $"\n{(string.IsNullOrWhiteSpace(newAddressDetails.Country) ? existingAddress.Country : newAddressDetails.Country)}\n");
+
+                    Console.WriteLine("\nDo you want to update address with these details? ");
+                    Console.Write("Continue with update? ");
+                    var updateAnswer = Console.ReadLine()!;
+                    if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        Console.WriteLine($"Address updated succesfully\n\nNew address details:\nStreet name: {addressResult.StreetName}\nPoastal code: {addressResult.PostalCode}\nCity: {addressResult.City}\nCountry: {addressResult.Country}\n"); // add feedback as to new user details.
+                        var addressResult = _addressService.UpdateAddress(existingAddress, newAddressDetails);
+                        SubMenuTemplate("Update status");
+                        if (addressResult != null)
+                        {
+                            Console.WriteLine($"\nAddress updated succesfully\n\nNew address details:\nStreet name: {addressResult.StreetName}\nPoastal code: {addressResult.PostalCode}\nCity: {addressResult.City}\nCountry: {addressResult.Country}\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Address failed to update, ensure you are logged in as Admin.");
+                        }
                     }
                     else
-                    {
-                        Console.WriteLine("Address failed to update, please try again - if issue persists contact support.");  // add feedback as to new user details.
-                    }
+                        Console.WriteLine("Address will not be updated");
                 }
                 else
-                    Console.WriteLine("Address failed to update");
-
-                PressKeyAndContinue();
+                    Console.WriteLine("Address will not be updated");
             }
+            else
+                Console.WriteLine("Address failed to update.\nMake sure all fields are filled in with valid details.");
+
+            PressKeyAndContinue();
         }
     }
 
