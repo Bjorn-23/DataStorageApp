@@ -3,25 +3,22 @@ using Business.Factories;
 using Business.Utils;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 
 namespace Business.Services;
 
 public class UserService
 {
-    private readonly IUserRepository _userRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IUserRepository _userRepository;
     private readonly UserRoleService _userRoleService;
 
-    public UserService(IUserRepository userRepository, UserRoleService userRoleService, ICustomerRepository customerRepository)
+    public UserService(ICustomerRepository customerRepository, IUserRepository userRepository, UserRoleService userRoleService)
     {
-        _userRepository = userRepository;
         _customerRepository = customerRepository;
+        _userRepository = userRepository;
         _userRoleService = userRoleService;
     }
-
 
     public UserDto CreateUser(UserDto user)
     {

@@ -70,7 +70,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         {       
             Console.Clear();
             Console.WriteLine($"{"",-5}User menu - Choose an option");
-            string hyphens = new string('-', $"{"",5}User menu - Choose an option".Length);
+            string hyphens = new string('-', $"{"",5}User menu - Choose an option{"",-5}".Length);
             Console.WriteLine(hyphens);
             Console.WriteLine($"{"\n1.",-5} Register new User (creates user, customer and address)");
             Console.WriteLine($"{"\n2.",-5} Login User");

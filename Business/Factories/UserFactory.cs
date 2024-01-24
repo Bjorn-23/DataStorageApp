@@ -19,7 +19,6 @@ public static class UserFactory
                 Created = dto.Created,
                 isActive = dto.isActive,
                 UserRoleName = dto.UserRoleName
-
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
