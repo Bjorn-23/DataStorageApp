@@ -68,7 +68,7 @@ public class UserService
                         Password = existingUser.Password,
                         SecurityKey = existingUser.SecurityKey,
                         Created = existingUser.Created,
-                        isActive = true,
+                        IsActive = true,
                         UserRoleName = existingUser.UserRoleName    
                     };
 
@@ -97,7 +97,7 @@ public class UserService
                     Password = existingUser.Password,
                     SecurityKey = existingUser.SecurityKey,
                     Created = existingUser.Created,
-                    isActive = false,
+                    IsActive = false,
                     UserRoleName = existingUser.UserRoleName
                 };
 
@@ -115,7 +115,7 @@ public class UserService
     {
         try
         {
-            var userEntities = _userRepository.GetAllWithPredicate(x => x.isActive == true);
+            var userEntities = _userRepository.GetAllWithPredicate(x => x.IsActive == true);
             var UserDtos = UserFactory.Create(userEntities);
 
             foreach (var user in UserDtos)
@@ -133,7 +133,7 @@ public class UserService
     {
         try
         {
-            var userEntities = _userRepository.GetAllWithPredicate(x => x.isActive == true);
+            var userEntities = _userRepository.GetAllWithPredicate(x => x.IsActive == true);
 
             foreach (var user in userEntities)
             {
@@ -152,7 +152,7 @@ public class UserService
             var existingUser = GetOne(user);
             var checkRole = FindRoleOfActiveUser();
 
-            if (existingUser.isActive || checkRole.UserRoleName.ToString() == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
+            if (existingUser.IsActive || checkRole.UserRoleName.ToString() == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
             {
 
                 UserEntity updatedUserDetails = new()
@@ -162,7 +162,7 @@ public class UserService
                     Password = existingUser.Password,
                     SecurityKey = existingUser.SecurityKey,
                     Created = existingUser.Created,
-                    isActive = existingUser.isActive,
+                    IsActive = existingUser.IsActive,
                     UserRoleName = string.IsNullOrWhiteSpace(newUserDetails.UserRoleName) ? existingUser.UserRoleName : _userRoleService.GetOrCreateRole(newUserDetails).UserRoleName
                 };
 
@@ -217,7 +217,7 @@ public class UserService
 
             // Add extra check to see if user should be deleted?
 
-            if (existingUser.isActive || checkRole.UserRole.ToString() == "Admin")
+            if (existingUser.IsActive || checkRole.UserRole.ToString() == "Admin")
             {
                 var result = _userRepository.Delete(existingUser);
                 if (result)

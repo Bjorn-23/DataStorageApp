@@ -38,7 +38,7 @@ public class UserEntity
     public DateTime Created {  get; set; } = DateTime.Now;
 
     [Required]
-    public bool isActive { get; set; } = false;
+    public bool IsActive { get; set; } = false;
 
     /// <summary>
     /// Generated from UserRoleServices upon creating new User. Alternatively added later - currently no method for that.

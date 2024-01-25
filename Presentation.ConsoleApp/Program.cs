@@ -12,8 +12,7 @@ using System.Diagnostics;
 var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 {
     services.AddDbContext<DataContext>(x => x.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\source\DataStorageApp\Infrastructure\Data\New_DataStorageApp_db.mdf;Integrated Security=True;Connect Timeout=30"));
-    //services.AddDbContext<ProductCatalogContext>(x => x.UseSqlServer(@""));
-
+    services.AddDbContext<ProductContext>(x => x.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=D:\\source\\DataStorageApp\\Infrastructure\\Data\\New_OrderingSystem_db.mdf;Integrated Security=True;Connect Timeout=30"));
 
     services.AddScoped<ICustomerRepository, CustomerRepository>();
     services.AddScoped<CustomerService>();
@@ -28,6 +27,9 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<UserService>();
+
+    services.AddScoped<IOrderRepository, OrderRepository>();
+    services.AddScoped<OrderService>();
 
     services.AddScoped<UserRegistrationService>();
     services.AddScoped<UserRoleService>();

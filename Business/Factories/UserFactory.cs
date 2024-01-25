@@ -17,7 +17,7 @@ public static class UserFactory
                 Password = dto.Password,
                 SecurityKey = dto.SecurityKey,
                 Created = dto.Created,
-                isActive = dto.isActive,
+                IsActive = dto.isActive,
                 UserRoleName = dto.UserRoleName
             };
         }
@@ -37,7 +37,7 @@ public static class UserFactory
                 Password = entity.Password,
                 SecurityKey = entity.SecurityKey,
                 Created = entity.Created,
-                isActive= entity.isActive,
+                isActive= entity.IsActive,
                 UserRoleName = entity.UserRoleName
             };
         }

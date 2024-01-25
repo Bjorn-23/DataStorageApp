@@ -78,6 +78,7 @@ public static class CustomerFactory
         return null!;
     }
 
+
     public static CustomerDetailsDto CreateCustomerDetails(CustomerEntity cEntity, UserEntity uEntity)
     {
         try
@@ -95,5 +96,5 @@ public static class CustomerFactory
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
-    }
+    } 
 }

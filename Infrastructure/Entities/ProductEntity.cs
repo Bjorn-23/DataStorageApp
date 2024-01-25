@@ -1,27 +1,42 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
-public class ProductEntity
+public partial class ProductEntity
 {
     [Key]
     public string ArticleNumber { get; set; } = null!;
-    //public PriceListEntity PriceList { get; set; } = null!;
 
-    [Required]
     [StringLength(50)]
     public string Title { get; set; } = null!;
 
     [StringLength(200)]
-    public string? Ingress { get; set; } = null!;
+    public string? Ingress { get; set; }
 
-    public string? Description {  get; set; }
+    public string? Description { get; set; }
 
-    [Required]
+    public int PriceId { get; set; }
+
+    [StringLength(30)]
+    public string Unit { get; set; } = null!;
+
     public int Stock { get; set; }
 
-    [Required]
-    public int CategoryId { get; set; }
-    public CategoryEntity Category { get; set; } = null!;
+    [StringLength(100)]
+    public string CategoryName { get; set; } = null!;
+
+    [ForeignKey("CategoryName")]
+    [InverseProperty("Products")]
+    public virtual CategoryEntity CategoryNameNavigation { get; set; } = null!;
+
+    [InverseProperty("ArticleNumberNavigation")]
+    public virtual ICollection<OrderRowEntity> OrderRows { get; set; } = new List<OrderRowEntity>();
+
+    [ForeignKey("PriceId")]
+    [InverseProperty("Products")]
+    public virtual PriceListEntity Price { get; set; } = null!;
 }

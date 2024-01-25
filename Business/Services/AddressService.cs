@@ -145,4 +145,27 @@ public class AddressService
         return null!;
     }
 
+    public AddressDto DeleteAddress(AddressDto address)
+    {
+        try
+        {
+            var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            var checkRole = _userService.FindRoleOfActiveUser();
+
+            if (existingAddress != null && checkRole.UserRoleName == "Admin")
+            {
+                var result = _addressRepository.Delete(x => x.Id == existingAddress.Id);
+
+                if (result)
+                {
+                    var existingDto = AddressFactory.Create(existingAddress);
+                    return existingDto;
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
 }

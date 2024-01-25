@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Presentation.ConsoleApp;
 
-internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService)
+internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService)
 {
 
     private readonly CustomerService _customerService = customerService;
@@ -17,6 +17,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     private readonly Customer_AddressService _customer_addressService = customer_addressService;
     private readonly UserService _userService = userService;
     private readonly UserRegistrationService _userRegistrationService = userRegistrationService;
+    private readonly OrderService _orderService = orderService;
 
 
     // Main menu
@@ -28,12 +29,13 @@ internal class MenuService(CustomerService customerService, AddressService addre
         {
             Console.Clear();
             Console.WriteLine($"{"",-5}Main Menu - Choose an option");
-            string hyphens = new string('-', $"{"", -5 }Main Menu - Choose an option".Length);
+            string hyphens = new string('-', $"{"",-5}Main Menu - Choose an option".Length);
             Console.WriteLine(hyphens);
             Console.WriteLine($"{"\n1.",-5} User Menu");
             Console.WriteLine($"{"\n2.",-5} Customer Menu");
             Console.WriteLine($"{"\n3.",-5} Address Menu");
             Console.WriteLine($"{"\n4.",-5} Create a new customer address");
+            Console.WriteLine($"{"\n5.",-5} Create a new order");
             Console.WriteLine($"{"\n0.",-5} Exit application");
             Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
@@ -52,6 +54,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 case "4":
                     ShowCreateCustomer_AddressMenu();
                     break;
+                case "5":
+                    ShowCreateOrderMenu();
+                    break;
                 case "0":
                     Environment.Exit(0);
                     break;
@@ -60,14 +65,15 @@ internal class MenuService(CustomerService customerService, AddressService addre
             }
         }
     }
- 
+
+
     // User menu
     void ShowUserRegistrationMenu() // Feels finished unless something big changes.
     {
         bool userRegLoop = true;
 
         while (userRegLoop)
-        {       
+        {
             Console.Clear();
             Console.WriteLine($"{"",-5}User menu - Choose an option");
             string hyphens = new string('-', $"{"",5}User menu - Choose an option{"",-5}".Length);
@@ -148,7 +154,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.WriteLine($"\nFirst name: {"",-2}{user.FirstName}\nLast name: {"",-3}{user.LastName}\nEmail: {"",-7}{user.Email}\nPhone number: {"",-0}{user.PhoneNumber}\nRole: {"",-8}{user.UserRoleName}\n");
                 Console.WriteLine($"\n{"",-15}{user.StreetName}\n{"",-14}{user.PostalCode}\n{"",-14}{user.City}\n{"",-14}{user.Country}");
 
-                Console.Write("\n(Y)es / (N)o? ");
+                Console.Write("\n[Y]es / [N]o: ");
                 var customerAnswer = Console.ReadLine()!;
                 if (customerAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -157,10 +163,10 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     if (result.Item1 != null && result.Item2 != null)
                     {
                         Console.WriteLine("\nUser, Customer and Address created succesfully.\nMake a note of your password for future reference.");
-                        Console.WriteLine("Please Login to access your account"); 
+                        Console.WriteLine("Please Login to access your account");
                     }
                     else
-                    {  
+                    {
                         Console.WriteLine("\nSomething went wrong, user not created.\nPlease make sure no fields are empty and try again.");
                     }
                 }
@@ -205,16 +211,16 @@ internal class MenuService(CustomerService customerService, AddressService addre
             }
 
             void UserLogoutMenu()
-            {                
+            {
                 var result = _userService.LogoutUsers;
-                    SubMenuTemplate("Logout status");
+                SubMenuTemplate("Logout status");
                 if (result != null)
                 {
                     Console.WriteLine($"\nUser was succesfully logged out.");
                 }
                 else
                     Console.WriteLine("\nLogout attempt failed - email not recognized / no users currently logged in.");
- 
+
                 PressKeyAndContinue();
             }
 
@@ -244,7 +250,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 SubMenuTemplate("Update status");
                 if (result != null)
                 {
-                    Console.WriteLine($"\nUser was updated to:\n\nId:{"", -5}{result.Id}\n\nEmail:{"", -2}{result.Email}\n\nIf you made changes to your password please store it in a secure location.");
+                    Console.WriteLine($"\nUser was updated to:\n\nId:{"",-5}{result.Id}\n\nEmail:{"",-2}{result.Email}\n\nIf you made changes to your password please store it in a secure location.");
                 }
                 else
                 {
@@ -263,13 +269,13 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.WriteLine("\nType in email of the user to delete.");
                 Console.Write("Email: ");
                 existingUser.Email = Console.ReadLine()!;
-                
+
                 var deleteCheck = _userService.GetOne(existingUser);
                 SubMenuTemplate("Delete Status");
                 if (deleteCheck != null)
                 {
-                    Console.WriteLine($"\nId:{"",-12}{deleteCheck.Id}\nEmail:{"",-9}{deleteCheck.Email}\nRole: {"", -9}{deleteCheck.UserRoleName}");
-                    Console.Write($"\nIs this the user you wish to delete?\n(Y)es / (N)o: ");
+                    Console.WriteLine($"\nId:{"",-12}{deleteCheck.Id}\nEmail:{"",-9}{deleteCheck.Email}\nRole: {"",-9}{deleteCheck.UserRoleName}");
+                    Console.Write($"\nIs this the user you wish to delete?\n[Y]es / [N]o: ");
                     var answer = Console.ReadLine()!;
                     if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
@@ -282,7 +288,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         else
                         {
                             Console.WriteLine($"\n{existingUser.Email} could not be deleted!\nPlease make sure {existingUser.Email} is logged in and is a valid email.");
-                        }                        
+                        }
                     }
                 }
                 else
@@ -294,7 +300,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
             }
         }
     }
-       
+
     // Customer menu
     void ShowCustomerOptionsMenu() // Feels finished unless something big changes.
     {
@@ -435,7 +441,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     else
                     {
                         Console.WriteLine("Customer failed to update, please try again - if issue persists contact support.");  // add feedback as to new user details.
-                    }                    
+                    }
                 }
                 else
                     Console.WriteLine("Customer failed to update");
@@ -471,7 +477,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         //        PressKeyAndContinue();
         //    } // I will comment this out for now, would rather the User be deleted.
     }
-     
+
     // AddressMenu
     void ShowAddressOptionsMenu()
     {
@@ -488,6 +494,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.WriteLine($"{"\n2.",-5} Show Adress details");
             Console.WriteLine($"{"\n3.",-5} Show all Adresses");
             Console.WriteLine($"{"\n4.",-5} Update Adress (requires Admin privileges)");
+            Console.WriteLine($"{"\n5.",-5} Delete Adress (requires Admin privileges)");
             Console.WriteLine($"{"\n0.",-5} Go back");
             Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
@@ -505,6 +512,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     break;
                 case "4":
                     ShowUpdateAddress();
+                    break;
+                case "5":
+                    ShowDeleteAddress();
                     break;
                 case "0":
                     addressloop = false;
@@ -658,9 +668,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             Console.WriteLine($"\nAddress updated succesfully\n\nNew address details:\nStreet name: {addressResult.StreetName}\nPoastal code: {addressResult.PostalCode}\nCity: {addressResult.City}\nCountry: {addressResult.Country}\n");
                         }
                         else
-                        {
                             Console.WriteLine("Address failed to update, ensure you are logged in as Admin.");
-                        }
                     }
                     else
                         Console.WriteLine("Address will not be updated");
@@ -669,14 +677,56 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     Console.WriteLine("Address will not be updated");
             }
             else
-                Console.WriteLine("Address failed to update.\nMake sure all fields are filled in with valid details.");
+                Console.WriteLine("Address not found.\nMake sure all fields are filled in with valid details.");
+
+            PressKeyAndContinue();
+        }
+
+        void ShowDeleteAddress()
+        {
+            AddressDto address = new();
+
+            SubMenuTemplate("Delete Address");
+            Console.Write("\nFill in Street name and postal code of address to delete: \n");
+
+            Console.Write("Street name: ");
+            address.StreetName = Console.ReadLine()!;
+            Console.Write("Postal Code: ");
+            address.PostalCode = Console.ReadLine()!;
+
+            var existingAddress = _addressService.GetOneAddress(address);
+            SubMenuTemplate("Delete status");
+            if (existingAddress != null)
+            {
+                Console.WriteLine($"\n{existingAddress.StreetName}\n{existingAddress.PostalCode}\n{existingAddress.City}\n{existingAddress.Country}\n");
+                Console.WriteLine("Is this the address you wish to delete? This action can not be undone.");
+                Console.Write("[Y]es / [N]o:");
+
+                var answer = Console.ReadLine()!;
+                if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var addressResult = _addressService.DeleteAddress(existingAddress);
+                    SubMenuTemplate("Delete status");
+                    if (addressResult != null)
+                    {
+                        Console.WriteLine($"\nAddress:\n\nStreet name: {addressResult.StreetName}\nPoastal code: {addressResult.PostalCode}\nCity: {addressResult.City}\nCountry: {addressResult.Country}\n\nWas succesfully deleted.");
+                    }
+                    else
+                        Console.WriteLine("Address failed to delete, ensure you are logged in as Admin.");
+                }
+                else
+                    Console.WriteLine("Address will not be deleted.");
+
+            }
+            else
+                Console.WriteLine("Address not found.\nMake sure all fields are filled in with valid details.");
 
             PressKeyAndContinue();
         }
     }
 
     // Customer_address menu
-    bool ShowCreateCustomer_AddressMenu()
+    void ShowCreateCustomer_AddressMenu()
     {
         Console.Clear();
         Console.WriteLine("-----------------------------------------------------------");
@@ -695,11 +745,30 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
         var result = _customer_addressService.CreateCustomer_Addresses(customer, address);
         if (result)
+        {
             Console.WriteLine("Customer Address created.");
+        }
         else
             Console.WriteLine("Customer Address could not be created or already exists.");
+
         PressKeyAndContinue();
-        return true;
+    }
+
+    // Orders menu
+    private void ShowCreateOrderMenu()
+    {
+        SubMenuTemplate("Create Order menu");
+        var result = _orderService.CreateOrder();
+        SubMenuTemplate("result details");
+        if (result != null)
+        {
+            Console.WriteLine($"Id: {result.Id}\nId: {result.CustomerId}\nOrder date: {result.OrderDate}\nOrder price: {result.OrderPrice}\n");
+        }
+        else
+            Console.WriteLine("No active users found - Please Login to create order");
+
+        PressKeyAndContinue();
+
     }
 
     // Helper Methods
@@ -713,7 +782,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     void MenuTemplate(string singularDto, string pluralDto)
     {
         Console.Clear();
-        Console.WriteLine($"{"", -5}{singularDto} Menu - Choose an option");
+        Console.WriteLine($"{"",-5}{singularDto} Menu - Choose an option");
         string hyphens = new string('-', $"{"",5}{singularDto} Menu - Choose an option".Length);
         Console.WriteLine(hyphens);
         Console.WriteLine($"{"\n1.",-5} Create a new {singularDto}");
@@ -722,7 +791,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         Console.WriteLine($"{"\n4.",-5} Update {singularDto}");
         Console.WriteLine($"{"\n5.",-5} Delete {singularDto}");
         Console.WriteLine($"{"\n0.",-5} Go back");
-        Console.Write($"\n\n{"", -5}Option: ");
+        Console.Write($"\n\n{"",-5}Option: ");
     }
 
     void SubMenuTemplate(string menuName)
