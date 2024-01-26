@@ -1,4 +1,5 @@
 ﻿using Business.Dtos;
+using Business.Services;
 using Infrastructure.Entities;
 using System.Diagnostics;
 
@@ -47,4 +48,28 @@ public static class ProductFactory
 
         return null!;
     }
+
+    public static ProductRegistrationDto Create(ProductEntity entity, string UnitType, decimal Price, decimal? DiscountPrice)
+    {
+        try
+        {
+            return new ProductRegistrationDto()
+            {
+                ArticleNumber = entity.ArticleNumber,
+                Title = entity.Title,
+                Ingress = entity.Ingress,
+                Description = entity.Description,
+                Price = Price,
+                Currency = UnitType,
+                DiscountPrice = DiscountPrice,
+                Unit = entity.Unit,
+                Stock = entity.Stock,
+                CategoryName = entity.CategoryName
+            };
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
 }

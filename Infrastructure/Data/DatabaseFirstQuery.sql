@@ -15,7 +15,7 @@ CREATE TABLE [Products] (
 GO
 
 CREATE TABLE [PriceLists] (
-  [Id] int PRIMARY KEY NOT NULL,
+  [Id] int PRIMARY KEY NOT NULL IDENTITY(1, 1),
   [Price] money NOT NULL,
   [DiscountPrice] money,
   [UnitType] nvarchar(20) NOT NULL

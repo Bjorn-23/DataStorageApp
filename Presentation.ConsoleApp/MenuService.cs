@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Presentation.ConsoleApp;
 
-internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService)
+internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService)
 {
 
     private readonly CustomerService _customerService = customerService;
@@ -18,6 +18,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     private readonly UserService _userService = userService;
     private readonly UserRegistrationService _userRegistrationService = userRegistrationService;
     private readonly OrderService _orderService = orderService;
+    private readonly ProductService _productService = productService;
 
 
     // Main menu
@@ -34,8 +35,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.WriteLine($"{"\n1.",-5} User Menu");
             Console.WriteLine($"{"\n2.",-5} Customer Menu");
             Console.WriteLine($"{"\n3.",-5} Address Menu");
-            Console.WriteLine($"{"\n4.",-5} Create a new customer address");
-            Console.WriteLine($"{"\n5.",-5} Create a new order");
+            Console.WriteLine($"{"\n4.",-5} Customer address Menu");
+            Console.WriteLine($"{"\n5.",-5} Product Menu");
+            Console.WriteLine($"{"\n6.",-5} Order Menu");
             Console.WriteLine($"{"\n0.",-5} Exit application");
             Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
@@ -43,7 +45,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
             switch (option)
             {
                 case "1":
-                    ShowUserRegistrationMenu();
+                    ShowUserOptionsMenu();
                     break;
                 case "2":
                     ShowCustomerOptionsMenu();
@@ -55,6 +57,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     ShowCreateCustomer_AddressMenu();
                     break;
                 case "5":
+                    ShowProductOptionsMenu();
+                    break;
+                case "6":
                     ShowCreateOrderMenu();
                     break;
                 case "0":
@@ -66,9 +71,8 @@ internal class MenuService(CustomerService customerService, AddressService addre
         }
     }
 
-
     // User menu
-    void ShowUserRegistrationMenu() // Feels finished unless something big changes.
+    void ShowUserOptionsMenu() // Feels finished unless something big changes.
     {
         bool userRegLoop = true;
 
@@ -755,6 +759,169 @@ internal class MenuService(CustomerService customerService, AddressService addre
     }
 
     // Orders menu
+    private void ShowProductOptionsMenu()
+    {
+        bool productLoop = true;
+
+        while (productLoop)
+        {
+            //MenuTemplate("Adress", "Adresses");
+            Console.Clear();
+            Console.WriteLine($"{"",-5}Product menu - Choose an option");
+            string hyphens = new string('-', $"{"",5}Product menu - Choose an option".Length);
+            Console.WriteLine(hyphens);
+            Console.WriteLine($"{"\n1.",-5} Create Product (requires Admin privileges)");
+            Console.WriteLine($"{"\n2.",-5} Show Product details");
+            Console.WriteLine($"{"\n3.",-5} Show all Product");
+            Console.WriteLine($"{"\n4.",-5} Update Product (requires Admin privileges)");
+            Console.WriteLine($"{"\n5.",-5} Delete Product (requires Admin privileges)");
+            Console.WriteLine($"{"\n0.",-5} Go back");
+            Console.Write($"\n\n{"",-5}Option: ");
+            var option = Console.ReadLine();
+
+            switch (option)
+            {
+                case "1":
+                    ShowCreateProductMenu();
+                    break;
+                //case "2":
+                //    ShowProductDetails();
+                //    break;
+                case "3":
+                    ShowAllProducts();
+                    break;
+                //case "4":
+                //    ShowUpdateAddress();
+                //    break;
+                //case "5":
+                //    ShowDeleteAddress();
+                //    break;
+                case "0":
+                    productLoop = false;
+                    break;
+                default:
+                    break;
+            }
+
+
+            void ShowCreateProductMenu()
+            {
+                var product = new ProductRegistrationDto();
+
+                SubMenuTemplate("Create Product menu");
+
+                Console.WriteLine("\nFill in details of new product. Required fields are marked with *\n");
+
+                Console.Write("\nArticle Number*: ");
+                product.ArticleNumber = Console.ReadLine()!;
+
+                Console.Write("\nProduct Title*: ");
+                product.Title = Console.ReadLine()!;
+
+                Console.Write("\nProduct Ingress: ");
+                product.Ingress = Console.ReadLine()!;
+
+                Console.Write("\nProduct description: ");
+                product.Description = Console.ReadLine()!;
+
+                Console.Write("\nCategory: ");
+                product.CategoryName = Console.ReadLine()!;
+
+                Console.Write("\nUnit (sold as: each, pair, set of X, etc)*: ");
+                product.Unit = Console.ReadLine()!;
+
+                Console.Write("\nNumber of product items in stock*: ");
+                var stockresult = int.TryParse(Console.ReadLine()!, out int stock);
+                if (stockresult)
+                {
+                    product.Stock = stock;
+                }
+                else
+                    product.Stock = 0;
+
+                Console.Write("\nPrice*: ");
+                var priceResult = decimal.TryParse(Console.ReadLine()!, out decimal price);
+                if (priceResult)
+                {
+                    product.Price = price;
+                }
+                else
+                    product.Price = 0;
+
+                Console.Write("\nCurrency (ie. SEK, USD, EUR)*: ");
+                product.Currency = Console.ReadLine()!;
+
+                Console.Write("\nDiscount price: ");
+                var discountPriceResult = decimal.TryParse(Console.ReadLine()!, out decimal discountPrice);
+                if (discountPriceResult)
+                {
+                    product.DiscountPrice = discountPrice;
+                }
+                else
+                    product.DiscountPrice = 0;
+
+                var newProduct = _productService.CreateProduct(product);
+                if (newProduct != null)
+                {
+                    var productDisplay = _productService.GetProductDisplay(newProduct);
+                    if (productDisplay != null)
+                    {
+                        SubMenuTemplate("New Product created");
+                        Console.WriteLine($"" +
+                            $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
+                            $"Title: {"",-13}{productDisplay.Title}\n" +
+                            $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
+                            $"Description: {"",-7}{productDisplay.Description}\n" +
+                            $"Category: {"",-10}{productDisplay.CategoryName}\n" +
+                            $"Price: {"",-13}{productDisplay.Price} {productDisplay.Currency}\n" +
+                            $"Discount price: {"",-4}{productDisplay.DiscountPrice} {productDisplay.Currency}\n" +
+                            $"Unit: {"",-14}{productDisplay.Unit}\n" +
+                            $"Stock: {"",-13}{productDisplay.Stock}\n");
+                    }
+                    else
+                    {
+                        SubMenuTemplate("Product could not be created");
+                    }
+
+                    PressKeyAndContinue();
+                }
+            }
+
+            void ShowAllProducts()
+            {
+                var Products = _productService.GetAllProducts();
+                if (Products != null)
+                {
+                    SubMenuTemplate("All Products");
+
+                    var i = 1;
+
+                    foreach (var product in Products)
+                    {
+                        string hyphens = new string('-', $"{i}.".Length);
+                        
+                        Console.WriteLine($"" +
+                            $"{i++}.\n" +
+                            $"{hyphens}\n" +
+                            $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                            $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                            $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                            $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                            $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                            $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                            $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                            $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                            $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                    }
+                }
+
+                Console.ReadLine();
+            }
+        }
+    }
+
+
+    // Orders menu
     private void ShowCreateOrderMenu()
     {
         SubMenuTemplate("Create Order menu");
@@ -762,7 +929,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         SubMenuTemplate("result details");
         if (result != null)
         {
-            Console.WriteLine($"Id: {result.Id}\nId: {result.CustomerId}\nOrder date: {result.OrderDate}\nOrder price: {result.OrderPrice}\n");
+            Console.WriteLine($"Id: {result.Id}\nCustomer Id: {result.CustomerId}\nOrder date: {result.OrderDate}\nOrder price: {result.OrderPrice}\n");
         }
         else
             Console.WriteLine("No active users found - Please Login to create order");

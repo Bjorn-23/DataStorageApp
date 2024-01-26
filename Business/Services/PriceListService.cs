@@ -19,14 +19,14 @@ public class PriceListService
     {
         try
         {            
-            var existingPriceList = _priceListRepository.GetOne(x => x.Price == product.Price && x.UnitType == product.UnitType);
-            if (existingPriceList == null)
+            var existingPriceList = _priceListRepository.GetOne(x => x.Price == product.Price && x.UnitType == product.Currency);
+            if (existingPriceList == null && product.Price != 0)
             {
                 var newPriceList = _priceListRepository.Create(new PriceListEntity()
                 {
                     Price = product.Price,
                     DiscountPrice = product.DiscountPrice,
-                    UnitType = product.UnitType,
+                    UnitType = product.Currency,
                 });
 
                 if (newPriceList != null)
@@ -67,6 +67,38 @@ public class PriceListService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
+    }
+
+    public (string UnitType, decimal Price, decimal? DiscountPrice) GetPriceList(ProductDto dto)
+    {
+        try
+        {
+            var existingPriceList = _priceListRepository.GetOne(x => x.Id == dto.PriceId);
+            if (existingPriceList != null)
+            {
+                return (existingPriceList.UnitType, existingPriceList.Price, existingPriceList.DiscountPrice);
+                
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return (null!, 0, 0);
+    }
+
+    public (string UnitType, decimal Price, decimal? DiscountPrice) GetPriceList(ProductEntity Entity)
+    {
+        try
+        {
+            var existingPriceList = _priceListRepository.GetOne(x => x.Id == Entity.PriceId);
+            if (existingPriceList != null)
+            {
+                return (existingPriceList.UnitType, existingPriceList.Price, existingPriceList.DiscountPrice);
+
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return (null!, 0, 0);
     }
 
 }

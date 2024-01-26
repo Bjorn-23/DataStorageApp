@@ -27,12 +27,20 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<UserService>();
+    services.AddScoped<UserRegistrationService>();
+    services.AddScoped<UserRoleService>();
 
     services.AddScoped<IOrderRepository, OrderRepository>();
     services.AddScoped<OrderService>();
 
-    services.AddScoped<UserRegistrationService>();
-    services.AddScoped<UserRoleService>();
+    services.AddScoped<IProductRepository, ProductRepository>();
+    services.AddScoped<ProductService>();
+
+    services.AddScoped<ICategoryRepository, CategoryRepository>();
+    services.AddScoped<CategoryService>();
+
+    services.AddScoped<IPriceListRepository, PriceListRepository>();
+    services.AddScoped<PriceListService>();
 
 
     services.AddScoped<MenuService>();
