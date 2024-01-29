@@ -4,7 +4,7 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories;
 
-public class OrderRepository(ProductContext context) : BaseRepository<OrderEntity, ProductContext>(context), IOrderRepository
+public class OrderRepository(ProductCatalog context) : BaseRepository<OrderEntity, ProductCatalog>(context), IOrderRepository
 {
-    private readonly ProductContext _context = context;
+    private readonly ProductCatalog _context = context;
 }

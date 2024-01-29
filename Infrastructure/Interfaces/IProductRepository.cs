@@ -3,6 +3,6 @@ using Infrastructure.Entities;
 
 namespace Infrastructure.Interfaces;
 
-public interface IProductRepository : IBaseRepository<ProductEntity, ProductContext>
+public interface IProductRepository : IBaseRepository<ProductEntity, ProductCatalog>
 {
 }

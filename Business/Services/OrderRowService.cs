@@ -11,12 +11,14 @@ public class OrderRowService
     private readonly IOrderRowRepository _orderRowRepository;
     private readonly ProductService _productService;
     private readonly OrderService _orderService;
+    private readonly ICustomerRepository _customerRepository;
 
-    public OrderRowService(IOrderRowRepository orderRowRepository, ProductService prorductService, OrderService orderService)
+    public OrderRowService(IOrderRowRepository orderRowRepository, ProductService prorductService, OrderService orderService, ICustomerRepository customerRepository)
     {
         _orderRowRepository = orderRowRepository;
         _productService = prorductService;
         _orderService = orderService;
+        _customerRepository = customerRepository;
     }
 
     public OrderRowDto CreateOrderRow(OrderRowDto orderRow)
@@ -43,6 +45,12 @@ public class OrderRowService
                 var createdOrderRow = _orderRowRepository.Create(newOrderRow);
                 if (createdOrderRow != null)
                 {
+                    _orderService.UpdateOrder(new OrderDto()
+                    {
+                        Id = newOrderRow.OrderId,
+                        OrderPrice = newOrderRow.OrderRowPrice,
+                    });
+
                     return Factories.OrderRowFactory.Create(createdOrderRow);
                 }
 
@@ -51,7 +59,7 @@ public class OrderRowService
             {
                 return null!;// Better to return null here?
             }
-            
+
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -63,7 +71,7 @@ public class OrderRowService
         try
         {
             var order = _orderService.GetAllOrders().FirstOrDefault();
-            if(order != null)
+            if (order != null)
             {
                 var orderRows = _orderRowRepository.GetAllWithPredicate(x => x.OrderId == order.Id);
                 return Factories.OrderRowFactory.Create(orderRows);
@@ -73,7 +81,46 @@ public class OrderRowService
 
         return new List<OrderRowDto>();
     }
-    
+
+    public IEnumerable<OrderDetailsDto> GetOrderRowDetails()
+    {
+        try
+        {
+            var activeUser = _orderService.GetActiveUser();
+            var orderDetails = _orderRowRepository.GetAllWithPredicate(x => x.Order.CustomerId == activeUser.Id);
+            if (orderDetails.Any())
+            {
+                List<OrderDetailsDto> list = new();
+
+                var customer = _customerRepository.GetOne(x => x.Id == activeUser.Id);
+
+                foreach (var order in orderDetails)
+                {
+                    list.Add(new OrderDetailsDto()
+                    {
+                        OrderId = order.OrderId,
+                        OrderDate = order.Order.OrderDate,
+                        OrderPrice = order.Order.OrderPrice,
+                        FirstName = customer.FirstName,
+                        LastName = customer.LastName,
+                        Email = customer.EmailId,
+                        PhoneNumber = customer.PhoneNumber,
+                        OrderRowId = order.Id,
+                        OrderRowQuantity = order.Quantity,
+                        OrderRowPrice = order.OrderRowPrice,
+                        ArticleNumber = order.ArticleNumber
+                    });
+                }
+
+                return list;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return new List<OrderDetailsDto>();
+
+    }
+
     public OrderRowDto UpdateOrderRow(OrderRowDto orderRow)
     {
         try
@@ -83,6 +130,7 @@ public class OrderRowService
                 return null!;
 
             var existingOrderRow = _orderRowRepository.GetOne(x => x.Id == orderRow.Id);
+            var oldOrderRowPrice = existingOrderRow.OrderRowPrice; // saves old price to new variable as existing one will be updated.
             if (existingOrderRow != null)
             {
                 var updatedOrderRowDetails = new OrderRowEntity
@@ -97,8 +145,16 @@ public class OrderRowService
                 var updatedOrderRow = _orderRowRepository.Update(existingOrderRow, updatedOrderRowDetails);
                 if (updatedOrderRow != null)
                 {
+                    // Sets price to update order with.
+                    OrderDto order = new()
+                    {
+                        Id = existingOrderRow.OrderId,
+                        OrderPrice = updatedOrderRowDetails.OrderRowPrice - oldOrderRowPrice,
+                    };
+                    var result = _orderService.UpdateOrder(order); // updates order total with new price.
+
                     return Factories.OrderRowFactory.Create(updatedOrderRow);
-                } 
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -106,7 +162,26 @@ public class OrderRowService
         return null!;
     }
 
-    
+    public OrderRowDto DeleteOrderRow(OrderRowDto orderRow)
+    {
+        try
+        {
+            var existingOrder = _orderRowRepository.GetOne(x => x.Id == orderRow.Id);
+            if (existingOrder != null)
+            {
+                var result = _orderRowRepository.Delete(existingOrder);
+                if (result)
+                {
+                    return Factories.OrderRowFactory.Create(existingOrder);
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+
     // Helpers
     private decimal GetPrice(ProductRegistrationDto product)
     {
@@ -141,6 +216,5 @@ public class OrderRowService
 
         return order;
     }
-
 
 }

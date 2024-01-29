@@ -1,6 +1,6 @@
 ﻿
 
-Scaffold-DbContext "Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\source\DataStorageApp\Infrastructure\Data\New_OrderingSystem_db.mdf;Integrated Security=True;Connect Timeout=30" Microsoft.EntityFrameworkCore.Sqlserver -OutputDir Entities -Context ProductContext -ContextDir Contexts -DataAnnotations -Force
+Scaffold-DbContext "Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\source\DataStorageApp\Infrastructure\Data\New_OrderingSystem_db.mdf;Integrated Security=True;Connect Timeout=30" Microsoft.EntityFrameworkCore.Sqlserver -OutputDir Entities -Context ProductCatalog -ContextDir Contexts -DataAnnotations -Force
 
 -Force är inte nödvändigt vid första skapande av DB, använd för att skriva över filer när databasen förändrats.)
 

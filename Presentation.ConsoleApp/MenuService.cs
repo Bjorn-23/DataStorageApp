@@ -759,7 +759,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         PressKeyAndContinue();
     }
 
-    // Orders menu
+    // Products menu
     private void ShowProductOptionsMenu()
     {
         bool productLoop = true;
@@ -920,8 +920,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         }
     }
 
-
-    // Orders menu
+    // Orders & OrderRows menu
     private void ShowOrderOptionsMenu()
     {
         bool orderLoop = true;
@@ -940,6 +939,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.WriteLine($"{"\n5.",-5} Add Order rows");
             Console.WriteLine($"{"\n6.",-5} Update Order rows");
             Console.WriteLine($"{"\n7.",-5} Delete Order rows");
+            Console.WriteLine($"{"\n8.",-5} Show order details");
             Console.WriteLine($"{"\n0.",-5} Go back");
             Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
@@ -952,9 +952,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 case "2":
                     ShowCreateOrderMenu();
                     break;
-                //case "3":
-                //    ShowDeleteOrderMenu();
-                //    break;
+                case "3":
+                    ShowDeleteOrderMenu();
+                    break;
                 case "4":
                     ShowAllOrderRowMenu();
                     break;
@@ -964,9 +964,12 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 case "6":
                     ShowUpdateOrderRow();
                     break;
-                //case "7":
-                //    ShowDeleteOrderRow();
-                //    break;
+                case "7":
+                    ShowDeleteOrderRow();
+                    break;
+                case "8":
+                    ShowOrderDetails();
+                    break;
                 case "0":
                     orderLoop = false;
                     break;
@@ -1001,6 +1004,37 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 PressKeyAndContinue();
             }
 
+            void ShowDeleteOrderMenu()
+            {
+                var order = _orderService.GetAllOrders().FirstOrDefault();
+                SubMenuTemplate("Current Order details");
+                if (order != null)
+                {
+                    Console.WriteLine("\nBe advised that any Order Rows associated with the order will also be deleted!");
+                    Console.WriteLine($"\nId: {order.Id}\nCustomer Id: {order.CustomerId}\nOrder date: {order.OrderDate}\nOrder price: {order.OrderPrice}\n");
+
+                    Console.WriteLine("\nAre you sure you wish to delete your current order? ");
+                    Console.Write("[Y]es / [N]o: ");
+                    var answer = Console.ReadLine()!;
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        var result = _orderService.DeleteOrder(order);
+                        SubMenuTemplate("Delete Status");
+                        if (result != null)
+                        {
+                            Console.WriteLine("Order deleted:");
+                            Console.WriteLine($"\nId: {result.Id}\nCustomer Id: {result.CustomerId}\nOrder date: {result.OrderDate}\nOrder price: {result.OrderPrice}\n");
+                        }
+                    }
+                    else
+                        Console.WriteLine("Order will not be deleted.");
+                }
+                else
+                    Console.WriteLine("No Orders associated with user, or no user logged in.");
+
+                PressKeyAndContinue();
+            }
+
             void ShowAllOrderRowMenu()
             {
                 var orderRows = _orderRowService.GetAllOrderRows();
@@ -1012,9 +1046,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         Console.WriteLine($"" +
                             $"Id: {"",-12}{orderRow.Id}\n" +
                             $"Article number: {orderRow.ArticleNumber}\n" +
-                            $"OrderId: {"",-7}{orderRow.OrderId}\n" +
+                            $"Order Id: {"",-7}{orderRow.OrderId}\n" +
                             $"Quantity: {"",-6}{orderRow.Quantity}\n" +
-                            $"OrderRowPrice: {"",-1}{orderRow.OrderRowPrice}\n");
+                            $"Order Row Price: {"",-1}{orderRow.OrderRowPrice}\n");
                     }
                 }
                 else
@@ -1044,7 +1078,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 $"Unit: {"",-14}{product.Unit}\n" +
                                 $"Stock: {"",-13}{product.Stock}\n");                    
                     }
-                    Console.WriteLine("\nFill in article number and quantity of the product on want to purchase.\n");
+                    Console.WriteLine("\nFill in article number and quantity of the product you want to purchase.\n");
 
                     Console.Write("\nArticle Number*: ");
                     orderRow.ArticleNumber = Console.ReadLine()!;
@@ -1062,9 +1096,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             Console.WriteLine($"" +
                                 $"Id: {"",-12}{result.Id}\n" +
                                 $"Article number: {result.ArticleNumber}\n" +
-                                $"OrderId: {"",-7}{result.OrderId}\n" +
+                                $"Order Id: {"",-7}{result.OrderId}\n" +
                                 $"Quantity: {"",-6}{result.Quantity}\n" +
-                                $"OrderRowPrice: {"",-1}{result.OrderRowPrice}\n");
+                                $"Order Row Price: {"",-1}{result.OrderRowPrice}\n");
                         }
                         else
                         {
@@ -1092,9 +1126,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     Console.WriteLine($"" +
                         $"Id: {"",-12}{orderRow.Id}\n" +
                         $"Article number: {orderRow.ArticleNumber}\n" +
-                        $"OrderId: {"",-7}{orderRow.OrderId}\n" +
+                        $"Order Id: {"",-7}{orderRow.OrderId}\n" +
                         $"Quantity: {"",-6}{orderRow.Quantity}\n" +
-                        $"OrderRowPrice: {"",-1}{orderRow.OrderRowPrice}\n");
+                        $"Order Row Price: {"",-1}{orderRow.OrderRowPrice}\n");
                 }
 
                 Console.WriteLine("Please fill in Id of order to update:");
@@ -1116,9 +1150,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             Console.WriteLine($"" +
                                 $"Id: {"",-12}{result.Id}\n" +
                                 $"Article number: {result.ArticleNumber}\n" +
-                                $"OrderId: {"",-7}{result.OrderId}\n" +
+                                $"Order Id: {"",-7}{result.OrderId}\n" +
                                 $"Quantity: {"",-6}{result.Quantity}\n" +
-                                $"OrderRowPrice: {"",-1}{result.OrderRowPrice}\n");
+                                $"Order Row Price: {"",-1}{result.OrderRowPrice}\n");
                         }
                     }
                 }
@@ -1128,7 +1162,89 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 }
                 
                 PressKeyAndContinue();
-            }   
+            }
+
+            void ShowDeleteOrderRow()
+            {
+                var order = new OrderRowDto();
+                var orderRows = _orderRowService.GetAllOrderRows();
+                SubMenuTemplate("All order rows:");
+                if (orderRows.Any())
+                {
+                    foreach (var orderRow in orderRows)
+                    {
+                        Console.WriteLine($"" +
+                            $"Id: {"",-12}{orderRow.Id}\n" +
+                            $"Article number: {orderRow.ArticleNumber}\n" +
+                            $"Order Id: {"",-7}{orderRow.OrderId}\n" +
+                            $"Quantity: {"",-6}{orderRow.Quantity}\n" +
+                            $"Order Row Price: {"",-1}{orderRow.OrderRowPrice}\n");
+                    }
+
+                    Console.WriteLine("\nType in Id of the order row to delete: ");
+                    Console.Write("Id: ");
+                    var answer = int.TryParse(Console.ReadLine()!, out int Id);
+                    if (answer)
+                    {
+                        order.Id = Id;
+
+                        var result = _orderRowService.DeleteOrderRow(order);
+                        SubMenuTemplate("Delete Status");
+                        if (result != null)
+                        {
+                            Console.WriteLine("Order row deleted:");
+                            Console.WriteLine($"" +
+                                $"Id: {"",-12}{result.Id}\n" +
+                                $"Article number: {result.ArticleNumber}\n" +
+                                $"Order Id: {"",-7}{result.OrderId}\n" +
+                                $"Quantity: {"",-6}{result.Quantity}\n" +
+                                $"Order Row Price: {"",-1}{result.OrderRowPrice}\n");
+                        }
+                        else 
+                            Console.WriteLine("Something went wrong, order row was not be deleted.");
+                    }
+                    else
+                        Console.WriteLine("Something went wrong, no order row by that id.");
+                }
+                else
+                    Console.WriteLine("No order rows currently associated with user");
+
+
+
+
+
+                PressKeyAndContinue();
+            }
+
+            void ShowOrderDetails()
+            {
+                var result = _orderRowService.GetOrderRowDetails();
+
+                SubMenuTemplate("Order details:");
+                if (result.Any())
+                {
+                    Console.WriteLine($"\n" +
+                        $"Order Id: {result.FirstOrDefault()!.OrderId}\n" +
+                        $"Total Price: {result.FirstOrDefault()!.OrderPrice}\n" +
+                        $"Order Created: {result.FirstOrDefault()!.OrderDate}\n");
+
+                    Console.WriteLine($"\nFirst name: {"",-0}{result.FirstOrDefault()!.FirstName}\nLast name: {"",-1}{result.FirstOrDefault()!.LastName}\nEmail: {"",-5}{result.FirstOrDefault()!.Email}\nPhone no: {"",-2}{result.FirstOrDefault()!.PhoneNumber}\n");
+                    //Console.WriteLine($"\nList of addresses associated with {customerDetails.FirstName} {customerDetails.LastName}:");
+
+                    foreach (var orderRow in result)
+                    {
+                        Console.WriteLine($"\nId: {"",-12}{orderRow.OrderRowId}\n" +
+                            $"Article number: {orderRow.ArticleNumber}\n" +
+                            $"Order Id: {"",-7}{orderRow.OrderId}\n" +
+                            $"Quantity: {"",-6}{orderRow.OrderRowQuantity}\n" +
+                            $"Order Row Price: {"",-1}{orderRow.OrderRowPrice}\n");
+                    }
+                }
+                else
+                    Console.WriteLine("No orders associated with logged in user.");
+
+                PressKeyAndContinue(); 
+            }
 
 
             //insert new methods above this line.

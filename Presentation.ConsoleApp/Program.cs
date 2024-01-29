@@ -12,7 +12,7 @@ using System.Diagnostics;
 var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 {
     services.AddDbContext<DataContext>(x => x.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\source\DataStorageApp\Infrastructure\Data\New_DataStorageApp_db.mdf;Integrated Security=True;Connect Timeout=30"));
-    services.AddDbContext<ProductContext>(x => x.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=D:\\source\\DataStorageApp\\Infrastructure\\Data\\New_OrderingSystem_db.mdf;Integrated Security=True;Connect Timeout=30"));
+    services.AddDbContext<ProductCatalog>(x => x.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=D:\\source\\DataStorageApp\\Infrastructure\\Data\\New_OrderingSystem_db.mdf;Integrated Security=True;Connect Timeout=30"));
 
     services.AddScoped<ICustomerRepository, CustomerRepository>();
     services.AddScoped<CustomerService>();
@@ -45,9 +45,7 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
     services.AddScoped<IPriceListRepository, PriceListRepository>();
     services.AddScoped<PriceListService>();
 
-
     services.AddScoped<MenuService>();
-
 
 }).Build();
 
@@ -55,13 +53,13 @@ try
 {
     builder.Start();
    
-    //var userService = builder.Services.GetRequiredService<UserService>();
+    //var userService = builder.Services.GetRequiredService<UserService>(); ////Enable tAgain once testing is over and done with
     //userService.LogoutUsers();
 
     var menuService = builder.Services.GetRequiredService<MenuService>();
     menuService.MenuStart();
 
-    //AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+    //AppDomain.CurrentDomain.ProcessExit += (sender, e) => ////Enable tAgain once testing is over and done with
     //{
     //    userService.LogoutUsers();
     //};
@@ -71,5 +69,3 @@ catch (Exception ex)
     Debug.WriteLine("ERROR :: " + ex.Message);
     Console.WriteLine("There was an error while starting the app.");
 }
-
-

@@ -4,8 +4,8 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories;
 
-public class PriceListRepository(ProductContext context) : BaseRepository<PriceListEntity, ProductContext>(context), IPriceListRepository
+public class PriceListRepository(ProductCatalog context) : BaseRepository<PriceListEntity, ProductCatalog>(context), IPriceListRepository
 {
-    private readonly ProductContext _context = context;
+    private readonly ProductCatalog _context = context;
 }
 

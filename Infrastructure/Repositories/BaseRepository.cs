@@ -59,7 +59,7 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
         return null!;
     }
 
-    public TEntity GetOne(Expression<Func<TEntity, bool>> predicate)
+    public virtual TEntity GetOne(Expression<Func<TEntity, bool>> predicate)
     {
         try
         {

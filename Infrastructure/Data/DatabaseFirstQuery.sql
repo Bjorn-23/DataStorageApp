@@ -53,10 +53,10 @@ GO
 ALTER TABLE [Products] ADD FOREIGN KEY ([CategoryName]) REFERENCES [Categories] ([CategoryName])
 GO
 
-ALTER TABLE [OrderRows] ADD FOREIGN KEY ([ArticleNumber]) REFERENCES [Products] ([ArticleNumber])
+ALTER TABLE [OrderRows] ADD FOREIGN KEY ([ArticleNumber]) REFERENCES [Products] ([ArticleNumber]) ON DELETE CASCADE
 GO
 
-ALTER TABLE [OrderRows] ADD FOREIGN KEY ([OrderId]) REFERENCES [Orders] ([Id])
+ALTER TABLE [OrderRows] ADD FOREIGN KEY ([OrderId]) REFERENCES [Orders] ([Id]) ON DELETE CASCADE
 GO
 
 --SELECT name, compatibility_level

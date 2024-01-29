@@ -4,7 +4,7 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories;
 
-public class CategoryRepository(ProductContext context) : BaseRepository<CategoryEntity, ProductContext>(context), ICategoryRepository
+public class CategoryRepository(ProductCatalog context) : BaseRepository<CategoryEntity, ProductCatalog>(context), ICategoryRepository
 {
-    private readonly ProductContext _context = context;
+    private readonly ProductCatalog _context = context;
 }

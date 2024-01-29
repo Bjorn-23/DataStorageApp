@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Infrastructure.Entities;
+﻿using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Contexts;
 
-public partial class ProductContext : DbContext
+public partial class ProductCatalog : DbContext
 {
-    public ProductContext()
+    public ProductCatalog()
     {
     }
 
-    public ProductContext(DbContextOptions<ProductContext> options)
+    public ProductCatalog(DbContextOptions<ProductCatalog> options)
         : base(options)
     {
     }
@@ -26,51 +24,48 @@ public partial class ProductContext : DbContext
 
     public virtual DbSet<ProductEntity> Products { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CategoryEntity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Categori__3214EC072C6E1A21");
+            entity.HasKey(e => e.Id).HasName("PK__Categori__3214EC070CC72E51");
         });
 
         modelBuilder.Entity<OrderEntity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Orders__3214EC0779AE37D8");
+            entity.HasKey(e => e.Id).HasName("PK__Orders__3214EC0767723072");
         });
 
         modelBuilder.Entity<OrderRowEntity>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.OrderId }).HasName("PK__OrderRow__DE2DE9BB89CA3169");
+            entity.HasKey(e => new { e.Id, e.OrderId }).HasName("PK__OrderRow__DE2DE9BB07251A08");
 
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
-            entity.HasOne(d => d.ArticleNumberNavigation).WithOne(p => p.OrderRow)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderRows__Artic__13F1F5EB");
+            entity.HasOne(d => d.ArticleNumberNavigation).WithOne(p => p.OrderRow).HasConstraintName("FK__OrderRows__Artic__2704CA5F");
 
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderRows)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderRows__Order__14E61A24");
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderRows).HasConstraintName("FK__OrderRows__Order__27F8EE98");
         });
 
         modelBuilder.Entity<PriceListEntity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PriceLis__3214EC07A75DB111");
+            entity.HasKey(e => e.Id).HasName("PK__PriceLis__3214EC07E95AB0C2");
         });
 
         modelBuilder.Entity<ProductEntity>(entity =>
         {
-            entity.HasKey(e => e.ArticleNumber).HasName("PK__Products__3C991143972749B3");
+            entity.HasKey(e => e.ArticleNumber).HasName("PK__Products__3C9911434C0730FC");
 
             entity.HasOne(d => d.CategoryNameNavigation).WithMany(p => p.Products)
                 .HasPrincipalKey(p => p.CategoryName)
                 .HasForeignKey(d => d.CategoryName)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Products__Catego__12FDD1B2");
+                .HasConstraintName("FK__Products__Catego__2610A626");
 
             entity.HasOne(d => d.Price).WithMany(p => p.Products)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Products__PriceI__1209AD79");
+                .HasConstraintName("FK__Products__PriceI__251C81ED");
         });
 
         OnModelCreatingPartial(modelBuilder);

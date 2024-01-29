@@ -108,10 +108,12 @@ public class OrderService
 
             if(existingOrder != null)  // Delete as logged in user
             {
+                existingOrder.OrderPrice += order.OrderPrice;
+
                 OrderEntity updatedOrder = new OrderEntity()
                 {
                     Id = existingOrder.Id,
-                    OrderPrice = order.OrderPrice,
+                    OrderPrice = existingOrder.OrderPrice,
                     CustomerId = activeUser.Id,
                     OrderDate = existingOrder.OrderDate,
                 };

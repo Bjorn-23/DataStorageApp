@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Entities;
 
 [PrimaryKey("Id", "OrderId")]
-[Index("ArticleNumber", Name = "UQ__OrderRow__3C991142E6BF2095", IsUnique = true)]
+[Index("ArticleNumber", Name = "UQ__OrderRow__3C99114208570C42", IsUnique = true)]
 public partial class OrderRowEntity
 {
     [Key]
