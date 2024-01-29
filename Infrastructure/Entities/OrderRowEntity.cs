@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
 [PrimaryKey("Id", "OrderId")]
+[Index("ArticleNumber", Name = "UQ__OrderRow__3C991142E6BF2095", IsUnique = true)]
 public partial class OrderRowEntity
 {
     [Key]
@@ -17,14 +16,13 @@ public partial class OrderRowEntity
     [Column(TypeName = "money")]
     public decimal OrderRowPrice { get; set; }
 
-    [StringLength(450)]
     public string ArticleNumber { get; set; } = null!;
 
     [Key]
     public int OrderId { get; set; }
 
     [ForeignKey("ArticleNumber")]
-    [InverseProperty("OrderRows")]
+    [InverseProperty("OrderRow")]
     public virtual ProductEntity ArticleNumberNavigation { get; set; } = null!;
 
     [ForeignKey("OrderId")]

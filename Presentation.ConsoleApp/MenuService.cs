@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Presentation.ConsoleApp;
 
-internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService)
+internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService, OrderRowService orderRowService)
 {
 
     private readonly CustomerService _customerService = customerService;
@@ -19,6 +19,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     private readonly UserRegistrationService _userRegistrationService = userRegistrationService;
     private readonly OrderService _orderService = orderService;
     private readonly ProductService _productService = productService;
+    private readonly OrderRowService _orderRowService = orderRowService;
 
 
     // Main menu
@@ -60,7 +61,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     ShowProductOptionsMenu();
                     break;
                 case "6":
-                    ShowCreateOrderMenu();
+                    ShowOrderOptionsMenu();
                     break;
                 case "0":
                     Environment.Exit(0);
@@ -765,7 +766,6 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
         while (productLoop)
         {
-            //MenuTemplate("Adress", "Adresses");
             Console.Clear();
             Console.WriteLine($"{"",-5}Product menu - Choose an option");
             string hyphens = new string('-', $"{"",5}Product menu - Choose an option".Length);
@@ -899,7 +899,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     foreach (var product in Products)
                     {
                         string hyphens = new string('-', $"{i}.".Length);
-                        
+
                         Console.WriteLine($"" +
                             $"{i++}.\n" +
                             $"{hyphens}\n" +
@@ -922,20 +922,217 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
 
     // Orders menu
-    private void ShowCreateOrderMenu()
+    private void ShowOrderOptionsMenu()
     {
-        SubMenuTemplate("Create Order menu");
-        var result = _orderService.CreateOrder();
-        SubMenuTemplate("result details");
-        if (result != null)
+        bool orderLoop = true;
+
+        while (orderLoop)
         {
-            Console.WriteLine($"Id: {result.Id}\nCustomer Id: {result.CustomerId}\nOrder date: {result.OrderDate}\nOrder price: {result.OrderPrice}\n");
+
+            Console.Clear();
+            Console.WriteLine($"{"",-5}Order menu - Choose an option");
+            string hyphens = new string('-', $"{"",5}Order menu - Choose an option".Length);
+            Console.WriteLine(hyphens);
+            Console.WriteLine($"{"\n1.",-5} Show Order");
+            Console.WriteLine($"{"\n2.",-5} Create Order");
+            Console.WriteLine($"{"\n3.",-5} Delete Order");
+            Console.WriteLine($"{"\n4.",-5} Show all Order rows");
+            Console.WriteLine($"{"\n5.",-5} Add Order rows");
+            Console.WriteLine($"{"\n6.",-5} Update Order rows");
+            Console.WriteLine($"{"\n7.",-5} Delete Order rows");
+            Console.WriteLine($"{"\n0.",-5} Go back");
+            Console.Write($"\n\n{"",-5}Option: ");
+            var option = Console.ReadLine();
+
+            switch (option)
+            {
+                case "1":
+                    ShowOrderMenu();
+                    break;
+                case "2":
+                    ShowCreateOrderMenu();
+                    break;
+                //case "3":
+                //    ShowDeleteOrderMenu();
+                //    break;
+                case "4":
+                    ShowAllOrderRowMenu();
+                    break;
+                case "5":
+                    ShowCreateOrderRowMenu();
+                    break;
+                case "6":
+                    ShowUpdateOrderRow();
+                    break;
+                //case "7":
+                //    ShowDeleteOrderRow();
+                //    break;
+                case "0":
+                    orderLoop = false;
+                    break;
+                default:
+                    break;
+            }
+
+            void ShowOrderMenu()
+            {
+                var result = _orderService.GetAllOrders().FirstOrDefault();
+                SubMenuTemplate("Current Order details");
+                if (result != null)
+                {
+                    Console.WriteLine($"Id: {result.Id}\nCustomer Id: {result.CustomerId}\nOrder date: {result.OrderDate}\nOrder price: {result.OrderPrice}\n");
+                }
+                else
+                    Console.WriteLine("No Orders associated with user, or no user logged in.");
+                PressKeyAndContinue();
+            }
+            
+            void ShowCreateOrderMenu()
+            {
+                var result = _orderService.CreateOrder();
+                SubMenuTemplate("Created Order details");
+                if (result != null)
+                {
+                    Console.WriteLine($"Id: {result.Id}\nCustomer Id: {result.CustomerId}\nOrder date: {result.OrderDate}\nOrder price: {result.OrderPrice}\n");
+                }
+                else
+                    Console.WriteLine("Order already created, or no user logged in.");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowAllOrderRowMenu()
+            {
+                var orderRows = _orderRowService.GetAllOrderRows();
+                SubMenuTemplate("All Order rows:");
+                if (orderRows.Any())
+                {
+                    foreach (var orderRow in orderRows)
+                    {
+                        Console.WriteLine($"" +
+                            $"Id: {"",-12}{orderRow.Id}\n" +
+                            $"Article number: {orderRow.ArticleNumber}\n" +
+                            $"OrderId: {"",-7}{orderRow.OrderId}\n" +
+                            $"Quantity: {"",-6}{orderRow.Quantity}\n" +
+                            $"OrderRowPrice: {"",-1}{orderRow.OrderRowPrice}\n");
+                    }
+                }
+                else
+                    Console.WriteLine("No Order rows currently associated with user");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowCreateOrderRowMenu()
+            {
+                var orderRow = new OrderRowDto();
+
+                var products = _productService.GetAllProducts();
+                SubMenuTemplate("Create Order row");
+                if (products.Any())
+                {
+                    foreach ( var product in products )
+                    {
+                            Console.WriteLine($"" +
+                                $"Article number: {"",-4}{product.ArticleNumber}\n" +
+                                $"Title: {"",-13}{product.Title}\n" +
+                                $"Ingress: {"",-11}{product.Ingress}\n" +
+                                $"Description: {"",-7}{product.Description}\n" +
+                                $"Category: {"",-10}{product.CategoryName}\n" +
+                                $"Price: {"",-13}{product.Price} {product.Currency}\n" +
+                                $"Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                                $"Unit: {"",-14}{product.Unit}\n" +
+                                $"Stock: {"",-13}{product.Stock}\n");                    
+                    }
+                    Console.WriteLine("\nFill in article number and quantity of the product on want to purchase.\n");
+
+                    Console.Write("\nArticle Number*: ");
+                    orderRow.ArticleNumber = Console.ReadLine()!;
+
+                    Console.Write("\nQuantity*: ");
+                    var quantityResult = int.TryParse(Console.ReadLine()!, out int quantity);
+                    if (quantityResult && quantity >= 1)
+                    {
+                        orderRow.Quantity = quantity;
+                    
+                        var result = _orderRowService.CreateOrderRow(orderRow);
+                        if (result != null)
+                        {
+                            SubMenuTemplate("New Order row created:");
+                            Console.WriteLine($"" +
+                                $"Id: {"",-12}{result.Id}\n" +
+                                $"Article number: {result.ArticleNumber}\n" +
+                                $"OrderId: {"",-7}{result.OrderId}\n" +
+                                $"Quantity: {"",-6}{result.Quantity}\n" +
+                                $"OrderRowPrice: {"",-1}{result.OrderRowPrice}\n");
+                        }
+                        else
+                        {
+                            SubMenuTemplate("Order row status:");
+                            Console.WriteLine($"Order row could not be created or already exists!\nIf you wish to add more items to your order the use update order rows instead.");
+                        }
+                    }
+                    else
+                        Console.WriteLine("Order row could not be created, please try again.");
+                }
+                else
+                    Console.WriteLine("There are curently no products to purchase, create a new product from the 'Create Product Menu.'");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowUpdateOrderRow()
+            {
+                var updatedOrderRow = new OrderRowDto();
+
+                var orderRows = _orderRowService.GetAllOrderRows();
+                SubMenuTemplate("Update Order row:");
+                foreach (var orderRow in orderRows)
+                {
+                    Console.WriteLine($"" +
+                        $"Id: {"",-12}{orderRow.Id}\n" +
+                        $"Article number: {orderRow.ArticleNumber}\n" +
+                        $"OrderId: {"",-7}{orderRow.OrderId}\n" +
+                        $"Quantity: {"",-6}{orderRow.Quantity}\n" +
+                        $"OrderRowPrice: {"",-1}{orderRow.OrderRowPrice}\n");
+                }
+
+                Console.WriteLine("Please fill in Id of order to update:");
+                Console.Write("Id: ");
+                var orderRowId = int.TryParse(Console.ReadLine()!, out int id);
+                if (orderRowId || id >=1)
+                {
+                    updatedOrderRow.Id = id;
+
+                    Console.Write("Fill in updated quantity for order row: ");
+                    var orderRowQuantity = int.TryParse(Console.ReadLine()!, out int quantity);
+                    if (orderRowQuantity || quantity >= 1)
+                    {
+                        updatedOrderRow.Quantity = quantity;
+                        var result = _orderRowService.UpdateOrderRow(updatedOrderRow);
+                        if (result != null)
+                        {
+                            SubMenuTemplate("Order row updated to: ");
+                            Console.WriteLine($"" +
+                                $"Id: {"",-12}{result.Id}\n" +
+                                $"Article number: {result.ArticleNumber}\n" +
+                                $"OrderId: {"",-7}{result.OrderId}\n" +
+                                $"Quantity: {"",-6}{result.Quantity}\n" +
+                                $"OrderRowPrice: {"",-1}{result.OrderRowPrice}\n");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Could not find order row, please try again.");
+                }
+                
+                PressKeyAndContinue();
+            }   
+
+
+            //insert new methods above this line.
         }
-        else
-            Console.WriteLine("No active users found - Please Login to create order");
-
-        PressKeyAndContinue();
-
     }
 
     // Helper Methods

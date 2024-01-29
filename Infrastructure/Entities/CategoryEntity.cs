@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
-[Index("CategoryName", Name = "UQ__Categori__8517B2E0E0CF30B4", IsUnique = true)]
+[Index("CategoryName", Name = "UQ__Categori__8517B2E061BCDDC1", IsUnique = true)]
 public partial class CategoryEntity
 {
     [Key]

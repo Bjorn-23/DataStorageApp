@@ -34,7 +34,7 @@ public partial class ProductEntity
     public virtual CategoryEntity CategoryNameNavigation { get; set; } = null!;
 
     [InverseProperty("ArticleNumberNavigation")]
-    public virtual ICollection<OrderRowEntity> OrderRows { get; set; } = new List<OrderRowEntity>();
+    public virtual OrderRowEntity? OrderRow { get; set; }
 
     [ForeignKey("PriceId")]
     [InverseProperty("Products")]

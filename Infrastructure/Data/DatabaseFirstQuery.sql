@@ -40,7 +40,7 @@ CREATE TABLE [OrderRows] (
   [Id] int NOT NULL IDENTITY(1, 1),
   [Quantity] int NOT NULL,
   [OrderRowPrice] money NOT NULL,
-  [ArticleNumber] nvarchar(450) NOT NULL,
+  [ArticleNumber] nvarchar(450) UNIQUE NOT NULL,
   [OrderId] int NOT NULL,
   PRIMARY KEY ([Id], [OrderId])
 )

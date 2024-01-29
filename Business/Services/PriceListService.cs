@@ -34,28 +34,25 @@ public class PriceListService
                     return newPriceList;
                 }
             }
-            else
-                return existingPriceList;            
+            if (existingPriceList != null)
+            {
+                return existingPriceList;
+            }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
 
-    public PriceListDto GetOrCreatePriceList(PriceListDto priceList) // REFACTOR WITH FACTORIES!!
+    public PriceListDto GetOrCreatePriceList(PriceListDto priceList)
     {
         try
         {
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType);
             if (existingPriceList == null)
             {
-                var newPriceList = _priceListRepository.Create(new PriceListEntity()
-                {
-                    Price = priceList.Price,
-                    DiscountPrice = priceList.DiscountPrice,
-                    UnitType = priceList.UnitType,
-                });
-
+                var entity = Factories.PriceListFactory.Create(priceList);
+                var newPriceList = _priceListRepository.Create(entity);
                 if (newPriceList != null)
                 {
                     return Factories.PriceListFactory.Create(newPriceList);                      

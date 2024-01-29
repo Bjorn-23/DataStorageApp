@@ -16,6 +16,7 @@ public partial class OrderEntity
     [Column(TypeName = "money")]
     public decimal OrderPrice { get; set; }
 
+    [StringLength(450)]
     public string CustomerId { get; set; } = null!;
 
     [InverseProperty("Order")]

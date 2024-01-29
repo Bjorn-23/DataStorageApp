@@ -2,7 +2,6 @@
 using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 
 namespace Business.Services;
@@ -67,6 +66,35 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
                         return roleEntity;
                     }
                 }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public UserRoleDto UpdateRole(UserRoleDto user) // very basic, might want to include checks.
+    {
+        try
+        {
+            var entity = Factories.UserRoleFactory.Create(user);
+            var result = _userRoleRepository.Update(x => x.RoleName == user.RoleName, entity);
+            var dto = Factories.UserRoleFactory.Create(result);
+            return dto;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public UserRoleDto DeleteRole(UserRoleDto role) // very basic, might want to include checks.
+    {
+        try
+        {
+            var result = _userRoleRepository.Delete(x => x.RoleName == role.RoleName);
+            if (result)
+            {
+                return role;
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

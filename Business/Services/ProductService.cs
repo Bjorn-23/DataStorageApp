@@ -2,6 +2,7 @@
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace Business.Services;
 
@@ -62,6 +63,22 @@ public class ProductService
         return null!;
     }
 
+    public ProductRegistrationDto GetProduct(Expression<Func<ProductEntity, bool>> predicate) // For OrderRowCreation
+    {
+        try
+        {
+            var existingProduct = _productRepository.GetOne(predicate);
+            var priceId = _priceListService.GetPriceList(existingProduct);
+            if (existingProduct != null)
+            {
+                return Factories.ProductFactory.Create(existingProduct, priceId.UnitType, priceId.Price, priceId.DiscountPrice);
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
     public ProductRegistrationDto GetProductDisplay(ProductDto dto)
     {
         try
@@ -92,15 +109,84 @@ public class ProductService
 
     public IEnumerable<ProductRegistrationDto> GetAllProducts()
     {
-        List<ProductRegistrationDto> productList = new();
-
-        var products = _productRepository.GetAll();
-        foreach (var product in products)
+        try
         {
-            var priceId = _priceListService.GetPriceList(product);
-            var result = Factories.ProductFactory.Create(product, priceId.UnitType, priceId.Price, priceId.DiscountPrice);
-            productList.Add(result);
+            List<ProductRegistrationDto> productList = new();
+
+            var products = _productRepository.GetAll();
+            if (products != null)
+            {
+                foreach (var product in products)
+                {
+                    var priceId = _priceListService.GetPriceList(product);
+                    var result = Factories.ProductFactory.Create(product, priceId.UnitType, priceId.Price, priceId.DiscountPrice);
+                    productList.Add(result);
+                }
+                return productList;
+            }
         }
-        return productList;
+         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return new List<ProductRegistrationDto>();
+    }
+
+    public ProductDto UpdateProduct(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
+    {
+        try
+        {
+            var checkRole = _userService.FindRoleOfActiveUser();
+            if (checkRole.UserRoleName == "Admin")
+            {
+                var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
+                if (existingProduct == null)
+                {
+                    return null!;
+                }
+                else
+                {
+                    var categoryName = _categoryService.GetOrCreateCategory(product);
+                    var priceId = _priceListService.GetOrCreatePriceList(product);
+
+                    var updatedProduct = _productRepository.Update(existingProduct ,new ProductEntity()
+                    {
+                        ArticleNumber = product.ArticleNumber,
+                        Title = product.Title,
+                        Ingress = product.Ingress,
+                        Description = product.Description,
+                        PriceId = priceId.Id,
+                        Unit = product.Unit,
+                        Stock = product.Stock,
+                        CategoryName = categoryName.CategoryName
+
+                    });
+                    if (updatedProduct != null)
+                    {
+                        return Factories.ProductFactory.Create(updatedProduct);
+                    }
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public ProductDto DeleteProduct(ProductDto product)
+    {
+        try
+        {
+            var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber || x.Title == product.Title);
+            if (existingProduct != null)
+            {
+                var result = _productRepository.Delete(existingProduct);
+                if (result)
+                {
+                    return Factories.ProductFactory.Create(existingProduct);
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
     }
 }

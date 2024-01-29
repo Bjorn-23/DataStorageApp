@@ -32,6 +32,9 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 
     services.AddScoped<IOrderRepository, OrderRepository>();
     services.AddScoped<OrderService>();
+    
+    services.AddScoped<IOrderRowRepository, OrderRowRepository>();
+    services.AddScoped<OrderRowService>();
 
     services.AddScoped<IProductRepository, ProductRepository>();
     services.AddScoped<ProductService>();
@@ -52,16 +55,16 @@ try
 {
     builder.Start();
    
-    var userService = builder.Services.GetRequiredService<UserService>();
-    userService.LogoutUsers();
+    //var userService = builder.Services.GetRequiredService<UserService>();
+    //userService.LogoutUsers();
 
     var menuService = builder.Services.GetRequiredService<MenuService>();
     menuService.MenuStart();
 
-    AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
-    {
-        userService.LogoutUsers();
-    };
+    //AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+    //{
+    //    userService.LogoutUsers();
+    //};
 }
 catch (Exception ex)
 {
