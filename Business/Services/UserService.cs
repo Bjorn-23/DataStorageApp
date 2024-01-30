@@ -49,6 +49,119 @@ public class UserService
         return null!;
     }
 
+    public UserEntity GetOne(UserDto dto)
+    {
+        try
+        {
+            var result = _userRepository.GetOne(x => x.Email == dto.Email);
+            if (result != null)
+                return result;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+    
+    public UserEntity GetOne(CustomerEntity entity) // Currently only used in customer service.
+    {
+        try
+        {
+            var result = _userRepository.GetOne(x => x.Email == entity.EmailId);
+            if (result != null)
+                return result;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public UserDto UpdateUser(UserDto user, UserDto newUserDetails)
+    {
+        try
+        {
+            var existingUser = GetOne(user);
+            var checkRole = FindRoleOfActiveUser();
+
+            if (existingUser.IsActive || checkRole.UserRoleName.ToString() == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
+            {
+
+                UserEntity updatedUserDetails = new()
+                {
+                    Id = existingUser.Id,
+                    Email = string.IsNullOrWhiteSpace(newUserDetails.Email) ? existingUser.Email : newUserDetails.Email,
+                    Password = existingUser.Password,
+                    SecurityKey = existingUser.SecurityKey,
+                    Created = existingUser.Created,
+                    IsActive = existingUser.IsActive,
+                    UserRoleName = string.IsNullOrWhiteSpace(newUserDetails.UserRoleName) ? existingUser.UserRoleName : _userRoleService.GetOrCreateRole(newUserDetails).UserRoleName
+                };
+
+                // Generates new .SecurityKey and .Password combination if a new password was submitted
+                if (!string.IsNullOrWhiteSpace(newUserDetails.Password))
+                {
+                    var newPasswordAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(updatedUserDetails.Password);
+                    updatedUserDetails.Password = newPasswordAndKey.Password;
+                    updatedUserDetails.SecurityKey = newPasswordAndKey.SecurityKey;                                        
+                }
+
+                //Changes .EmailId in Customers table if a new email was submitted
+                if (!string.IsNullOrWhiteSpace(newUserDetails.Email))
+                {
+                    var result = _userRepository.Update(existingUser, updatedUserDetails);
+                    if (result != null)
+                    {
+                        var existingCustomer = _customerRepository.GetOne(x => x.Id == result.Id);
+
+                        CustomerEntity newEmail = new()
+                        {
+                            Id = existingCustomer.Id,
+                            FirstName = existingCustomer.FirstName,
+                            LastName = existingCustomer.LastName,
+                            EmailId = result.Email,
+                            PhoneNumber = existingCustomer.PhoneNumber,
+                        };
+                        var updateCustomerEmail = _customerRepository.Update(x => x.Id == result.Id, newEmail);
+                        if (updateCustomerEmail != null)
+                            return UserFactory.Create(result);
+                    }
+                }
+                else
+                {
+                    var result = _userRepository.Update(existingUser, updatedUserDetails);
+                    if (result != null)
+                        return UserFactory.Create(result);
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!; ;
+    }
+
+    public UserDto DeleteUser(UserDto user)
+    {
+        try
+        {
+            var existingUser = GetOne(user);
+            var checkRole = FindRoleOfActiveUser();
+
+            // Add extra check to see if user should be deleted?
+
+            if (existingUser.IsActive || checkRole.UserRole.ToString() == "Admin")
+            {
+                var result = _userRepository.Delete(existingUser);
+                if (result)
+                    return user;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        
+        return null!;
+
+
+    }
+
+    // User functionality in program.
     public bool UserLogin(UserDto user)
     {
         try
@@ -145,116 +258,6 @@ public class UserService
         return null!;
     }
 
-    public UserDto UpdateUser(UserDto user, UserDto newUserDetails)
-    {
-        try
-        {
-            var existingUser = GetOne(user);
-            var checkRole = FindRoleOfActiveUser();
-
-            if (existingUser.IsActive || checkRole.UserRoleName.ToString() == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
-            {
-
-                UserEntity updatedUserDetails = new()
-                {
-                    Id = existingUser.Id,
-                    Email = string.IsNullOrWhiteSpace(newUserDetails.Email) ? existingUser.Email : newUserDetails.Email,
-                    Password = existingUser.Password,
-                    SecurityKey = existingUser.SecurityKey,
-                    Created = existingUser.Created,
-                    IsActive = existingUser.IsActive,
-                    UserRoleName = string.IsNullOrWhiteSpace(newUserDetails.UserRoleName) ? existingUser.UserRoleName : _userRoleService.GetOrCreateRole(newUserDetails).UserRoleName
-                };
-
-                // Generates new .SecurityKey and .Password combination if a new password was submitted
-                if (!string.IsNullOrWhiteSpace(newUserDetails.Password))
-                {
-                    var newPasswordAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(updatedUserDetails.Password);
-                    updatedUserDetails.Password = newPasswordAndKey.Password;
-                    updatedUserDetails.SecurityKey = newPasswordAndKey.SecurityKey;                                        
-                }
-
-                //Changes .EmailId in Customers table if a new email was submitted
-                if (!string.IsNullOrWhiteSpace(newUserDetails.Email))
-                {
-                    var result = _userRepository.Update(existingUser, updatedUserDetails);
-                    if (result != null)
-                    {
-                        var existingCustomer = _customerRepository.GetOne(x => x.Id == result.Id);
-
-                        CustomerEntity newEmail = new()
-                        {
-                            Id = existingCustomer.Id,
-                            FirstName = existingCustomer.FirstName,
-                            LastName = existingCustomer.LastName,
-                            EmailId = result.Email,
-                            PhoneNumber = existingCustomer.PhoneNumber,
-                        };
-                        var updateCustomerEmail = _customerRepository.Update(x => x.Id == result.Id, newEmail);
-                        if (updateCustomerEmail != null)
-                            return UserFactory.Create(result);
-                    }
-                }
-                else
-                {
-                    var result = _userRepository.Update(existingUser, updatedUserDetails);
-                    if (result != null)
-                        return UserFactory.Create(result);
-                }
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!; ;
-    }
-
-    public UserDto DeleteUser(UserDto user)
-    {
-        try
-        {
-            var existingUser = GetOne(user);
-            var checkRole = FindRoleOfActiveUser();
-
-            // Add extra check to see if user should be deleted?
-
-            if (existingUser.IsActive || checkRole.UserRole.ToString() == "Admin")
-            {
-                var result = _userRepository.Delete(existingUser);
-                if (result)
-                    return user;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-        
-        return null!;
-
-
-    }
     
-    public UserEntity GetOne(UserDto dto)
-    {
-        try
-        {
-            var result = _userRepository.GetOne(x => x.Email == dto.Email);
-            if (result != null)
-                return result;
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-    
-    public UserEntity GetOne(CustomerEntity entity) // Currently only used in customer service.
-    {
-        try
-        {
-            var result = _userRepository.GetOne(x => x.Email == entity.EmailId);
-            if (result != null)
-                return result;
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
 
 }

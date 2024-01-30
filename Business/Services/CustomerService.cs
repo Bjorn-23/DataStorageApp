@@ -186,6 +186,9 @@ public class CustomerService
         return null!;
     }
 
+   
+
+    //------- CURRENTLY NOT USED --------
     public bool DeleteCustomer(CustomerDto customer, string option)
     {
         try
@@ -218,10 +221,6 @@ public class CustomerService
 
         return false;
     } // Currently undecided if I should let Users delete customer.
-   
-
-
-    //------- CURRENTLY NOT USED --------
     public bool CustomerExists(CustomerDto customer)
     {
         try

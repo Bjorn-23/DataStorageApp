@@ -32,7 +32,7 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 
     services.AddScoped<IOrderRepository, OrderRepository>();
     services.AddScoped<OrderService>();
-    
+
     services.AddScoped<IOrderRowRepository, OrderRowRepository>();
     services.AddScoped<OrderRowService>();
 

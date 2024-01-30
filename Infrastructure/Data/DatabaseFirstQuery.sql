@@ -1,6 +1,4 @@
-﻿DROP TABLE Orderrows, Orders, Categories, PriceLists, Products
-
-
+﻿--DROP TABLE Orderrows, Orders, Categories, PriceLists, Products
 
 CREATE TABLE [Products] (
   [ArticleNumber] nvarchar(450) PRIMARY KEY NOT NULL,
@@ -53,7 +51,7 @@ GO
 ALTER TABLE [Products] ADD FOREIGN KEY ([CategoryName]) REFERENCES [Categories] ([CategoryName])
 GO
 
-ALTER TABLE [OrderRows] ADD FOREIGN KEY ([ArticleNumber]) REFERENCES [Products] ([ArticleNumber]) ON DELETE CASCADE
+ALTER TABLE [OrderRows] ADD FOREIGN KEY ([ArticleNumber]) REFERENCES [Products] ([ArticleNumber])
 GO
 
 ALTER TABLE [OrderRows] ADD FOREIGN KEY ([OrderId]) REFERENCES [Orders] ([Id]) ON DELETE CASCADE

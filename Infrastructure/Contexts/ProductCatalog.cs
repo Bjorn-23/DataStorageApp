@@ -1,19 +1,11 @@
 ﻿using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Contexts;
 
-public partial class ProductCatalog : DbContext
+public partial class ProductCatalog(DbContextOptions<ProductCatalog> options) : DbContext(options)
 {
-    public ProductCatalog()
-    {
-    }
-
-    public ProductCatalog(DbContextOptions<ProductCatalog> options)
-        : base(options)
-    {
-    }
-
     public virtual DbSet<CategoryEntity> Categories { get; set; }
 
     public virtual DbSet<OrderEntity> Orders { get; set; }

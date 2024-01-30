@@ -4,4 +4,19 @@ Scaffold-DbContext "Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\sourc
 
 -Force är inte nödvändigt vid första skapande av DB, använd för att skriva över filer när databasen förändrats.)
 
-ALLA NYA TABELLER SOM FÖRS IN SOM OBJEKT I ENTITIES KATALOGEN VIA SCAFFOLDING MÅSTE FÅ SITT SUFFIX "Entity" MANUELLT JUSTERAT FÖR ATT ALL KOD SKA FUNKA.
+ALLA NYA TABELLER SOM FÖRS IN SOM OBJEKT I ENTITIES KATALOGEN VIA SCAFFOLDING MÅSTE FÅ SUFFIXET "Entity" MANUELLT JUSTERAT I SOLUTION EXPLORER FÖR ATT ALL KOD SKA FUNKA.
+
+I ProductCatalog.cs ska denna kod bytas ut mot den som genereras av DB:
+
+ modelBuilder.Entity<OrderRow>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.OrderId }).HasName("PK__OrderRow__DE2DE9BB639BAE9F");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.ArticleNumberNavigation).WithOne(p => p.OrderRow)
+                .OnDelete(DeleteBehavior.ClientNoAction)
+                .HasConstraintName("FK__OrderRows__Artic__4959E263");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderRows).HasConstraintName("FK__OrderRows__Order__4A4E069C");
+        });

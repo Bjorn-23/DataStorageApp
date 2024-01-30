@@ -2,6 +2,7 @@
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,18 +17,19 @@ public class OrderRowRepository(ProductCatalog context) : BaseRepository<OrderRo
     {
         try
         {
-            var existingEntity = _context.OrderRows
+            var existingEntity = _context
+                .Set<OrderRowEntity>()
                 .Include(i => i.Order)
                 .Include(i => i.ArticleNumberNavigation).ThenInclude(i => i.Price)
                 .Where(predicate)
                 .ToList();
 
             return existingEntity;
+
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
-
 }
 

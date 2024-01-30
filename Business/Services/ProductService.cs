@@ -138,28 +138,33 @@ public class ProductService
             if (checkRole.UserRoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
+                var productStock = existingProduct.Stock;
                 if (existingProduct == null)
                 {
                     return null!;
                 }
                 else
                 {
-                    var categoryName = _categoryService.GetOrCreateCategory(product);
+                    productStock += product.Stock;
+
+                    var categoryName = _categoryService.GetOrCreateCategory(!string.IsNullOrWhiteSpace(product.CategoryName) ? product : new ProductRegistrationDto() { CategoryName = existingProduct.CategoryName });
                     var priceId = _priceListService.GetOrCreatePriceList(product);
 
-                    var updatedProduct = _productRepository.Update(existingProduct ,new ProductEntity()
+                    ProductEntity updatedProduct = new()
                     {
-                        ArticleNumber = product.ArticleNumber,
-                        Title = product.Title,
-                        Ingress = product.Ingress,
-                        Description = product.Description,
-                        PriceId = priceId.Id,
-                        Unit = product.Unit,
-                        Stock = product.Stock,
-                        CategoryName = categoryName.CategoryName
+                        ArticleNumber = existingProduct.ArticleNumber,
+                        Title = !string.IsNullOrWhiteSpace(product.Title) ? product.Title : existingProduct.Title,
+                        Ingress = !string.IsNullOrWhiteSpace(product.Ingress) ? product.Ingress : existingProduct.Ingress,
+                        Description = !string.IsNullOrWhiteSpace(product.Description) ? product.Description : existingProduct.Description,
+                        PriceId = priceId != null ? priceId.Id : existingProduct.PriceId,
+                        Unit = !string.IsNullOrWhiteSpace(product.Unit) ? product.Unit : existingProduct.Unit,
+                        Stock = productStock,
+                        CategoryName = categoryName != null ? categoryName.CategoryName : existingProduct.CategoryName,
 
-                    });
-                    if (updatedProduct != null)
+                    };
+
+                    var result = _productRepository.Update(existingProduct, updatedProduct);
+                    if (result != null)
                     {
                         return Factories.ProductFactory.Create(updatedProduct);
                     }
@@ -175,14 +180,18 @@ public class ProductService
     {
         try
         {
-            var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber || x.Title == product.Title);
-            if (existingProduct != null)
+            var checkRole = _userService.FindRoleOfActiveUser();
+            if (checkRole.UserRoleName == "Admin")
             {
-                var result = _productRepository.Delete(existingProduct);
-                if (result)
+                var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
+                if (existingProduct != null)
                 {
-                    return Factories.ProductFactory.Create(existingProduct);
-                }
+                    var result = _productRepository.Delete(existingProduct);
+                    if (result)
+                    {
+                        return Factories.ProductFactory.Create(existingProduct);
+                    }
+                }            
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

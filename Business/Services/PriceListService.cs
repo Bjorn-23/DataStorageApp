@@ -98,4 +98,49 @@ public class PriceListService
         return (null!, 0, 0);
     }
 
+    public PriceListDto UpdatePriceList(PriceListDto existingPriceListDto, PriceListDto updatedPriceListDto)
+    {
+        try
+        {
+            var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
+            if (existingPriceList != null)
+            {
+                PriceListEntity updatedEntity = new()
+                {
+                    Id = existingPriceList.Id,
+                    Price = !string.IsNullOrWhiteSpace(updatedPriceListDto.Price.ToString()) ? updatedPriceListDto.Price : existingPriceList.Price,
+                    DiscountPrice = !string.IsNullOrWhiteSpace(updatedPriceListDto.DiscountPrice.ToString()) ? updatedPriceListDto.DiscountPrice : existingPriceList.DiscountPrice,
+                    UnitType = !string.IsNullOrWhiteSpace(updatedPriceListDto.UnitType) ? updatedPriceListDto.UnitType : existingPriceList.UnitType,
+                };
+
+                var updatedPriceList = _priceListRepository.Update(existingPriceList, updatedEntity);
+                if (updatedPriceList != null)
+                {
+                    return Factories.PriceListFactory.Create(updatedPriceList);
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public PriceListDto DeletePriceList(PriceListDto existingPriceListDto)
+    {
+        try
+        {
+            var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
+            if (existingPriceList != null)
+            {
+                var result = _priceListRepository.Delete(existingPriceList);
+                if (result)
+                {
+                    return Factories.PriceListFactory.Create(existingPriceList);
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
 }

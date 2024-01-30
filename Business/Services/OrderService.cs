@@ -130,6 +130,8 @@ public class OrderService
                 existingOrder = _orderRepository.GetOne(x => x.Id == order.Id); // only checks for order id not customerId so that Admin can use it.
                 if (existingOrder != null)
                 {
+                    existingOrder.OrderPrice += order.OrderPrice;
+
                     OrderEntity updatedOrder = new OrderEntity()
                     {
                         Id = existingOrder.Id,

@@ -51,6 +51,12 @@ public class OrderRowService
                         OrderPrice = newOrderRow.OrderRowPrice,
                     });
 
+                    _productService.UpdateProduct(new ProductRegistrationDto
+                    {
+                        ArticleNumber = product.ArticleNumber,
+                        Stock = -newOrderRow.Quantity
+                    });
+
                     return Factories.OrderRowFactory.Create(createdOrderRow);
                 }
 
@@ -131,6 +137,7 @@ public class OrderRowService
 
             var existingOrderRow = _orderRowRepository.GetOne(x => x.Id == orderRow.Id);
             var oldOrderRowPrice = existingOrderRow.OrderRowPrice; // saves old price to new variable as existing one will be updated.
+            var oldOrderRowQuantity = existingOrderRow.Quantity; // saves old price to new variable as existing one will be updated.
             if (existingOrderRow != null)
             {
                 var updatedOrderRowDetails = new OrderRowEntity
@@ -146,12 +153,20 @@ public class OrderRowService
                 if (updatedOrderRow != null)
                 {
                     // Sets price to update order with.
-                    OrderDto order = new()
+                    OrderDto orderPriceUpdate = new()
                     {
                         Id = existingOrderRow.OrderId,
                         OrderPrice = updatedOrderRowDetails.OrderRowPrice - oldOrderRowPrice,
                     };
-                    var result = _orderService.UpdateOrder(order); // updates order total with new price.
+                    var orderPriceResult = _orderService.UpdateOrder(orderPriceUpdate); // updates order total with new price.
+
+                    // Sets quantity to update product stock with.
+                    ProductRegistrationDto stockUpdate = new()
+                    {
+                        ArticleNumber = existingOrderRow.ArticleNumber,
+                        Stock = oldOrderRowQuantity - updatedOrderRowDetails.Quantity
+                    };
+                    var productStockResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
 
                     return Factories.OrderRowFactory.Create(updatedOrderRow);
                 }
@@ -166,13 +181,31 @@ public class OrderRowService
     {
         try
         {
-            var existingOrder = _orderRowRepository.GetOne(x => x.Id == orderRow.Id);
-            if (existingOrder != null)
+            var existingOrderRow = _orderRowRepository.GetOne(x => x.Id == orderRow.Id);
+            var oldOrderRowPrice = existingOrderRow.OrderRowPrice;
+            var oldOrderRowQuantity = existingOrderRow.Quantity;
+            if (existingOrderRow != null)
             {
-                var result = _orderRowRepository.Delete(existingOrder);
+                var result = _orderRowRepository.Delete(existingOrderRow);
                 if (result)
                 {
-                    return Factories.OrderRowFactory.Create(existingOrder);
+                    // Sets price to update order with.
+                    OrderDto orderPriceUpdate = new()
+                    {
+                        Id = existingOrderRow.OrderId,
+                        OrderPrice = -oldOrderRowPrice,
+                    };
+                    var OrderUpdateResult = _orderService.UpdateOrder(orderPriceUpdate); // updates order total with new price.
+
+                    // Sets quantity to update product stock with.
+                    ProductRegistrationDto stockUpdate = new()
+                    {
+                        ArticleNumber = existingOrderRow.ArticleNumber,
+                        Stock = oldOrderRowQuantity
+                    };
+                    var prodcutUpdateResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
+
+                    return Factories.OrderRowFactory.Create(existingOrderRow);
                 }
             }
         }

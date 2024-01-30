@@ -748,7 +748,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         Console.Write("Please enter postal code of address: ");
         address.PostalCode = Console.ReadLine()!;
 
-        var result = _customer_addressService.CreateCustomer_Addresses(customer, address);
+        var result = _customer_addressService.CreateCustomer_Address(customer, address);
         if (result)
         {
             Console.WriteLine("Customer Address created.");
@@ -784,18 +784,18 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 case "1":
                     ShowCreateProductMenu();
                     break;
-                //case "2":
-                //    ShowProductDetails();
-                //    break;
-                case "3":
-                    ShowAllProducts();
+                case "2":
+                    ShowProductDetailsMenu();
                     break;
-                //case "4":
-                //    ShowUpdateAddress();
-                //    break;
-                //case "5":
-                //    ShowDeleteAddress();
-                //    break;
+                case "3":
+                    ShowAllProductsMenu();
+                    break;
+                case "4":
+                    ShowUpdateProductMenu();
+                    break;
+                case "5":
+                    ShowDeleteProductMenu();
+                    break;
                 case "0":
                     productLoop = false;
                     break;
@@ -824,7 +824,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.Write("\nProduct description: ");
                 product.Description = Console.ReadLine()!;
 
-                Console.Write("\nCategory: ");
+                Console.Write("\nCategory*: ");
                 product.CategoryName = Console.ReadLine()!;
 
                 Console.Write("\nUnit (sold as: each, pair, set of X, etc)*: ");
@@ -887,16 +887,46 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 }
             }
 
-            void ShowAllProducts()
+            void ShowProductDetailsMenu()
             {
-                var Products = _productService.GetAllProducts();
-                if (Products != null)
+                ProductDto productDto = new();
+                SubMenuTemplate("Show product details");
+                Console.Write("Fill in article number of product to show: ");
+                productDto.ArticleNumber = Console.ReadLine()!;
+
+                var product = _productService.GetProduct(x => x.ArticleNumber == productDto.ArticleNumber);
+                if (product != null)
+                {
+                    SubMenuTemplate("Product search:");
+
+                    Console.WriteLine($"" +
+                            $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                            $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                            $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                            $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                            $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                            $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                            $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                            $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                            $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+
+                }
+                else
+                    Console.WriteLine("No products was found with that article number.");
+
+                PressKeyAndContinue();
+            } 
+
+            void ShowAllProductsMenu()
+            {
+                var products = _productService.GetAllProducts();
+                if (products.Any())
                 {
                     SubMenuTemplate("All Products");
 
                     var i = 1;
 
-                    foreach (var product in Products)
+                    foreach (var product in products)
                     {
                         string hyphens = new string('-', $"{i}.".Length);
 
@@ -914,14 +944,181 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                     }
                 }
+                else
+                    Console.WriteLine("No products to show currently.");
 
-                Console.ReadLine();
+                PressKeyAndContinue();
+            }
+
+            void ShowUpdateProductMenu()
+            {
+                ProductDto productDto = new();
+                SubMenuTemplate("Show product details");
+                Console.Write("Fill in article number of product to update: ");
+                productDto.ArticleNumber = Console.ReadLine()!;
+
+                var product = _productService.GetProduct(x => x.ArticleNumber == productDto.ArticleNumber);
+                if (product != null)
+                {
+                    SubMenuTemplate("Product search:");
+  
+
+                    Console.WriteLine($"\n" +
+                            $"{"",-5}Article number: {"",-5}{product.ArticleNumber}\n" +
+                            $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                            $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                            $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                            $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                            $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                            $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                            $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                            $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+
+                    Console.WriteLine("Is this the products to update?");
+                    Console.Write("[Y]es / [N]o: ");
+                    var answer = Console.ReadLine()!;
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        ProductRegistrationDto updatedProductDetails = new();
+
+                        SubMenuTemplate("New product details:");
+                        Console.WriteLine("\nFill in updated details of product." +
+                            " Fields left empty will retain their current value.\n" +
+                            "Please note that article number can not be changed, instead create a new product with a different article number.");
+
+                        updatedProductDetails.ArticleNumber = product.ArticleNumber;
+
+                        Console.Write("\nProduct Title: ");
+                        updatedProductDetails.Title = Console.ReadLine()!;
+
+                        Console.Write("\nProduct Ingress: ");
+                        updatedProductDetails.Ingress = Console.ReadLine()!;
+
+                        Console.Write("\nProduct description: ");
+                        updatedProductDetails.Description = Console.ReadLine()!;
+
+                        Console.Write("\nCategory: ");
+                        updatedProductDetails.CategoryName = Console.ReadLine()!;
+
+                        Console.Write("\nUnit (sold as: each, pair, set of X, etc): ");
+                        updatedProductDetails.Unit = Console.ReadLine()!;
+
+                        Console.Write("\nNumber of product items in stock: ");
+                        var stockresult = int.TryParse(Console.ReadLine()!, out int stock);
+                        if (stockresult)
+                        {
+                            updatedProductDetails.Stock = stock;
+                        }
+                        else
+                            updatedProductDetails.Stock = 0;
+
+                        Console.Write("\nPrice: ");
+                        var priceResult = decimal.TryParse(Console.ReadLine()!, out decimal price);
+                        if (priceResult)
+                        {
+                            updatedProductDetails.Price = price;
+                        }
+                        else
+                            updatedProductDetails.Price = 0;
+
+                        Console.Write("\nCurrency (ie. SEK, USD, EUR): ");
+                        product.Currency = Console.ReadLine()!;
+
+                        Console.Write("\nDiscount price: ");
+                        var discountPriceResult = decimal.TryParse(Console.ReadLine()!, out decimal discountPrice);
+                        if (discountPriceResult)
+                        {
+                            updatedProductDetails.DiscountPrice = discountPrice;
+                        }
+                        else
+                            updatedProductDetails.DiscountPrice = 0;
+
+                        var updatedProduct = _productService.UpdateProduct(updatedProductDetails);
+                        if (updatedProduct != null)
+                        {
+                            var productDisplay = _productService.GetProductDisplay(updatedProduct);
+                            if (productDisplay != null)
+                            {
+                                SubMenuTemplate("Product updated");
+                                Console.WriteLine($"" +
+                                    $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
+                                    $"Title: {"",-13}{productDisplay.Title}\n" +
+                                    $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
+                                    $"Description: {"",-7}{productDisplay.Description}\n" +
+                                    $"Category: {"",-10}{productDisplay.CategoryName}\n" +
+                                    $"Price: {"",-13}{productDisplay.Price} {productDisplay.Currency}\n" +
+                                    $"Discount price: {"",-4}{productDisplay.DiscountPrice} {productDisplay.Currency}\n" +
+                                    $"Unit: {"",-14}{productDisplay.Unit}\n" +
+                                    $"Stock: {"",-13}{productDisplay.Stock}\n");
+                            }
+                        }
+                        else
+                            Console.WriteLine("Product could not be updated.");
+                    }
+                    else
+                        Console.WriteLine("Product will not be updated.");
+                }
+                else
+                    Console.WriteLine("No product found with that article number.");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowDeleteProductMenu()
+            {
+                ProductDto productDto = new();
+                SubMenuTemplate("Show product details");
+                Console.Write("Fill in article number of product to update: ");
+                productDto.ArticleNumber = Console.ReadLine()!;
+
+                var product = _productService.GetProduct(x => x.ArticleNumber == productDto.ArticleNumber);
+                SubMenuTemplate("Product search:");
+                if (product != null)
+                {
+                    Console.WriteLine($"\n" +
+                            $"{"",-5}Article number: {"",-5}{product.ArticleNumber}\n" +
+                            $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                            $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                            $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                            $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                            $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                            $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                            $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                            $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+
+                    Console.WriteLine("Is this the products to update?");
+                    Console.Write("[Y]es / [N]o: ");
+                    var answer = Console.ReadLine()!;
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        var result = _productService.DeleteProduct(productDto);
+                        SubMenuTemplate("Delete Status:");
+                        if (result != null)
+                        {
+                            Console.WriteLine($"\n" +
+                                $"{"",-5}Article number: {"",-5}{result.ArticleNumber}\n" +
+                                $"{"",-5}Title: {"",-13}{result.Title}\n" +
+                                $"{"",-5}Ingress: {"",-11}{result.Ingress}\n" +
+                                $"{"",-5}Category: {"",-10}{result.CategoryName}\n");
+
+                            Console.WriteLine("Was deleted.");
+                        }
+                        else
+                            Console.WriteLine("Product could not be deleted.");
+                    }
+                    else
+                        Console.WriteLine("Product will not be deleted.");
+                }
+                else
+                    Console.WriteLine("There was no product found with that article number.");
+
+                PressKeyAndContinue();
             }
         }
     }
 
     // Orders & OrderRows menu
-    private void ShowOrderOptionsMenu()
+    void ShowOrderOptionsMenu()
     {
         bool orderLoop = true;
 
@@ -1246,8 +1443,6 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 PressKeyAndContinue(); 
             }
 
-
-            //insert new methods above this line.
         }
     }
 

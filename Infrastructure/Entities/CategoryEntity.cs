@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
-[Index("CategoryName", Name = "UQ__Categori__8517B2E05AF1BDBB", IsUnique = true)]
+[Index("CategoryName", Name = "UQ__Categori__8517B2E0D7E0B325", IsUnique = true)]
 public partial class CategoryEntity
 {
     [Key]
