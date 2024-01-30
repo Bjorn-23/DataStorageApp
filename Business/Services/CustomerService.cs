@@ -8,17 +8,13 @@ namespace Business.Services;
 
 public class CustomerService
 {
-    private readonly ICustomer_AddressRepository _customer_AddressRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IUserRepository _userRepository;
-    private readonly UserService _userService;
 
-    public CustomerService(ICustomerRepository customerRepository, UserService userService, ICustomer_AddressRepository customerAddressRepository, IUserRepository userRepository)
+    public CustomerService(ICustomerRepository customerRepository, IUserRepository userRepository)
     {
-        _customer_AddressRepository = customerAddressRepository;
         _customerRepository = customerRepository;
         _userRepository = userRepository;
-        _userService = userService;
     }
 
     public CustomerDto CreateCustomer(CustomerDto customer)
@@ -43,6 +39,55 @@ public class CustomerService
         return null!;
     }
 
+    public (IEnumerable<AddressDto> address, UserRoleDto userRole, CustomerDto customer) GetOneCustomerWithDetails(CustomerDto customer)
+    {
+        try
+        {
+            var existingCustomerDetails = _customerRepository.GetAllWithPredicate(x => x.EmailId == customer.EmailId);
+            if (existingCustomerDetails.Any())
+            {
+                List<AddressDto> addressDtos = new();
+
+                foreach (var existingCustomer in existingCustomerDetails)
+                {
+                    CustomerDto customerDto = new()
+                    {
+                        Id = existingCustomer.Id,
+                        FirstName = existingCustomer.FirstName,
+                        LastName = existingCustomer.LastName,
+                        EmailId = existingCustomer.EmailId,
+                        PhoneNumber = existingCustomer.PhoneNumber,
+                    };
+
+                    UserRoleDto userRoleDto = new()
+                    {
+                        Id = existingCustomer.User.UserRole.Id,
+                        RoleName = existingCustomer.User.UserRole.RoleName,
+                    };
+
+                    foreach (var addresses in existingCustomer.CustomerAddresses)
+                    {
+                        AddressDto addressDto = new()
+                        {
+                            Id = addresses.Address.Id,
+                            StreetName = addresses.Address.StreetName,
+                            PostalCode = addresses.Address.PostalCode,
+                            City = addresses.Address.City,
+                            Country = addresses.Address.Country,
+                        };        
+
+                        addressDtos.Add(addressDto);
+                    }
+
+                    return (addressDtos, userRoleDto, customerDto);
+                }
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return (null!, null!, null!);
+    }
+
     public CustomerDto GetOneCustomer(CustomerDto customer)
     {
         try
@@ -57,7 +102,7 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
-    }
+    } // Decide which one to keep- THIS ( NOT USED BUT SIMPLE)
 
     public CustomerDto GetOneCustomer(CustomerDto customer, string option)
     {
@@ -87,59 +132,7 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!; ;
-    }
-
-    public CustomerDetailsDto GetCustomerDetails(CustomerDto customer)
-    {
-        try
-        {
-            var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-            if (existingCustomer != null)
-            {
-                var userRole = _userService.GetOne(existingCustomer);
-
-                var customerDetails = CustomerFactory.CreateCustomerDetails(existingCustomer, userRole);
-
-                return customerDetails;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
-    public IEnumerable<CustomerDto> GetCustomersWithAddressId(AddressDto address)
-    {
-        try
-        {
-            var allCustomerAtAddress = _customer_AddressRepository.GetAllWithPredicate(x => x.AddressId == address.Id);
-
-            if (allCustomerAtAddress.Any())
-            {
-                List<CustomerDto> customerDtos = new();
-
-                foreach (var customer in allCustomerAtAddress)
-                {
-                    var existingCustomer = _customerRepository.GetOne(x => x.Id == customer.CustomerId);
-
-                    var customerDto = new CustomerDto()
-                    {
-                        FirstName = existingCustomer.FirstName,
-                        LastName = existingCustomer.LastName,
-                        EmailId = existingCustomer.EmailId,
-                        PhoneNumber = existingCustomer.PhoneNumber,
-                    };
-
-                    customerDtos.Add(customerDto);
-                }
-
-                return customerDtos;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
+    } // Or THIS (USED BUT MAYBE UNNECESSARY)
 
     public IEnumerable<CustomerDto> GetAll()
     {
@@ -161,7 +154,7 @@ public class CustomerService
     {
         try
         {
-            var existingCustomer = GetOneCustomer(customer);
+            var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
             if (existingCustomer != null)
             {        
                 CustomerEntity newCustomerEntity = new()
@@ -243,20 +236,4 @@ public class CustomerService
 
         return false;
     }
-
-    //public CustomerEntity GetOneCustomer(CustomerDto customer)
-    //{
-    //    try
-    //    {
-    //        var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-    //        if (existingCustomer != null)
-    //        {
-    //            return existingCustomer;
-    //        }
-    //    }
-    //    catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-    //    return null!;
-    //}
-
 }

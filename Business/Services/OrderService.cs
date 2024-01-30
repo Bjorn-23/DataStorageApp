@@ -99,6 +99,77 @@ public class OrderService
         return null!;
     }
 
+    public (OrderDto order, List<OrderRowDto> orderRows, List<ProductRegistrationDto> products, CustomerDto customer) GetOrderDetails()
+    {
+        try
+        {
+            var activeUser = GetActiveUser();
+            var existingOrders = _orderRepository.GetAllWithPredicate(x => x.CustomerId == activeUser.Id);
+            if (existingOrders.Any())
+            {
+                foreach (var existingOrder in existingOrders)
+                {
+
+                    OrderDto orderDto = new()
+                    {
+                        Id = existingOrder.Id,
+                        OrderDate = existingOrder.OrderDate,
+                        OrderPrice = existingOrder.OrderPrice,
+                        CustomerId = existingOrder.CustomerId,
+                    };
+
+                    var customer = _customerRepository.GetOne(x => x.Id == orderDto.CustomerId);
+
+                    CustomerDto customerDto = new()
+                    {
+                        Id = customer.Id,
+                        FirstName = customer.FirstName,
+                        LastName = customer.LastName,
+                        EmailId = customer.EmailId,
+                        PhoneNumber = customer.PhoneNumber,
+                    };
+
+                    List<OrderRowDto> orderRowDtos = new();
+                    List<ProductRegistrationDto> productDtos = new();
+
+                    foreach (var orderRow in existingOrder.OrderRows)
+                    {
+                        OrderRowDto orderRowDto = new()
+                        {
+                            Id = orderRow.Id,
+                            Quantity = orderRow.Quantity,
+                            OrderRowPrice = orderRow.OrderRowPrice,
+                            ArticleNumber = orderRow.ArticleNumber,
+                            OrderId = orderRow.OrderId,
+                        };
+
+                        orderRowDtos.Add(orderRowDto);
+
+                        ProductRegistrationDto productDto = new()
+                        {
+                            ArticleNumber = orderRow.ArticleNumberNavigation.ArticleNumber,
+                            Title = orderRow.ArticleNumberNavigation.Title,
+                            Price = orderRow.ArticleNumberNavigation.Price.Price,
+                            DiscountPrice = orderRow.ArticleNumberNavigation.Price.DiscountPrice,
+                            Currency = orderRow.ArticleNumberNavigation.Price.UnitType
+                        };
+
+                        productDtos.Add(productDto);
+                    }
+
+                    if (orderDto.CustomerId == activeUser.Id || activeUser.UserRoleName == "Admin")
+                    {
+                        return (orderDto, orderRowDtos, productDtos, customerDto);
+                    }
+                }
+
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return (null!, null!, null!, null!);
+    }
+
     public OrderDto UpdateOrder(OrderDto order)
     {
         try

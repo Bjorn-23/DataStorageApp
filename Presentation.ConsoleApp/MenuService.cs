@@ -2,7 +2,9 @@
 using Business.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 using System.Net;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -355,19 +357,18 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.Write("\nPlease enter email of customer: ");
             customer.EmailId = Console.ReadLine()!;
 
-            var customerDetails = _customerService.GetCustomerDetails(customer);
-            var customerAddresses = _addressService.GetAddressesWithCustomerId(customerDetails);
-
-            if (customerDetails != null)
+            var customerDetails = _customerService.GetOneCustomerWithDetails(customer);
+            SubMenuTemplate("Customer details");
+            if (customerDetails.userRole !=null && customerDetails.customer != null)
             {
-                SubMenuTemplate($"\nCustomer: {"",-2}{customerDetails.FirstName} {customerDetails.LastName}");
-                Console.WriteLine($"\nId: {"",-8}{customerDetails.Id}\nFirst name: {"",-0}{customerDetails.FirstName}\nLast name: {"",-1}{customerDetails.LastName}\nEmail: {"",-5}{customerDetails.EmailId}\nPhone no: {"",-2}{customerDetails.PhoneNumber}\nRole: {"",-6}{customerDetails.UserRoleName}\n");
-                Console.WriteLine($"\nList of addresses associated with {customerDetails.FirstName} {customerDetails.LastName}:");
+                Console.WriteLine($"\nId: {"",-8}{customerDetails.customer.Id}\n\nFirst name: {"",-0}{customerDetails.customer.FirstName}\nLast name: {"",-1}{customerDetails.customer.LastName}\n\nEmail: {"",-5}{customerDetails.customer.EmailId}\nPhone no: {"",-2}{customerDetails.customer.PhoneNumber}\n");
+                Console.WriteLine($"Role: {"",-6}{customerDetails.userRole.RoleName}\n");
+                Console.WriteLine($"\nList of addresses associated with {customerDetails.Item3.FirstName} {customerDetails.Item3.LastName}:");
 
-                if (customerAddresses != null)
+                if (customerDetails.address != null)
                 {
                     var i = 1;
-                    foreach (var address in customerAddresses)
+                    foreach (var address in customerDetails.address)
                     {
                         Console.WriteLine($"\n{i++}{".",-11}{address.StreetName}\n{"",-12}{address.PostalCode}\n{"",-12}{address.City}\n{"",-12}{address.Country}");
                     }
@@ -492,14 +493,14 @@ internal class MenuService(CustomerService customerService, AddressService addre
         {
             //MenuTemplate("Adress", "Adresses");
             Console.Clear();
-            Console.WriteLine($"{"",-5}Adress menu - Choose an option");
+            Console.WriteLine($"{"",-5}Address menu - Choose an option");
             string hyphens = new string('-', $"{"",5}Adress menu - Choose an option".Length);
             Console.WriteLine(hyphens);
-            Console.WriteLine($"{"\n1.",-5} Create address (requires user to be logged in)");
-            Console.WriteLine($"{"\n2.",-5} Show Adress details");
-            Console.WriteLine($"{"\n3.",-5} Show all Adresses");
-            Console.WriteLine($"{"\n4.",-5} Update Adress (requires Admin privileges)");
-            Console.WriteLine($"{"\n5.",-5} Delete Adress (requires Admin privileges)");
+            Console.WriteLine($"{"\n1.",-5} Create Address (requires user to be logged in)");
+            Console.WriteLine($"{"\n2.",-5} Show Address details");
+            Console.WriteLine($"{"\n3.",-5} Show all Addresses");
+            Console.WriteLine($"{"\n4.",-5} Update Address (requires Admin privileges)");
+            Console.WriteLine($"{"\n5.",-5} Delete Address (requires Admin privileges)");
             Console.WriteLine($"{"\n0.",-5} Go back");
             Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
@@ -578,32 +579,27 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.Write("Postal Code: ");
             address.PostalCode = Console.ReadLine()!;
 
-            var addressDetails = _addressService.GetOneAddress(address);
-            var addressCustomers = _customerService.GetCustomersWithAddressId(addressDetails);
-
-            Console.Clear();
-            Console.WriteLine("---------------------------------------------------");
-            Console.WriteLine("------------------Address-details------------------");
-
-            if (addressDetails != null)
+            var addressDetails = _addressService.GetOneAddressWithCustomers(address);
+            SubMenuTemplate("Address details");
+            if (addressDetails.address != null)
             {
-                Console.WriteLine($"\nStreet name: {addressDetails.StreetName}\nPostal code: {addressDetails.PostalCode}\nCity: {addressDetails.City}\nPhone number: {addressDetails.Country}\nRole: {addressDetails.Id}\n");
+                Console.WriteLine($"\nStreet name: {addressDetails.address.StreetName}\nPostal code: {addressDetails.address.PostalCode}\nCity: {addressDetails.address.City}\nCountry: {addressDetails.address.Country}\n");
 
-                Console.WriteLine($"\nList of customers associated with {addressDetails.StreetName}, {addressDetails.PostalCode}:");
+                Console.WriteLine($"\nList of customers associated with {addressDetails.address.StreetName}, {addressDetails.address.PostalCode}:");
 
-                if (addressCustomers != null)
+                if (addressDetails.customers != null)
                 {
                     var i = 1;
-                    foreach (var customer in addressCustomers)
+                    foreach (var customer in addressDetails.customers)
                     {
-                        Console.WriteLine($"\n{i++}{".",-4}{customer.FirstName} {customer.LastName}\n{"",-5}{customer.EmailId}\n{"",-5}{customer.PhoneNumber}");
+                        Console.WriteLine($"\n{i++}{".",-4}{customer.FirstName} {customer.LastName}\n{"",-5}{customer.Id}\n{"",-5}{customer.EmailId}\n{"",-5}{customer.PhoneNumber}");
                     }
                 }
                 else
                     Console.WriteLine("\nThere are currently no customers linked to this Address");
             }
             else
-                Console.WriteLine($"\nThere are currently no customers linked to {address.StreetName}, {address.PostalCode}");
+                Console.WriteLine($"\nThere are currently no addresses linked to {address.StreetName}, {address.PostalCode}");
 
             PressKeyAndContinue();
         }
@@ -733,9 +729,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     // Customer_address menu
     void ShowCreateCustomer_AddressMenu()
     {
-        Console.Clear();
-        Console.WriteLine("-----------------------------------------------------------");
-        Console.WriteLine("----------Type-in-details-of-new-customer_address----------");
+        SubMenuTemplate("Type in details of new customer_address");
 
         CustomerDto customer = new();
         AddressDto address = new();
@@ -749,6 +743,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         address.PostalCode = Console.ReadLine()!;
 
         var result = _customer_addressService.CreateCustomer_Address(customer, address);
+        SubMenuTemplate("Customer_Address status");
         if (result)
         {
             Console.WriteLine("Customer Address created.");
@@ -1405,44 +1400,46 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 }
                 else
                     Console.WriteLine("No order rows currently associated with user");
-
-
-
-
-
+                
                 PressKeyAndContinue();
             }
 
             void ShowOrderDetails()
             {
-                var result = _orderRowService.GetOrderRowDetails();
+                var result = _orderService.GetOrderDetails();
 
                 SubMenuTemplate("Order details:");
-                if (result.Any())
+                if (result.customer != null && result.products != null && result.orderRows != null && result.order != null)
                 {
-                    Console.WriteLine($"\n" +
-                        $"Order Id: {result.FirstOrDefault()!.OrderId}\n" +
-                        $"Total Price: {result.FirstOrDefault()!.OrderPrice}\n" +
-                        $"Order Created: {result.FirstOrDefault()!.OrderDate}\n");
+                    Console.WriteLine("\nCustomer:\n");
+                    Console.WriteLine($"Id: {"",-8}{result.customer.Id}\nName: {"",-6}{result.customer.FirstName} {result.customer.LastName}\nEmail: {"",-5}{result.customer.EmailId}\nPhone no: {"",-2}{result.customer.PhoneNumber}\n\n");
 
-                    Console.WriteLine($"\nFirst name: {"",-0}{result.FirstOrDefault()!.FirstName}\nLast name: {"",-1}{result.FirstOrDefault()!.LastName}\nEmail: {"",-5}{result.FirstOrDefault()!.Email}\nPhone no: {"",-2}{result.FirstOrDefault()!.PhoneNumber}\n");
-                    //Console.WriteLine($"\nList of addresses associated with {customerDetails.FirstName} {customerDetails.LastName}:");
+                    Console.WriteLine("Order:\n");
+                    Console.WriteLine(
+                        $"Order Id: {result.order.Id}\n" +
+                        $"Order Created: {result.order.OrderDate}\n" +
+                        $"Total Price: {result.order.OrderPrice}\n\n");
 
-                    foreach (var orderRow in result)
+                    Console.WriteLine("Order rows:\n");
+
+                    foreach (var orderRow in result.orderRows)
                     {
-                        Console.WriteLine($"\nId: {"",-12}{orderRow.OrderRowId}\n" +
-                            $"Article number: {orderRow.ArticleNumber}\n" +
-                            $"Order Id: {"",-7}{orderRow.OrderId}\n" +
-                            $"Quantity: {"",-6}{orderRow.OrderRowQuantity}\n" +
-                            $"Order Row Price: {"",-1}{orderRow.OrderRowPrice}\n");
+                        foreach(var product in result.products.Where(x => x.ArticleNumber == orderRow.ArticleNumber))
+                        {
+                            var price = product.DiscountPrice != null ? product.DiscountPrice : product.Price;
+
+                            Console.WriteLine(
+                                $"| {orderRow.ArticleNumber} | {product.Title}| {price} | {orderRow.Quantity} | {orderRow.OrderRowPrice} | {product.Currency} |");
+                            string hyphens = new string('-', $"| {orderRow.ArticleNumber} | {product.Title}| {price} | {orderRow.Quantity} | {orderRow.OrderRowPrice} | {product.Currency} |\n".Length);
+                            Console.WriteLine(hyphens);
+                        }
                     }
                 }
                 else
                     Console.WriteLine("No orders associated with logged in user.");
 
-                PressKeyAndContinue(); 
+                PressKeyAndContinue();                             
             }
-
         }
     }
 
