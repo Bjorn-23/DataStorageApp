@@ -13,4 +13,6 @@ public class UserRoleEntity
     [Required]
     [StringLength(50)]
     public string RoleName { get; set; } = null!;
+
+    public virtual ICollection<UserEntity> Users { get; set; } = new List<UserEntity>();
 }

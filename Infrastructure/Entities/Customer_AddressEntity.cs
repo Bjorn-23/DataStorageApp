@@ -12,5 +12,4 @@ public class Customer_AddressEntity
     [Required]
     public string CustomerId { get; set; } = null!;
     public virtual CustomerEntity Customer { get; set; } = null!;
-
 }

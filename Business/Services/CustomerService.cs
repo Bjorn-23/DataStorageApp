@@ -189,7 +189,8 @@ public class CustomerService
    
 
     //------- CURRENTLY NOT USED --------
-    public bool DeleteCustomer(CustomerDto customer, string option)
+       
+    public bool DeleteCustomer(CustomerDto customer, string option) // Currently undecided if I should let Users delete customer.
     {
         try
         {
@@ -207,10 +208,10 @@ public class CustomerService
                     entity = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
                     break;
             }
-            
+
             if (entity != null)
             {
-                var result =_customerRepository.Delete(entity);
+                var result = _customerRepository.Delete(entity);
                 if (result)
                     return true;
             }
@@ -220,7 +221,8 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return false;
-    } // Currently undecided if I should let Users delete customer.
+    }
+
     public bool CustomerExists(CustomerDto customer)
     {
         try
@@ -230,7 +232,7 @@ public class CustomerService
 
                 EmailId = customer.EmailId
             };
-            
+
             var exists = _customerRepository.Exists(x => x.EmailId == entity.EmailId);
             if (exists)
             {
@@ -238,7 +240,7 @@ public class CustomerService
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-        
+
         return false;
     }
 
@@ -253,7 +255,7 @@ public class CustomerService
     //        }
     //    }
     //    catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-        
+
     //    return null!;
     //}
 

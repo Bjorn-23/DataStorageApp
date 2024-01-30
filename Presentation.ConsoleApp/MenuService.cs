@@ -157,7 +157,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.WriteLine($"\nDo you wish to create a User with the following information:");
 
                 Console.WriteLine($"\nFirst name: {"",-2}{user.FirstName}\nLast name: {"",-3}{user.LastName}\nEmail: {"",-7}{user.Email}\nPhone number: {"",-0}{user.PhoneNumber}\nRole: {"",-8}{user.UserRoleName}\n");
-                Console.WriteLine($"\n{"",-15}{user.StreetName}\n{"",-14}{user.PostalCode}\n{"",-14}{user.City}\n{"",-14}{user.Country}");
+                Console.WriteLine($"\n{"",-14}{user.StreetName}\n{"",-14}{user.PostalCode}\n{"",-14}{user.City}\n{"",-14}{user.Country}");
 
                 Console.Write("\n[Y]es / [N]o: ");
                 var customerAnswer = Console.ReadLine()!;

@@ -7,6 +7,7 @@ public class CustomerEntity
 {
     [Key]
     public string Id { get; set; } = null!;
+  
     public UserEntity User { get; set; } = null!;
 
     [Required]
@@ -26,4 +27,5 @@ public class CustomerEntity
     [Column(TypeName = "varchar")]
     public string PhoneNumber { get; set; } = null!;
 
+    public virtual ICollection<Customer_AddressEntity> CustomerAddresses { get; set; } = new List<Customer_AddressEntity>();
 }

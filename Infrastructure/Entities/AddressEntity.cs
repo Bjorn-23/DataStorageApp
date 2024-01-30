@@ -24,4 +24,7 @@ public class AddressEntity
     [Required]
     [StringLength(50)]
     public string StreetName { get; set; } = null!;
+
+    public virtual ICollection<Customer_AddressEntity> CustomerAddresses { get; set; } = new List<Customer_AddressEntity>();
+
 }
