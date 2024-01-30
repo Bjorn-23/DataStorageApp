@@ -11,4 +11,5 @@ public class CustomerDto
     public string EmailId { get; set; } = null!;
 
     public string PhoneNumber { get; set; } = null!;
+
 }

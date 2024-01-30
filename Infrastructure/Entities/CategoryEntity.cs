@@ -1,15 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
-public class CategoryEntity
+[Index("CategoryName", Name = "UQ__Categori__8517B2E0D7E0B325", IsUnique = true)]
+public partial class CategoryEntity
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(50)]
+    [StringLength(100)]
     public string CategoryName { get; set; } = null!;
-    public ICollection<ProductEntity> Product { get; set; } = new HashSet<ProductEntity>();
+
+    [InverseProperty("CategoryNameNavigation")]
+    public virtual ICollection<ProductEntity> Products { get; set; } = new List<ProductEntity>();
 }

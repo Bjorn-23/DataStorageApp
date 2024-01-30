@@ -3,7 +3,6 @@ using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
-using System.Net.Http.Headers;
 
 namespace Business.Services;
 
@@ -42,6 +41,52 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         
         return null!;
+    }
+
+    public CustomerDto GetOneCustomer(CustomerDto customer)
+    {
+        try
+        {
+            var existingEntity = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+            if (existingEntity != null)
+            {
+                var existingCustomer = CustomerFactory.Create(existingEntity);
+                return existingCustomer;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public CustomerDto GetOneCustomer(CustomerDto customer, string option)
+    {
+        try
+        {
+            CustomerEntity existingCustomer = new();
+
+            switch (option)
+            {
+                case "1":
+                    existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+                    break;
+                case "2":
+                    existingCustomer = _customerRepository.GetOne(x => x.Id == customer.Id);
+                    break;
+                case "3":
+                    existingCustomer = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
+                    break;
+            }
+
+            if (existingCustomer != null)
+            {
+                var customerDto = CustomerFactory.Create(existingCustomer);
+                return customerDto;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!; ;
     }
 
     public CustomerDetailsDto GetCustomerDetails(CustomerDto customer)
@@ -112,18 +157,28 @@ public class CustomerService
         return new List<CustomerDto>();
     }
 
-    public CustomerDto UpdateCustomer(CustomerEntity existingCustomer, CustomerDto newDetails)
+    public CustomerDto UpdateCustomer(CustomerDto customer, CustomerDto newCustomerDetails)
     {
         try
         {
-            var newEntity = CustomerFactory.Create(newDetails);
+            var existingCustomer = GetOneCustomer(customer);
+            if (existingCustomer != null)
+            {        
+                CustomerEntity newCustomerEntity = new()
+                {
+                    Id = existingCustomer.Id,
+                    FirstName = string.IsNullOrWhiteSpace(newCustomerDetails.FirstName) ? existingCustomer.FirstName : newCustomerDetails.FirstName,
+                    LastName = string.IsNullOrWhiteSpace(newCustomerDetails.LastName) ? existingCustomer.LastName : newCustomerDetails.LastName,
+                    EmailId = string.IsNullOrWhiteSpace(newCustomerDetails.EmailId) ? existingCustomer.EmailId : newCustomerDetails.EmailId,
+                    PhoneNumber = string.IsNullOrWhiteSpace(newCustomerDetails.PhoneNumber) ? existingCustomer.PhoneNumber : newCustomerDetails.PhoneNumber
+                };
 
-            
-            var result = _customerRepository.Update(x => x.EmailId == existingCustomer.EmailId, newEntity);
-            if (result != null)
-            {
-               var customer = CustomerFactory.Create(result);
-                return customer;
+                var result = _customerRepository.Update(x => x.EmailId == existingCustomer.EmailId, newCustomerEntity);
+                if (result != null)
+                {
+                    var updatedCustomer = CustomerFactory.Create(result);
+                    return updatedCustomer;
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -131,6 +186,9 @@ public class CustomerService
         return null!;
     }
 
+   
+
+    //------- CURRENTLY NOT USED --------
     public bool DeleteCustomer(CustomerDto customer, string option)
     {
         try
@@ -162,10 +220,7 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return false;
-    }
-
-    
-    //------- CURRENTLY NOT USED --------
+    } // Currently undecided if I should let Users delete customer.
     public bool CustomerExists(CustomerDto customer)
     {
         try
@@ -187,48 +242,19 @@ public class CustomerService
         return false;
     }
 
-    public CustomerEntity GetOneCustomer(CustomerDto customer)
-    {
-        try
-        {
-            var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-            if (existingCustomer != null)
-            {
-                return existingCustomer;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+    //public CustomerEntity GetOneCustomer(CustomerDto customer)
+    //{
+    //    try
+    //    {
+    //        var existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
+    //        if (existingCustomer != null)
+    //        {
+    //            return existingCustomer;
+    //        }
+    //    }
+    //    catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         
-        return null!;
-    }
+    //    return null!;
+    //}
 
-    public CustomerDto GetOneCustomer(CustomerDto customer, string option)
-    {
-        try
-        {
-            CustomerEntity existingCustomer = new();
-
-            switch (option)
-            {
-                case "1":
-                    existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-                    break;
-                case "2":
-                    existingCustomer = _customerRepository.GetOne(x => x.Id == customer.Id);
-                    break;
-                case "3":
-                    existingCustomer = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
-                    break;
-            }
-
-            if (existingCustomer != null)
-            {
-                var customerDto = CustomerFactory.Create(existingCustomer); 
-                return customerDto;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!; ;
-    }
 }

@@ -78,6 +78,7 @@ public static class CustomerFactory
         return null!;
     }
 
+
     public static CustomerDetailsDto CreateCustomerDetails(CustomerEntity cEntity, UserEntity uEntity)
     {
         try
@@ -85,15 +86,15 @@ public static class CustomerFactory
             return new CustomerDetailsDto
             {
                 Id  = cEntity.Id,
+                EmailId = cEntity.EmailId,
+                UserRoleName = uEntity.UserRoleName,
                 FirstName = cEntity.FirstName,
                 LastName = cEntity.LastName,
-                EmailId = cEntity.EmailId,
                 PhoneNumber = cEntity.PhoneNumber,
-                UserRoleName = uEntity.UserRoleName
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
-    }
+    } 
 }

@@ -59,7 +59,7 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
         return null!;
     }
 
-    public TEntity GetOne(Expression<Func<TEntity, bool>> predicate)
+    public virtual TEntity GetOne(Expression<Func<TEntity, bool>> predicate)
     {
         try
         {
@@ -150,24 +150,5 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
 
         return false;
     }
-
-    //CURRENTLY NOT USED
-    //public virtual TEntity Update(Expression<Func<TEntity, bool>> predicate, TEntity entity)
-    //{
-    //    try
-    //    {
-    //        var entityToUpdate = _context.Set<TEntity>().Where(predicate).FirstOrDefault();
-    //        if (entityToUpdate != null)
-    //        {
-    //            entityToUpdate = entity;
-    //            _context.Set<TEntity>().Update(entityToUpdate);
-    //            _context.SaveChanges();
-    //            var updatedEntity = entityToUpdate;
-    //            return updatedEntity;
-    //        }
-    //    }
-    //    catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-    //    return null!;
-    //}
 
 }
