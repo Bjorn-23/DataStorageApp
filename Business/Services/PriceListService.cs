@@ -44,11 +44,11 @@ public class PriceListService
         return null!;
     }
 
-    public PriceListDto GetOrCreatePriceList(PriceListDto priceList)
+    public PriceListDto CreatePriceList(PriceListDto priceList)
     {
         try
         {
-            var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType);
+            var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType && x.DiscountPrice == priceList.DiscountPrice);
             if (existingPriceList == null)
             {
                 var entity = PriceListFactory.Create(priceList);
@@ -57,46 +57,44 @@ public class PriceListService
                 {
                     return PriceListFactory.Create(newPriceList);                      
                 }
-            }
-            else
-                return PriceListFactory.Create(existingPriceList);
+            }            
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
 
-    public (string UnitType, decimal Price, decimal? DiscountPrice) GetPriceList(ProductDto dto)
+    public PriceListDto GetPriceList(PriceListDto priceList)
     {
         try
         {
-            var existingPriceList = _priceListRepository.GetOne(x => x.Id == dto.PriceId);
+            var existingPriceList = _priceListRepository.GetOne(x => x.Id == priceList.Id);
             if (existingPriceList != null)
             {
-                return (existingPriceList.UnitType, existingPriceList.Price, existingPriceList.DiscountPrice);
-                
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return (null!, 0, 0);
-    }
-
-    public (string UnitType, decimal Price, decimal? DiscountPrice) GetPriceList(ProductEntity Entity)
-    {
-        try
-        {
-            var existingPriceList = _priceListRepository.GetOne(x => x.Id == Entity.PriceId);
-            if (existingPriceList != null)
-            {
-                return (existingPriceList.UnitType, existingPriceList.Price, existingPriceList.DiscountPrice);
+                return PriceListFactory.Create(existingPriceList);
 
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return (null!, 0, 0);
+        return null!;
     }
+
+    public IEnumerable<PriceListDto> GetAllPriceLists()
+    {
+        try
+        {
+            var existingPriceLists = _priceListRepository.GetAll();
+            if (existingPriceLists != null)
+            {
+                return PriceListFactory.Create(existingPriceLists);
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
 
     public PriceListDto UpdatePriceList(PriceListDto existingPriceListDto, PriceListDto updatedPriceListDto)
     {

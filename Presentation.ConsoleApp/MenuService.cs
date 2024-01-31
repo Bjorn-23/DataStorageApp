@@ -1,9 +1,10 @@
 ﻿using Business.Dtos;
 using Business.Services;
+using System.Diagnostics;
 
 namespace Presentation.ConsoleApp;
 
-internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService, OrderRowService orderRowService)
+internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService, OrderRowService orderRowService, PriceListService priceListService)
 {
 
     private readonly CustomerService _customerService = customerService;
@@ -14,6 +15,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     private readonly OrderService _orderService = orderService;
     private readonly ProductService _productService = productService;
     private readonly OrderRowService _orderRowService = orderRowService;
+    private readonly PriceListService _priceListService = priceListService;
 
 
     internal void MenuStart()
@@ -1224,7 +1226,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.WriteLine($"{"\n3.",-5} Show all Product");
                 Console.WriteLine($"{"\n4.",-5} Update Product (requires Admin privileges)");
                 Console.WriteLine($"{"\n5.",-5} Delete Product (requires Admin privileges)");
-                Console.WriteLine($"{"\n6.",-5} PriceList Menu");
+                Console.WriteLine($"{"\n6.",-5} Price list Menu");
                 Console.WriteLine($"{"\n7.",-5} Category Menu");
                 Console.WriteLine($"{"\n0.",-5} Go back");
 
@@ -1260,317 +1262,492 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     default:
                         break;
                 }
+            }
 
+            void ShowCreateProductMenu()
+            {
+                var product = new ProductRegistrationDto();
 
-                void ShowCreateProductMenu()
+                SubMenuTemplate("Create Product menu");
+
+                Console.WriteLine("\nFill in details of new product. Required fields are marked with *\n");
+
+                Console.Write("\nArticle Number*: ");
+                product.ArticleNumber = Console.ReadLine()!;
+
+                Console.Write("\nProduct Title*: ");
+                product.Title = Console.ReadLine()!;
+
+                Console.Write("\nProduct Ingress: ");
+                product.Ingress = Console.ReadLine()!;
+
+                Console.Write("\nProduct description: ");
+                product.Description = Console.ReadLine()!;
+
+                Console.Write("\nCategory*: ");
+                product.CategoryName = Console.ReadLine()!;
+
+                Console.Write("\nUnit (sold as: each, pair, set of X, etc)*: ");
+                product.Unit = Console.ReadLine()!;
+
+                Console.Write("\nNumber of product items in stock*: ");
+                var stockresult = int.TryParse(Console.ReadLine()!, out int stock);
+                if (stockresult)
                 {
-                    var product = new ProductRegistrationDto();
+                    product.Stock = stock;
+                }
+                else
+                    product.Stock = 0;
 
-                    SubMenuTemplate("Create Product menu");
+                Console.Write("\nPrice*: ");
+                var priceResult = decimal.TryParse(Console.ReadLine()!, out decimal price);
+                if (priceResult)
+                {
+                    product.Price = price;
+                }
+                else
+                    product.Price = 0;
 
-                    Console.WriteLine("\nFill in details of new product. Required fields are marked with *\n");
+                Console.Write("\nCurrency (ie. SEK, USD, EUR)*: ");
+                product.Currency = Console.ReadLine()!;
 
-                    Console.Write("\nArticle Number*: ");
-                    product.ArticleNumber = Console.ReadLine()!;
+                Console.Write("\nDiscount price: ");
+                var discountPriceResult = decimal.TryParse(Console.ReadLine()!, out decimal discountPrice);
+                if (discountPriceResult)
+                {
+                    product.DiscountPrice = discountPrice;
+                }
+                else
+                    product.DiscountPrice = 0;
 
-                    Console.Write("\nProduct Title*: ");
-                    product.Title = Console.ReadLine()!;
-
-                    Console.Write("\nProduct Ingress: ");
-                    product.Ingress = Console.ReadLine()!;
-
-                    Console.Write("\nProduct description: ");
-                    product.Description = Console.ReadLine()!;
-
-                    Console.Write("\nCategory*: ");
-                    product.CategoryName = Console.ReadLine()!;
-
-                    Console.Write("\nUnit (sold as: each, pair, set of X, etc)*: ");
-                    product.Unit = Console.ReadLine()!;
-
-                    Console.Write("\nNumber of product items in stock*: ");
-                    var stockresult = int.TryParse(Console.ReadLine()!, out int stock);
-                    if (stockresult)
+                var newProduct = _productService.CreateProduct(product);
+                if (newProduct != null)
+                {
+                    var productDisplay = _productService.GetProductDisplay(newProduct);
+                    if (productDisplay != null)
                     {
-                        product.Stock = stock;
+                        SubMenuTemplate("New Product created");
+                        Console.WriteLine($"" +
+                            $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
+                            $"Title: {"",-13}{productDisplay.Title}\n" +
+                            $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
+                            $"Description: {"",-7}{productDisplay.Description}\n" +
+                            $"Category: {"",-10}{productDisplay.CategoryName}\n" +
+                            $"Price: {"",-13}{productDisplay.Price} {productDisplay.Currency}\n" +
+                            $"Discount price: {"",-4}{productDisplay.DiscountPrice} {productDisplay.Currency}\n" +
+                            $"Unit: {"",-14}{productDisplay.Unit}\n" +
+                            $"Stock: {"",-13}{productDisplay.Stock}\n");
                     }
                     else
-                        product.Stock = 0;
+                    {
+                        SubMenuTemplate("Product could not be created");
+                    }
 
-                    Console.Write("\nPrice*: ");
+                    PressKeyAndContinue();
+                }
+            }
+
+            void ShowProductDetailsMenu()
+            {
+                ProductDto productDto = new();
+                SubMenuTemplate("Show product details");
+                Console.Write("Fill in article number of product to show: ");
+                productDto.ArticleNumber = Console.ReadLine()!;
+
+                var product = _productService.GetProductDisplay(productDto);
+                if (product != null)
+                {
+                    SubMenuTemplate("Product search:");
+
+                    Console.WriteLine($"" +
+                            $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                            $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                            $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                            $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                            $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                            $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                            $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                            $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                            $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                }
+                else
+                    Console.WriteLine("No product was found with that article number.");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowAllProductsMenu()
+            {
+                var products = _productService.GetAllProducts();
+                if (products.Any())
+                {
+                    SubMenuTemplate("All Products");
+
+                    var i = 1;
+
+                    foreach (var product in products)
+                    {
+                        string hyphens = new string('-', $"{i}.".Length);
+
+                        Console.WriteLine($"" +
+                            $"{i++}.\n" +
+                            $"{hyphens}\n" +
+                            $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                            $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                            $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                            $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                            $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                            $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                            $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                            $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                            $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                    }
+                }
+                else
+                    Console.WriteLine("No products to show currently.");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowUpdateProductMenu()
+            {
+                ProductDto productDto = new();
+                SubMenuTemplate("Update product details");
+                Console.Write("Fill in article number of product to update: ");
+                productDto.ArticleNumber = Console.ReadLine()!;
+
+                var product = _productService.GetProductDisplay(productDto);
+                if (product != null)
+                {
+                    SubMenuTemplate("Product search:");
+
+
+                    Console.WriteLine($"\n" +
+                            $"{"",-5}Article number: {"",-5}{product.ArticleNumber}\n" +
+                            $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                            $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                            $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                            $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                            $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                            $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                            $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                            $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+
+                    Console.WriteLine("Is this the products to update?");
+                    Console.Write("[Y]es / [N]o: ");
+                    var answer = Console.ReadLine()!;
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        ProductRegistrationDto updatedProductDetails = new();
+
+                        SubMenuTemplate("New product details:");
+                        Console.WriteLine("\nFill in updated details of product." +
+                            " Fields left empty will retain their current value.\n" +
+                            "Please note that article number can not be changed, instead create a new product with a different article number.");
+
+                        updatedProductDetails.ArticleNumber = product.ArticleNumber;
+
+                        Console.Write("\nProduct Title: ");
+                        updatedProductDetails.Title = Console.ReadLine()!;
+
+                        Console.Write("\nProduct Ingress: ");
+                        updatedProductDetails.Ingress = Console.ReadLine()!;
+
+                        Console.Write("\nProduct description: ");
+                        updatedProductDetails.Description = Console.ReadLine()!;
+
+                        Console.Write("\nCategory: ");
+                        updatedProductDetails.CategoryName = Console.ReadLine()!;
+
+                        Console.Write("\nUnit (sold as: each, pair, set of X, etc): ");
+                        updatedProductDetails.Unit = Console.ReadLine()!;
+
+                        Console.Write("\nAdjust the number of product items in stock (prefix with - to reduce amount): ");
+                        var stockresult = int.TryParse(Console.ReadLine()!, out int stock);
+                        if (stockresult)
+                        {
+                            updatedProductDetails.Stock = stock;
+                        }
+                        else
+                            updatedProductDetails.Stock = 0;
+
+                        Console.Write("\nPrice: ");
+                        var priceResult = decimal.TryParse(Console.ReadLine()!, out decimal price);
+                        if (priceResult)
+                        {
+                            updatedProductDetails.Price = price;
+                        }
+                        else
+                            updatedProductDetails.Price = 0;
+
+                        Console.Write("\nCurrency (ie. SEK, USD, EUR): ");
+                        product.Currency = Console.ReadLine()!;
+
+                        Console.Write("\nDiscount price: ");
+                        var discountPriceResult = decimal.TryParse(Console.ReadLine()!, out decimal discountPrice);
+                        if (discountPriceResult)
+                        {
+                            updatedProductDetails.DiscountPrice = discountPrice;
+                        }
+                        else
+                            updatedProductDetails.DiscountPrice = 0;
+
+                        var updatedProduct = _productService.UpdateProduct(updatedProductDetails);
+                        if (updatedProduct != null)
+                        {
+                            var productDisplay = _productService.GetProductDisplay(updatedProduct);
+                            if (productDisplay != null)
+                            {
+                                SubMenuTemplate("Product updated");
+                                Console.WriteLine($"\n" +
+                                    $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
+                                    $"Title: {"",-13}{productDisplay.Title}\n" +
+                                    $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
+                                    $"Description: {"",-7}{productDisplay.Description}\n" +
+                                    $"Category: {"",-10}{productDisplay.CategoryName}\n" +
+                                    $"Price: {"",-13}{productDisplay.Price} {productDisplay.Currency}\n" +
+                                    $"Discount price: {"",-4}{productDisplay.DiscountPrice} {productDisplay.Currency}\n" +
+                                    $"Unit: {"",-14}{productDisplay.Unit}\n" +
+                                    $"Stock: {"",-13}{productDisplay.Stock}\n");
+                            }
+                        }
+                        else
+                            Console.WriteLine("\nProduct could not be updated.");
+                    }
+                    else
+                        Console.WriteLine("\nProduct will not be updated.");
+                }
+                else
+                    Console.WriteLine("\nNo product found with that article number.");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowDeleteProductMenu()
+            {
+                ProductDto productDto = new();
+                SubMenuTemplate("Delete product");
+                Console.Write("\nFill in article number of product to delete: ");
+                productDto.ArticleNumber = Console.ReadLine()!;
+
+                var product = _productService.GetProductDisplay(productDto);
+                SubMenuTemplate("Product search:");
+                if (product != null)
+                {
+                    PrintProductDetails(product);
+
+                    var answer = Question("Is this the product to delete?");
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        var result = _productService.DeleteProduct(productDto);
+                        SubMenuTemplate("Delete Status:");
+                        if (result != null)
+                        {
+                            Console.WriteLine($"\n" +
+                                $"{"",-5}Article number: {"",-5}{result.ArticleNumber}\n" +
+                                $"{"",-5}Title: {"",-13}{result.Title}\n" +
+                                $"{"",-5}Ingress: {"",-11}{result.Ingress}\n" +
+                                $"{"",-5}Category: {"",-10}{result.CategoryName}\n");
+
+                            Console.WriteLine("Was deleted.");
+                        }
+                        else
+                            Console.WriteLine("\nProduct could not be deleted.");
+                    }
+                    else
+                        Console.WriteLine("\nProduct will not be deleted.");
+                }
+                else
+                    Console.WriteLine("\nThere was no product found with that article number.");
+
+                PressKeyAndContinue();
+            }
+
+            void ShowPriceListMenu()
+            {
+                bool priceListLoop = true;
+
+                while (priceListLoop)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"{"",-5}PriceList menu - Choose an option");
+                    string hyphens = new string('-', $"{"",5}Product menu - Choose an option".Length);
+                    Console.WriteLine(hyphens);
+                    Console.WriteLine($"{"\n1.",-5} Create Price list (requires Admin privileges)");
+                    Console.WriteLine($"{"\n2.",-5} Show Price list details");
+                    Console.WriteLine($"{"\n3.",-5} Show all Price lists");
+                    Console.WriteLine($"{"\n4.",-5} Update Price list (requires Admin privileges)");
+                    Console.WriteLine($"{"\n5.",-5} Delete Price list (requires Admin privileges)");
+                    Console.WriteLine($"{"\n0.",-5} Go back");
+
+                    Console.Write($"\n\n{"",-5}Option: ");
+                    var option = Console.ReadLine();
+
+                    switch (option)
+                    {
+                        case "1":
+                            ShowCreatePriceListMenu();
+                            break;
+                        case "2":
+                            ShowPriceLisDetailsMenu();
+                            break;
+                        case "3":
+                            ShowAllPriceListsMenu();
+                            break;
+                        case "4":
+                            ShowUpdatePriceListMenu();
+                            break;
+                        case "5":
+                            ShowDeletePriceListMenu();
+                            break;
+                        case "0":
+                            priceListLoop = false;
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+
+                void ShowCreatePriceListMenu()
+                {
+                    PriceListDto priceListDto = new();
+
+                    SubMenuTemplate("Create Price list");
+                    Console.WriteLine("Fill in details for new price list. Required fields are marked with *");
+
+                    Console.Write("\nPrice *: ");
                     var priceResult = decimal.TryParse(Console.ReadLine()!, out decimal price);
                     if (priceResult)
                     {
-                        product.Price = price;
+                        priceListDto.Price = price;
                     }
-                    else
-                        product.Price = 0;
-
-                    Console.Write("\nCurrency (ie. SEK, USD, EUR)*: ");
-                    product.Currency = Console.ReadLine()!;
 
                     Console.Write("\nDiscount price: ");
                     var discountPriceResult = decimal.TryParse(Console.ReadLine()!, out decimal discountPrice);
                     if (discountPriceResult)
                     {
-                        product.DiscountPrice = discountPrice;
+                        priceListDto.DiscountPrice = discountPrice;
                     }
-                    else
-                        product.DiscountPrice = 0;
 
-                    var newProduct = _productService.CreateProduct(product);
-                    if (newProduct != null)
+                    Console.Write("\nUnit Type (ie. SEK, EUR, USD) *: ");
+                    priceListDto.UnitType = Console.ReadLine()!;
+
+
+                    SubMenuTemplate("Price list status");
+                    Console.WriteLine(
+                        $"\nPrice:{"",-14}{priceListDto.Price}" +
+                        $"\nDiscount price:{"",-5}{priceListDto.DiscountPrice}" +
+                        $"\nUnit type:{"",-10}{priceListDto.UnitType}");
+
+                    var answer = Question("\nIs this the price list you want to create?");
+                    if(answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        var productDisplay = _productService.GetProductDisplay(newProduct);
-                        if (productDisplay != null)
+                        var result = _priceListService.CreatePriceList(priceListDto);
+                        SubMenuTemplate("Price list status");
+                        if (result != null)
                         {
-                            SubMenuTemplate("New Product created");
-                            Console.WriteLine($"" +
-                                $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
-                                $"Title: {"",-13}{productDisplay.Title}\n" +
-                                $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
-                                $"Description: {"",-7}{productDisplay.Description}\n" +
-                                $"Category: {"",-10}{productDisplay.CategoryName}\n" +
-                                $"Price: {"",-13}{productDisplay.Price} {productDisplay.Currency}\n" +
-                                $"Discount price: {"",-4}{productDisplay.DiscountPrice} {productDisplay.Currency}\n" +
-                                $"Unit: {"",-14}{productDisplay.Unit}\n" +
-                                $"Stock: {"",-13}{productDisplay.Stock}\n");
+                            Console.WriteLine("\nPrice list created:");
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{result.Id}" +
+                                $"\nPrice:{"",-14}{result.Price}" +
+                                $"\nDiscount price:{"",-5}{result.DiscountPrice}" +
+                                $"\nUnit type:{"",-10}{result.UnitType}");
                         }
                         else
-                        {
-                            SubMenuTemplate("Product could not be created");
-                        }
-
-                        PressKeyAndContinue();
-                    }
-                }
-
-                void ShowProductDetailsMenu()
-                {
-                    ProductDto productDto = new();
-                    SubMenuTemplate("Show product details");
-                    Console.Write("Fill in article number of product to show: ");
-                    productDto.ArticleNumber = Console.ReadLine()!;
-
-                    var product = _productService.GetProductDisplay(productDto);
-                    if (product != null)
-                    {
-                        SubMenuTemplate("Product search:");
-
-                        Console.WriteLine($"" +
-                                $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
-                                $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
-                                $"{"",-5}Description: {"",-7}{product.Description}\n" +
-                                $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
-                                $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
-                                $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
-                                $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
-                                $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                            Console.WriteLine("Price list could not be created.");
                     }
                     else
-                        Console.WriteLine("No product was found with that article number.");
+                        Console.WriteLine("Price list was not created.");
 
                     PressKeyAndContinue();
                 }
 
-                void ShowAllProductsMenu()
+                void ShowPriceLisDetailsMenu()
                 {
-                    var products = _productService.GetAllProducts();
-                    if (products.Any())
+                    PriceListDto priceListDto = new();
+
+                    SubMenuTemplate("Show Price list details");
+
+                    Console.Write("\nPrice *: ");
+
+                    var allPriceLists = _priceListService.GetAllPriceLists();
+                    SubMenuTemplate("All current Price lists:");
+                    if(allPriceLists != null)
                     {
-                        SubMenuTemplate("All Products");
 
-                        var i = 1;
-
-                        foreach (var product in products)
+                        foreach(var priceList in allPriceLists)
                         {
-                            string hyphens = new string('-', $"{i}.".Length);
-
-                            Console.WriteLine($"" +
-                                $"{i++}.\n" +
-                                $"{hyphens}\n" +
-                                $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
-                                $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
-                                $"{"",-5}Description: {"",-7}{product.Description}\n" +
-                                $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
-                                $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
-                                $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
-                                $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
-                                $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{priceList.Id}" +
+                                $"\nPrice:{"",-14}{priceList.Price}" +
+                                $"\nDiscount price:{"",-5}{priceList.DiscountPrice}" +
+                                $"\nUnit type:{"",-10}{priceList.UnitType}");
                         }
-                    }
-                    else
-                        Console.WriteLine("No products to show currently.");
 
-                    PressKeyAndContinue();
-                }
+                        Console.WriteLine("\n\nFill in Id of Price list to show");
 
-                void ShowUpdateProductMenu()
-                {
-                    ProductDto productDto = new();
-                    SubMenuTemplate("Update product details");
-                    Console.Write("Fill in article number of product to update: ");
-                    productDto.ArticleNumber = Console.ReadLine()!;
-
-                    var product = _productService.GetProductDisplay(productDto);
-                    if (product != null)
-                    {
-                        SubMenuTemplate("Product search:");
-
-
-                        Console.WriteLine($"\n" +
-                                $"{"",-5}Article number: {"",-5}{product.ArticleNumber}\n" +
-                                $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
-                                $"{"",-5}Description: {"",-7}{product.Description}\n" +
-                                $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
-                                $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
-                                $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
-                                $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
-                                $"{"",-5}Stock: {"",-13}{product.Stock}\n");
-
-                        Console.WriteLine("Is this the products to update?");
-                        Console.Write("[Y]es / [N]o: ");
-                        var answer = Console.ReadLine()!;
-                        if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                        Console.Write("\nId: ");
+                        var idResult = int.TryParse(Console.ReadLine()!, out int Id);
+                        if (idResult)
                         {
-                            ProductRegistrationDto updatedProductDetails = new();
+                            priceListDto.Id = Id;
+                        }
 
-                            SubMenuTemplate("New product details:");
-                            Console.WriteLine("\nFill in updated details of product." +
-                                " Fields left empty will retain their current value.\n" +
-                                "Please note that article number can not be changed, instead create a new product with a different article number.");
+                        var priceListDetails = _priceListService.GetPriceList(priceListDto);
+                        SubMenuTemplate("Price list details");
+                        if (priceListDetails != null)
+                        {
+                            Console.WriteLine("\nPrice list:");
+                            Console.WriteLine(
+                                $"\n{"",-5}Id:{"",-17}{priceListDetails.Id}" +
+                                $"\n{"",-5}Price:{"",-14}{priceListDetails.Price}" +
+                                $"\n{"",-5}Discount price:{"",-5}{priceListDetails.DiscountPrice}" +
+                                $"\n{"",-5}Unit type:{"",-10}{priceListDetails.UnitType}\n");
 
-                            updatedProductDetails.ArticleNumber = product.ArticleNumber;
+                            Console.WriteLine("\nProducts currently associated to this Price list:");
 
-                            Console.Write("\nProduct Title: ");
-                            updatedProductDetails.Title = Console.ReadLine()!;
-
-                            Console.Write("\nProduct Ingress: ");
-                            updatedProductDetails.Ingress = Console.ReadLine()!;
-
-                            Console.Write("\nProduct description: ");
-                            updatedProductDetails.Description = Console.ReadLine()!;
-
-                            Console.Write("\nCategory: ");
-                            updatedProductDetails.CategoryName = Console.ReadLine()!;
-
-                            Console.Write("\nUnit (sold as: each, pair, set of X, etc): ");
-                            updatedProductDetails.Unit = Console.ReadLine()!;
-
-                            Console.Write("\nNumber of product items in stock: ");
-                            var stockresult = int.TryParse(Console.ReadLine()!, out int stock);
-                            if (stockresult)
+                            foreach(var product in priceListDetails.Products)
                             {
-                                updatedProductDetails.Stock = stock;
+                                Console.WriteLine(
+                                    $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                                    $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +          
+                                    $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                                    $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
-                            else
-                                updatedProductDetails.Stock = 0;
-
-                            Console.Write("\nPrice: ");
-                            var priceResult = decimal.TryParse(Console.ReadLine()!, out decimal price);
-                            if (priceResult)
-                            {
-                                updatedProductDetails.Price = price;
-                            }
-                            else
-                                updatedProductDetails.Price = 0;
-
-                            Console.Write("\nCurrency (ie. SEK, USD, EUR): ");
-                            product.Currency = Console.ReadLine()!;
-
-                            Console.Write("\nDiscount price: ");
-                            var discountPriceResult = decimal.TryParse(Console.ReadLine()!, out decimal discountPrice);
-                            if (discountPriceResult)
-                            {
-                                updatedProductDetails.DiscountPrice = discountPrice;
-                            }
-                            else
-                                updatedProductDetails.DiscountPrice = 0;
-
-                            var updatedProduct = _productService.UpdateProduct(updatedProductDetails);
-                            if (updatedProduct != null)
-                            {
-                                var productDisplay = _productService.GetProductDisplay(updatedProduct);
-                                if (productDisplay != null)
-                                {
-                                    SubMenuTemplate("Product updated");
-                                    Console.WriteLine($"\n" +
-                                        $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
-                                        $"Title: {"",-13}{productDisplay.Title}\n" +
-                                        $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
-                                        $"Description: {"",-7}{productDisplay.Description}\n" +
-                                        $"Category: {"",-10}{productDisplay.CategoryName}\n" +
-                                        $"Price: {"",-13}{productDisplay.Price} {productDisplay.Currency}\n" +
-                                        $"Discount price: {"",-4}{productDisplay.DiscountPrice} {productDisplay.Currency}\n" +
-                                        $"Unit: {"",-14}{productDisplay.Unit}\n" +
-                                        $"Stock: {"",-13}{productDisplay.Stock}\n");
-                                }
-                            }
-                            else
-                                Console.WriteLine("\nProduct could not be updated.");
                         }
                         else
-                            Console.WriteLine("\nProduct will not be updated.");
+                            Console.WriteLine("No Price Lists with that Id.");
                     }
                     else
-                        Console.WriteLine("\nNo product found with that article number.");
+                        Console.WriteLine("No current Price Lists to show.");
 
                     PressKeyAndContinue();
                 }
 
-                void ShowDeleteProductMenu()
+                void ShowAllPriceListsMenu()
                 {
-                    ProductDto productDto = new();
-                    SubMenuTemplate("Delete product");
-                    Console.Write("\nFill in article number of product to delete: ");
-                    productDto.ArticleNumber = Console.ReadLine()!;
-
-                    var product = _productService.GetProductDisplay(productDto);
-                    SubMenuTemplate("Product search:");
-                    if (product != null)
-                    {
-                        PrintProductDetails(product);
-
-                        var answer = Question("Is this the product to delete?");
-                        if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            var result = _productService.DeleteProduct(productDto);
-                            SubMenuTemplate("Delete Status:");
-                            if (result != null)
-                            {
-                                Console.WriteLine($"\n" +
-                                    $"{"",-5}Article number: {"",-5}{result.ArticleNumber}\n" +
-                                    $"{"",-5}Title: {"",-13}{result.Title}\n" +
-                                    $"{"",-5}Ingress: {"",-11}{result.Ingress}\n" +
-                                    $"{"",-5}Category: {"",-10}{result.CategoryName}\n");
-
-                                Console.WriteLine("Was deleted.");
-                            }
-                            else
-                                Console.WriteLine("\nProduct could not be deleted.");
-                        }
-                        else
-                            Console.WriteLine("\nProduct will not be deleted.");
-                    }
-                    else
-                        Console.WriteLine("\nThere was no product found with that article number.");
-
-                    PressKeyAndContinue();
+                    // This is next
                 }
 
-                void ShowPriceListMenu()
+                void ShowUpdatePriceListMenu()
                 {
-                    //Functionality for CRUD on PriceList
+                    // Then this
                 }
 
-                void ShowCateGoryMenu()
+                void ShowDeletePriceListMenu()
                 {
-                    //Functionality for CRUD on PriceList
+                    // and this
                 }
+
             }
+
+            void ShowCateGoryMenu()
+            {
+                //Functionality for CRUD on PriceList
+            }
+
         }
 
         // Utility methods
@@ -1635,5 +1812,5 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                 $"{"",-5}Stock: {"",-13}{product.Stock}\n");
         }
-    }   
+    }
 }
