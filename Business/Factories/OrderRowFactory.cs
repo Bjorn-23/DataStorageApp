@@ -25,24 +25,6 @@ public static class OrderRowFactory
         return null!;
     }
 
-    public static OrderRowEntity Create(OrderRowDto dto)
-    {
-        try
-        {
-            return new OrderRowEntity
-            {
-                Id = dto.Id,
-                Quantity = dto.Quantity,
-                ArticleNumber = dto.ArticleNumber,
-                OrderRowPrice = dto.OrderRowPrice,
-                OrderId = dto.OrderId,
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
     public static IEnumerable<OrderRowDto> Create(IEnumerable<OrderRowEntity> entities)
     {
         try

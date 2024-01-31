@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace Business.Dtos;
+﻿namespace Business.Dtos;
 
 public class PriceListDto
 {

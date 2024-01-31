@@ -42,24 +42,6 @@ public static class AddressFactory
         return null!;
     }
 
-    public static IEnumerable<AddressEntity> Create(IEnumerable<AddressDto> dtos)
-    {
-        try
-        {
-            List<AddressEntity> list = new();
-
-            foreach (var dto in dtos)
-            {
-                list.Add(Create(dto));
-            }
-
-            return list;
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
     public static IEnumerable<AddressDto> Create(IEnumerable<AddressEntity> dtos)
     {
         try

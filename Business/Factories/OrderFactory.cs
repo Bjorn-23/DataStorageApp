@@ -22,39 +22,4 @@ public static class OrderFactory
 
         return null!;
     }
-
-    public static OrderEntity Create(OrderDto dto)
-    {
-        try
-        {
-            return new OrderEntity
-            {
-                Id = dto.Id,
-                OrderPrice = dto.OrderPrice,
-                CustomerId = dto.CustomerId,
-                OrderDate = dto.OrderDate,
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
-    public static IEnumerable<OrderDto> Create(IEnumerable<OrderEntity> entities)
-    {
-        try
-        {
-            List<OrderDto> list = new();
-
-            foreach (var entity in entities)
-            {
-                list.Add(Create(entity));
-            }
-
-            return list;
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
 }

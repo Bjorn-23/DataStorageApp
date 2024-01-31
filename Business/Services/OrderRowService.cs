@@ -29,9 +29,9 @@ public class OrderRowService
             if (existingOrderRow == null)
             {
                 // Gets product from articleNumber to be able to set price.
-                var product = _productService.GetProduct(x => x.ArticleNumber == orderRow.ArticleNumber);
+                var product = _productService.GetProductDisplay(new ProductDto(){ ArticleNumber = orderRow.ArticleNumber });
 
-                var price = GetPrice(product);
+                var price = GetPriceOrDiscountPrice(product);
 
                 var newOrderRow = new OrderRowEntity()
                 {
@@ -58,13 +58,7 @@ public class OrderRowService
 
                     return Factories.OrderRowFactory.Create(createdOrderRow);
                 }
-
             }
-            else if (existingOrderRow != null)
-            {
-                return null!;// Better to return null here?
-            }
-
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -75,7 +69,7 @@ public class OrderRowService
     {
         try
         {
-            var order = _orderService.GetAllOrders().FirstOrDefault();
+            var order = _orderService.GetUsersOrder();
             if (order != null)
             {
                 var orderRows = _orderRowRepository.GetAllWithPredicate(x => x.OrderId == order.Id);
@@ -85,45 +79,6 @@ public class OrderRowService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return new List<OrderRowDto>();
-    }
-
-    public IEnumerable<OrderDetailsDto> GetOrderRowDetails()
-    {
-        try
-        {
-            var activeUser = _orderService.GetActiveUser();
-            var orderDetails = _orderRowRepository.GetAllWithPredicate(x => x.Order.CustomerId == activeUser.Id);
-            if (orderDetails.Any())
-            {
-                List<OrderDetailsDto> list = new();
-
-                var customer = _customerRepository.GetOne(x => x.Id == activeUser.Id);
-
-                foreach (var order in orderDetails)
-                {
-                    list.Add(new OrderDetailsDto()
-                    {
-                        OrderId = order.OrderId,
-                        OrderDate = order.Order.OrderDate,
-                        OrderPrice = order.Order.OrderPrice,
-                        FirstName = customer.FirstName,
-                        LastName = customer.LastName,
-                        Email = customer.EmailId,
-                        PhoneNumber = customer.PhoneNumber,
-                        OrderRowId = order.Id,
-                        OrderRowQuantity = order.Quantity,
-                        OrderRowPrice = order.OrderRowPrice,
-                        ArticleNumber = order.ArticleNumber
-                    });
-                }
-
-                return list;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return new List<OrderDetailsDto>();
-
     }
 
     public OrderRowDto UpdateOrderRow(OrderRowDto orderRow)
@@ -213,9 +168,7 @@ public class OrderRowService
         return null!;
     }
 
-
-    // Helpers
-    private decimal GetPrice(ProductRegistrationDto product)
+    private decimal GetPriceOrDiscountPrice(ProductRegistrationDto product)
     {
         // Checks for discountprice and applies if it not null
         decimal? price = 0;
@@ -234,7 +187,7 @@ public class OrderRowService
         // Checks if orderRow.OrderId is null, if it is then either gets the first order in a list or creates a new order.
         if (orderRow.OrderId <= 0)
         {
-            order = _orderService.GetAllOrders().FirstOrDefault(); // first order associated to logged in customer.
+            order = _orderService.GetUsersOrder(); // first order associated to logged in customer.
             if (order == null)
             {
                 var result = _orderService.CreateOrder(); // If no order exists then create new order.

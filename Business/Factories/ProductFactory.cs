@@ -28,28 +28,7 @@ public static class ProductFactory
         return null!;
     }
 
-    public static ProductEntity Create(ProductDto dto)
-    {
-        try
-        {
-            return new ProductEntity
-            {
-                ArticleNumber = dto.ArticleNumber,
-                Title = dto.Title,
-                Ingress = dto.Ingress,
-                Description = dto.Description,
-                PriceId = dto.PriceId,
-                Unit = dto.Unit,
-                Stock = dto.Stock,
-                CategoryName = dto.CategoryName
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
-    public static ProductRegistrationDto Create(ProductEntity entity, string UnitType, decimal Price, decimal? DiscountPrice)
+    public static ProductRegistrationDto Create(ProductEntity entity, string UnitType, decimal Price, decimal? DiscountPrice) // Currently not used
     {
         try
         {

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
 namespace Infrastructure.Entities;
 
 public class Customer_AddressEntity

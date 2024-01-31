@@ -67,31 +67,18 @@ public class OrderService
         return null!;
     }
 
-    public IEnumerable<OrderDto> GetAllOrders()
+    public OrderDto GetUsersOrder()
     {
         try
         {
             var activeUser = GetActiveUser();
-            var existingOrders = _orderRepository.GetAllWithPredicate(x => x.CustomerId == activeUser.Id);
-            if (existingOrders != null)
+            if (activeUser != null)
             {
-                return Factories.OrderFactory.Create(existingOrders);
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
-    public OrderDto GetOneOrder(OrderDto order)
-    {
-        try
-        {  
-            var activeUser = GetActiveUser();
-            var existingOrder = _orderRepository.GetOne(x => x.Id == order.Id);
-            if (existingOrder.CustomerId == activeUser.Id || activeUser.UserRoleName == "Admin")
-            {
-                return Factories.OrderFactory.Create(existingOrder);
+                var existingOrder = _orderRepository.GetOne(x => x.CustomerId == activeUser.Id);
+                if (existingOrder != null)
+                {
+                    return OrderFactory.Create(existingOrder);
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -192,7 +179,7 @@ public class OrderService
                 var newOrderDetails = _orderRepository.Update(existingOrder, updatedOrder);
                 if (newOrderDetails != null)
                 {
-                    return Factories.OrderFactory.Create(newOrderDetails);
+                    return OrderFactory.Create(newOrderDetails);
                 }
             }
 
@@ -214,7 +201,7 @@ public class OrderService
                     var newOrderDetails = _orderRepository.Update(existingOrder, updatedOrder);
                     if (newOrderDetails != null)
                     {
-                        return Factories.OrderFactory.Create(existingOrder);
+                        return OrderFactory.Create(existingOrder);
                     }
                 }
             }
@@ -236,7 +223,7 @@ public class OrderService
                 var result = _orderRepository.Delete(existingOrder);
                 if (result)
                 {
-                    return Factories.OrderFactory.Create(existingOrder);
+                    return OrderFactory.Create(existingOrder);
                 }
             }
             else if (activeUser.UserRoleName == "Admin") // Delete as admin
@@ -247,7 +234,7 @@ public class OrderService
                     var result = _orderRepository.Delete(existingOrder);
                     if (result)
                     {
-                        return Factories.OrderFactory.Create(existingOrder);
+                        return OrderFactory.Create(existingOrder);
                     }
                 }
             }

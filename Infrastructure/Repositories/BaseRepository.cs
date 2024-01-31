@@ -94,7 +94,6 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
             var entityToUpdate = _context.Set<TEntity>().Where(predicate).FirstOrDefault(predicate);
             if (entityToUpdate != null)
             {
-                // Update properties of the existing entity with values from the new entity
                 _context.Entry(entityToUpdate).CurrentValues.SetValues(entity);
                 _context.SaveChanges();
                 return entityToUpdate;

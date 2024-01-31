@@ -104,7 +104,7 @@ public class CustomerService
         return null!;
     } // Decide which one to keep- THIS ( NOT USED BUT SIMPLE)
 
-    public CustomerDto GetOneCustomer(CustomerDto customer, string option)
+    public CustomerDto GetOneCustomer(CustomerDto customer, string option)  // Or THIS (USED BUT MAYBE UNNECESSARY)
     {
         try
         {
@@ -132,7 +132,7 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!; ;
-    } // Or THIS (USED BUT MAYBE UNNECESSARY)
+    }
 
     public IEnumerable<CustomerDto> GetAll()
     {
@@ -178,11 +178,7 @@ public class CustomerService
 
         return null!;
     }
-
-   
-
-    //------- CURRENTLY NOT USED --------
-       
+    
     public bool DeleteCustomer(CustomerDto customer, string option) // Currently undecided if I should let Users delete customer.
     {
         try
@@ -216,24 +212,4 @@ public class CustomerService
         return false;
     }
 
-    public bool CustomerExists(CustomerDto customer)
-    {
-        try
-        {
-            CustomerEntity entity = new()
-            {
-
-                EmailId = customer.EmailId
-            };
-
-            var exists = _customerRepository.Exists(x => x.EmailId == entity.EmailId);
-            if (exists)
-            {
-                return true;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return false;
-    }
 }
