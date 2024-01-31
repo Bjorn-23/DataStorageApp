@@ -34,7 +34,7 @@ public class ProductService
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 if (existingProduct != null)
                 {
-                    return Factories.ProductFactory.Create(existingProduct);
+                    return ProductFactory.Create(existingProduct);
                 }
                 else
                 {
@@ -55,7 +55,7 @@ public class ProductService
                     });
                     if (newProduct != null)
                     {
-                        return Factories.ProductFactory.Create(newProduct);
+                        return ProductFactory.Create(newProduct);
                     }
                 }
             }
@@ -87,24 +87,6 @@ public class ProductService
                     CategoryName = existingProduct.CategoryName
                 };
             }
-
-            //var priceId = _priceListService.GetPriceList(dto);
-            //if (priceId.Price >= 1 && priceId.UnitType != null!)
-            //{
-            //    return new ProductRegistrationDto()
-            //    {
-            //        ArticleNumber = dto.ArticleNumber,
-            //        Title = dto.Title,
-            //        Ingress = dto.Ingress,
-            //        Description = dto.Description,
-            //        Price = priceId.Price,
-            //        Currency = priceId.UnitType,
-            //        DiscountPrice = priceId.DiscountPrice,
-            //        Unit = dto.Unit,
-            //        Stock = dto.Stock,
-            //        CategoryName = dto.CategoryName
-            //    };
-            //}
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -184,7 +166,7 @@ public class ProductService
                     var result = _productRepository.Update(existingProduct, updatedProduct);
                     if (result != null)
                     {
-                        return Factories.ProductFactory.Create(updatedProduct);
+                        return ProductFactory.Create(updatedProduct);
                     }
                 }
             }
@@ -207,7 +189,7 @@ public class ProductService
                     var result = _productRepository.Delete(existingProduct);
                     if (result)
                     {
-                        return Factories.ProductFactory.Create(existingProduct);
+                        return ProductFactory.Create(existingProduct);
                     }
                 }            
             }

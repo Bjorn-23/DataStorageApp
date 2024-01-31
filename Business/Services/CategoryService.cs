@@ -1,8 +1,8 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Business.Services;
 
@@ -47,10 +47,10 @@ public class CategoryService
                 {
                     CategoryName = category.CategoryName
                 });
-                return Factories.CategoryFactory.Create(newCategoryName);
+                return CategoryFactory.Create(newCategoryName);
             }
             else
-                return Factories.CategoryFactory.Create(exisitingCategoryName);
+                return CategoryFactory.Create(exisitingCategoryName);
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -63,7 +63,7 @@ public class CategoryService
         {
             var result = _categoryRepository.GetAll();
             if (result != null)
-                return Factories.CategoryFactory.Create(result);
+                return CategoryFactory.Create(result);
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -86,7 +86,7 @@ public class CategoryService
                 var result = _categoryRepository.Update(existingCategory, updatedEntity);
                 if (result != null)
                 {
-                    return Factories.CategoryFactory.Create(result);
+                    return CategoryFactory.Create(result);
                 }
             }
         }
@@ -105,7 +105,7 @@ public class CategoryService
                 var result = _categoryRepository.Delete(existingCategory);
                 if (result)
                 {
-                    return Factories.CategoryFactory.Create(existingCategory);
+                    return CategoryFactory.Create(existingCategory);
                 }
             }
         }

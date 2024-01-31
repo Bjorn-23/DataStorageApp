@@ -1,6 +1,5 @@
 ﻿using Business.Dtos;
 using Business.Utils;
-using Microsoft.Identity.Client;
 using System.Diagnostics;
 
 namespace Business.Services;

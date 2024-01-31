@@ -1,4 +1,5 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
@@ -56,7 +57,7 @@ public class OrderRowService
                         Stock = -newOrderRow.Quantity
                     });
 
-                    return Factories.OrderRowFactory.Create(createdOrderRow);
+                    return OrderRowFactory.Create(createdOrderRow);
                 }
             }
         }
@@ -73,7 +74,7 @@ public class OrderRowService
             if (order != null)
             {
                 var orderRows = _orderRowRepository.GetAllWithPredicate(x => x.OrderId == order.Id);
-                return Factories.OrderRowFactory.Create(orderRows);
+                return OrderRowFactory.Create(orderRows);
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -122,7 +123,7 @@ public class OrderRowService
                     };
                     var productStockResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
 
-                    return Factories.OrderRowFactory.Create(updatedOrderRow);
+                    return OrderRowFactory.Create(updatedOrderRow);
                 }
             }
         }
@@ -159,7 +160,7 @@ public class OrderRowService
                     };
                     var prodcutUpdateResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
 
-                    return Factories.OrderRowFactory.Create(existingOrderRow);
+                    return OrderRowFactory.Create(existingOrderRow);
                 }
             }
         }
@@ -168,6 +169,8 @@ public class OrderRowService
         return null!;
     }
 
+
+    // Helpers
     private decimal GetPriceOrDiscountPrice(ProductRegistrationDto product)
     {
         // Checks for discountprice and applies if it not null
@@ -191,7 +194,7 @@ public class OrderRowService
             if (order == null)
             {
                 var result = _orderService.CreateOrder(); // If no order exists then create new order.
-                order = Factories.OrderFactory.Create(result);
+                order = OrderFactory.Create(result);
             }
         }
         else

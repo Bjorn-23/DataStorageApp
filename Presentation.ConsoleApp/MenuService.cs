@@ -1224,7 +1224,10 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.WriteLine($"{"\n3.",-5} Show all Product");
                 Console.WriteLine($"{"\n4.",-5} Update Product (requires Admin privileges)");
                 Console.WriteLine($"{"\n5.",-5} Delete Product (requires Admin privileges)");
+                Console.WriteLine($"{"\n6.",-5} PriceList Menu");
+                Console.WriteLine($"{"\n7.",-5} Category Menu");
                 Console.WriteLine($"{"\n0.",-5} Go back");
+
                 Console.Write($"\n\n{"",-5}Option: ");
                 var option = Console.ReadLine();
 
@@ -1244,6 +1247,12 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         break;
                     case "5":
                         ShowDeleteProductMenu();
+                        break;
+                    case "6":
+                        ShowPriceListMenu();
+                        break;
+                    case "7":
+                        ShowCateGoryMenu();
                         break;
                     case "0":
                         productLoop = false;
@@ -1401,7 +1410,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 void ShowUpdateProductMenu()
                 {
                     ProductDto productDto = new();
-                    SubMenuTemplate("Show product details");
+                    SubMenuTemplate("Update product details");
                     Console.Write("Fill in article number of product to update: ");
                     productDto.ArticleNumber = Console.ReadLine()!;
 
@@ -1515,28 +1524,17 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 void ShowDeleteProductMenu()
                 {
                     ProductDto productDto = new();
-                    SubMenuTemplate("Show product details");
-                    Console.Write("\nFill in article number of product to update: ");
+                    SubMenuTemplate("Delete product");
+                    Console.Write("\nFill in article number of product to delete: ");
                     productDto.ArticleNumber = Console.ReadLine()!;
 
                     var product = _productService.GetProductDisplay(productDto);
                     SubMenuTemplate("Product search:");
                     if (product != null)
                     {
-                        Console.WriteLine($"\n" +
-                                $"{"",-5}Article number: {"",-5}{product.ArticleNumber}\n" +
-                                $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
-                                $"{"",-5}Description: {"",-7}{product.Description}\n" +
-                                $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
-                                $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
-                                $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
-                                $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
-                                $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                        PrintProductDetails(product);
 
-                        Console.WriteLine("Is this the products to update?");
-                        Console.Write("[Y]es / [N]o: ");
-                        var answer = Console.ReadLine()!;
+                        var answer = Question("Is this the product to delete?");
                         if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                         {
                             var result = _productService.DeleteProduct(productDto);
@@ -1561,6 +1559,16 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         Console.WriteLine("\nThere was no product found with that article number.");
 
                     PressKeyAndContinue();
+                }
+
+                void ShowPriceListMenu()
+                {
+                    //Functionality for CRUD on PriceList
+                }
+
+                void ShowCateGoryMenu()
+                {
+                    //Functionality for CRUD on PriceList
                 }
             }
         }
@@ -1602,6 +1610,30 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     break;
             }
             return customer;
+        }
+
+        string Question(string questionTextHere)
+        {
+            Console.WriteLine(questionTextHere);
+            Console.Write("[Y]es / [N]o: ");
+            var answer = Console.ReadLine()!;
+
+            return answer;
+        }
+
+        void PrintProductDetails(ProductRegistrationDto product)
+        {
+            Console.WriteLine(
+                $"\n" +
+                $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
+                $"{"",-5}Description: {"",-7}{product.Description}\n" +
+                $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                $"{"",-5}Price: {"",-13}{product.Price} {product.Currency}\n" +
+                $"{"",-5}Discount price: {"",-4}{product.DiscountPrice} {product.Currency}\n" +
+                $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                $"{"",-5}Stock: {"",-13}{product.Stock}\n");
         }
     }   
 }

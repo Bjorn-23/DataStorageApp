@@ -1,7 +1,7 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using Infrastructure.Repositories;
 using System.Diagnostics;
 
 namespace Business.Services;
@@ -51,15 +51,15 @@ public class PriceListService
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType);
             if (existingPriceList == null)
             {
-                var entity = Factories.PriceListFactory.Create(priceList);
+                var entity = PriceListFactory.Create(priceList);
                 var newPriceList = _priceListRepository.Create(entity);
                 if (newPriceList != null)
                 {
-                    return Factories.PriceListFactory.Create(newPriceList);                      
+                    return PriceListFactory.Create(newPriceList);                      
                 }
             }
             else
-                return Factories.PriceListFactory.Create(existingPriceList);
+                return PriceListFactory.Create(existingPriceList);
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -116,7 +116,7 @@ public class PriceListService
                 var updatedPriceList = _priceListRepository.Update(existingPriceList, updatedEntity);
                 if (updatedPriceList != null)
                 {
-                    return Factories.PriceListFactory.Create(updatedPriceList);
+                    return PriceListFactory.Create(updatedPriceList);
                 }
             }
         }
@@ -135,7 +135,7 @@ public class PriceListService
                 var result = _priceListRepository.Delete(existingPriceList);
                 if (result)
                 {
-                    return Factories.PriceListFactory.Create(existingPriceList);
+                    return PriceListFactory.Create(existingPriceList);
                 }
             }
         }

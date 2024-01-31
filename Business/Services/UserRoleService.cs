@@ -45,9 +45,9 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
     {
         try
         {
-            var entity = Factories.UserRoleFactory.Create(user);
+            var entity = UserRoleFactory.Create(user);
             var result = _userRoleRepository.Update(x => x.RoleName == user.RoleName, entity);
-            var dto = Factories.UserRoleFactory.Create(result);
+            var dto = UserRoleFactory.Create(result);
             return dto;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -59,10 +59,11 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
     {
         try
         {
-            var result = _userRoleRepository.Delete(x => x.RoleName == role.RoleName);
+            var existingRole = _userRoleRepository.GetOne(x => x.RoleName == role.RoleName);
+            var result = _userRoleRepository.Delete(existingRole);
             if (result)
             {
-                return role;
+                return UserRoleFactory.Create(existingRole);
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
