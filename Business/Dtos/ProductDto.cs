@@ -1,4 +1,6 @@
-﻿namespace Business.Dtos;
+﻿using Infrastructure.Entities;
+
+namespace Business.Dtos;
 
 public class ProductDto
 {
@@ -9,5 +11,8 @@ public class ProductDto
     public int PriceId {  get; set; }
     public string Unit { get; set; } = null!;
     public int Stock {  get; set; }
-    public string CategoryName { get; set; } = null!;
+    public int CategoryId { get; set; }
+    public virtual CategoryEntity Category { get; set; } = null!;
+    public virtual OrderRowEntity? OrderRow { get; set; } = null!;
+    public virtual PriceListEntity Price { get; set; } = null!;
 }

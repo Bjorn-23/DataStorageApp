@@ -20,7 +20,10 @@ public static class ProductFactory
                 PriceId = entity.PriceId,
                 Unit = entity.Unit,
                 Stock = entity.Stock,
-                CategoryName = entity.CategoryName
+                CategoryId = entity.CategoryId,
+                Category = entity.Category,
+                OrderRow = entity.OrderRow,
+                Price = entity.Price,
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -43,7 +46,8 @@ public static class ProductFactory
                 DiscountPrice = DiscountPrice,
                 Unit = entity.Unit,
                 Stock = entity.Stock,
-                CategoryName = entity.CategoryName
+                CategoryName = entity.Category.CategoryName
+
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

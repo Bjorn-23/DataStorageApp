@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
 [PrimaryKey("Id", "OrderId")]
-[Index("ArticleNumber", Name = "UQ__OrderRow__3C991142FEE7FE70", IsUnique = true)]
+[Index("ArticleNumber", Name = "UQ__OrderRow__3C991142A882F032", IsUnique = true)]
 public partial class OrderRowEntity
 {
     [Key]

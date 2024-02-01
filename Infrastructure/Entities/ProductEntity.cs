@@ -1,5 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
@@ -16,19 +19,18 @@ public partial class ProductEntity
 
     public string? Description { get; set; }
 
-    public int PriceId { get; set; }
-
     [StringLength(30)]
     public string Unit { get; set; } = null!;
 
     public int Stock { get; set; }
 
-    [StringLength(100)]
-    public string CategoryName { get; set; } = null!;
+    public int PriceId { get; set; }
 
-    [ForeignKey("CategoryName")]
+    public int CategoryId { get; set; }
+
+    [ForeignKey("CategoryId")]
     [InverseProperty("Products")]
-    public virtual CategoryEntity CategoryNameNavigation { get; set; } = null!;
+    public virtual CategoryEntity Category { get; set; } = null!;
 
     [InverseProperty("ArticleNumberNavigation")]
     public virtual OrderRowEntity? OrderRow { get; set; }

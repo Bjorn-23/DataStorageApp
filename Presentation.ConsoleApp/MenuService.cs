@@ -845,9 +845,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
                     void ShowAllCustomers()
                     {
-                        SubMenuTemplate("All current customers");
-
                         var allCustomers = _customerService.GetAll();
+
+                        SubMenuTemplate("All current customers");
                         if (allCustomers.Any())
                         {
                             var i = 1;
@@ -866,20 +866,16 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     {
                         CustomerDto newCustomerDetails = new();
 
-                        SubMenuTemplate("Update customer - Please choose an option");
-                        Console.WriteLine("\n1. (Find customer by email).");
-                        Console.WriteLine("\n2. (Find customer by ID).");
-                        Console.WriteLine("\n3. (Find customer by Phone number).");
+                        SubMenuTemplate("Update customer");
+                        Console.WriteLine("\nFill in email of customer to update:");
+                        Console.Write("\nEmail: ");
 
-                        Console.Write("Option: ");
-                        var answer = Console.ReadLine()!;
-                        var updateChoice = OptionsSwitch(answer);
-                        var exisitingCustomer = _customerService.GetOneCustomer(updateChoice, answer);
+                        newCustomerDetails.EmailId = Console.ReadLine()!;
+                        var exisitingCustomer = _customerService.GetOneCustomer(newCustomerDetails);
 
                         SubMenuTemplate("Update status");
                         Console.WriteLine($"\n{exisitingCustomer.Id}\n{exisitingCustomer.FirstName} {exisitingCustomer.LastName}\n{exisitingCustomer.EmailId}\n{exisitingCustomer.PhoneNumber}\n");
-                        Console.Write("Is this the customer you wish to update? ");
-                        var customerAnswer = Console.ReadLine()!;
+                        var customerAnswer = Question("Is this the customer you wish to update");
                         if (customerAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                         {
                             SubMenuTemplate($"Update {exisitingCustomer.EmailId} - fill in new customer details.");
@@ -891,27 +887,33 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             Console.Write("\nPhone number: ");
                             newCustomerDetails.PhoneNumber = Console.ReadLine()!;
 
-                            Console.WriteLine($"\n{exisitingCustomer.Id}\n{newCustomerDetails.FirstName}\n{newCustomerDetails.LastName}\n{exisitingCustomer.EmailId}\n{newCustomerDetails.PhoneNumber}\n");
+                            Console.WriteLine(
+                                $"\n{exisitingCustomer.Id}" +
+                                $"\n{exisitingCustomer.EmailId}" +
+                                $"\n{(!string.IsNullOrWhiteSpace(newCustomerDetails.FirstName) ? newCustomerDetails.FirstName : exisitingCustomer.FirstName)}" +
+                                $"\n{(!string.IsNullOrWhiteSpace(newCustomerDetails.LastName) ? newCustomerDetails.LastName : exisitingCustomer.LastName)}" +
+                                $"\n{(!string.IsNullOrWhiteSpace(newCustomerDetails.PhoneNumber) ? newCustomerDetails.PhoneNumber : exisitingCustomer.PhoneNumber)}");
+
                             Console.WriteLine("\nDo you want to update customer with these details? ");
-                            Console.Write("Continue with update? ");
-                            var updateAnswer = Console.ReadLine()!;
+                            var updateAnswer = Question("Continue with update?");
                             if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                             {
                                 var customerResult = _customerService.UpdateCustomer(exisitingCustomer, newCustomerDetails);
                                 if (customerResult != null)
                                 {
-                                    Console.WriteLine($"Customer updated succesfully\n\nNew Customer details:\nId: {customerResult.Id}\nFirst name: {customerResult.FirstName}\nLast name: {customerResult.LastName}\nEmail: {customerResult.EmailId}\nPhone number: {customerResult.PhoneNumber}"); // add feedback as to new user details.
+                                    Console.WriteLine($"\nCustomer updated succesfully\n\nNew Customer details:\nId: {customerResult.Id}\nFirst name: {customerResult.FirstName}\nLast name: {customerResult.LastName}\nEmail: {customerResult.EmailId}\nPhone number: {customerResult.PhoneNumber}"); // add feedback as to new user details.
                                 }
-                                else
-                                {
-                                    Console.WriteLine("Customer failed to update, please try again - if issue persists contact support.");  // add feedback as to new user details.
-                                }
+                                else                                
+                                    Console.WriteLine("\nCustomer failed to update, please try again - if issue persists contact support.");
                             }
                             else
-                                Console.WriteLine("Customer failed to update");
-
-                            PressKeyAndContinue();
+                                Console.WriteLine("\nCustomer was not updated");                            
                         }
+                        else
+                            Console.WriteLine("\nCustomer will not be updated");
+
+                        PressKeyAndContinue();
+
                     }
 
                     //void ShowDeleteCustomer() // Not sure if this shoukd be able to be deleted, would rather the User be deleted, or the customer updated.
@@ -1061,9 +1063,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
                     void ShowAllAddresses()
                     {
-                        SubMenuTemplate("All current addresses");
-
                         var allAddresses = _addressService.GetAll();
+
+                        SubMenuTemplate("All current addresses");
 
                         var i = 1;
                         foreach (var address in allAddresses)
@@ -1081,7 +1083,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         SubMenuTemplate("Get address details");
                         Console.Write("\nPlease enter Street name and postal code of Address: \n");
 
-                        Console.Write("Street name: ");
+                        Console.Write("\nStreet name: ");
                         address.StreetName = Console.ReadLine()!;
                         Console.Write("Postal Code: ");
                         address.PostalCode = Console.ReadLine()!;
@@ -1546,7 +1548,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 $"{"",-5}Article number: {"",-5}{result.ArticleNumber}\n" +
                                 $"{"",-5}Title: {"",-13}{result.Title}\n" +
                                 $"{"",-5}Ingress: {"",-11}{result.Ingress}\n" +
-                                $"{"",-5}Category: {"",-10}{result.CategoryName}\n");
+                                $"{"",-5}Category: {"",-10}{result.Category.CategoryName}\n");
 
                             Console.WriteLine("Was deleted.");
                         }
@@ -1707,7 +1709,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 Console.WriteLine(
                                     $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                                     $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.Category.CategoryName}\n" +
                                     $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                                     $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
@@ -1787,7 +1789,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 Console.WriteLine(
                                     $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                                     $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.Category.CategoryName}\n" +
                                     $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                                     $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
@@ -1906,7 +1908,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 Console.WriteLine(
                                     $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                                     $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.Category.CategoryName}\n" +
                                     $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                                     $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
@@ -2065,7 +2067,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 Console.WriteLine(
                                     $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                                     $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.Category.CategoryName}\n" +
                                     $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                                     $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
@@ -2138,7 +2140,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 Console.WriteLine(
                                     $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                                     $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.Category.CategoryName}\n" +
                                     $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                                     $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
@@ -2169,22 +2171,22 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                     {
                                         Console.WriteLine("\nPrice list:");
                                         Console.WriteLine(
-                                            $"\nId:{"",-17}{existingCategory.Id}" +
+                                            $"\nId:{"",-17}{updatedCategory.Id}" +
                                             $"\nCategory name:{"",-6}{updatedCategory.CategoryName}");
 
-                                        Console.WriteLine("Category succesfully updated.");
+                                        Console.WriteLine("\nCategory succesfully updated.");
                                     }
                                     else
-                                        Console.WriteLine("Category could not be updated, make sure you are logged in as Admin.");
+                                        Console.WriteLine("\nCategory could not be updated, make sure you are logged in as Admin.");
                                 }
                                 else
-                                    Console.WriteLine("Category was not updated.");
+                                    Console.WriteLine("\nCategory was not updated.");
                             }
                             else
-                                Console.WriteLine("Category will not be updated.");
+                                Console.WriteLine("\nCategory will not be updated.");
                         }
                         else
-                            Console.WriteLine("No Categories with that Id.");
+                            Console.WriteLine("\nNo Categories with that Id.");
                     }
                     else
                         Console.WriteLine("\nThere are currently no Categories.");
@@ -2233,7 +2235,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 Console.WriteLine(
                                     $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                                     $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.Category.CategoryName}\n" +
                                     $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                                     $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
@@ -2285,30 +2287,6 @@ internal class MenuService(CustomerService customerService, AddressService addre
             Console.WriteLine($"{"",-5}{menuName}");
             string hyphens = new string('-', $"{"",5}{menuName}{"",5}".Length);
             Console.WriteLine(hyphens);
-        }
-
-        CustomerDto OptionsSwitch(string answer)
-        {
-            CustomerDto customer = new CustomerDto();
-
-            switch (answer)
-            {
-                case "1":
-                    Console.Write("\nPlease enter email of customer to find: ");
-                    customer.EmailId = Console.ReadLine()!;
-                    break;
-                case "2":
-                    Console.Write("\nPlease enter Id of customer to find: ");
-                    customer.Id = Console.ReadLine()!;
-                    break;
-                case "3":
-                    Console.Write("\nPlease enter phone number of customer to find: ");
-                    customer.PhoneNumber = Console.ReadLine()!;
-                    break;
-                default:
-                    break;
-            }
-            return customer;
         }
 
         string Question(string questionTextHere)

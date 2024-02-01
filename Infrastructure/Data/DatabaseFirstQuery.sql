@@ -5,10 +5,10 @@ CREATE TABLE [Products] (
   [Title] nvarchar(50) NOT NULL,
   [Ingress] nvarchar(200),
   [Description] nvarchar(max),
-  [PriceId] int NOT NULL,
   [Unit] nvarchar(30) NOT NULL,
   [Stock] int NOT NULL,
-  [CategoryName] nvarchar(100) NOT NULL
+  [PriceId] int NOT NULL,
+  [CategoryId] int NOT NULL
 )
 GO
 
@@ -48,7 +48,7 @@ GO
 ALTER TABLE [Products] ADD FOREIGN KEY ([PriceId]) REFERENCES [PriceLists] ([Id])
 GO
 
-ALTER TABLE [Products] ADD FOREIGN KEY ([CategoryName]) REFERENCES [Categories] ([CategoryName])
+ALTER TABLE [Products] ADD FOREIGN KEY ([CategoryId]) REFERENCES [Categories] ([Id])
 GO
 
 ALTER TABLE [OrderRows] ADD FOREIGN KEY ([ArticleNumber]) REFERENCES [Products] ([ArticleNumber])

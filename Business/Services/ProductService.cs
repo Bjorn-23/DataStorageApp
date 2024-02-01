@@ -2,9 +2,7 @@
 using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using Infrastructure.Migrations;
 using System.Diagnostics;
-using System.Linq.Expressions;
 
 namespace Business.Services;
 
@@ -50,7 +48,7 @@ public class ProductService
                         PriceId = priceId.Id,
                         Unit = product.Unit,
                         Stock = product.Stock,
-                        CategoryName = categoryName.CategoryName
+                        CategoryId = categoryName.Id
 
                     });
                     if (newProduct != null)
@@ -84,7 +82,7 @@ public class ProductService
                     DiscountPrice = existingProduct.Price.DiscountPrice,
                     Unit = existingProduct.Unit,
                     Stock = existingProduct.Stock,
-                    CategoryName = existingProduct.CategoryName
+                    CategoryName = existingProduct.Category.CategoryName
                 };
             }
         }
@@ -115,7 +113,7 @@ public class ProductService
                     DiscountPrice = product.Price.DiscountPrice,
                     Unit = product.Unit,
                     Stock = product.Stock,
-                    CategoryName = product.CategoryName
+                    CategoryName = product.Category.CategoryName
                     };
 
                     productList.Add(productDto);
@@ -147,7 +145,7 @@ public class ProductService
                 {
                     productStock += product.Stock;
 
-                    var categoryName = _categoryService.GetOrCreateCategory(!string.IsNullOrWhiteSpace(product.CategoryName) ? product : new ProductRegistrationDto() { CategoryName = existingProduct.CategoryName });
+                    var categoryName = _categoryService.GetOrCreateCategory(!string.IsNullOrWhiteSpace(product.CategoryName) ? product : new ProductRegistrationDto() { CategoryName = existingProduct.Category.CategoryName });
                     var priceId = _priceListService.GetOrCreatePriceList(product);
 
                     ProductEntity updatedProduct = new()
@@ -159,7 +157,7 @@ public class ProductService
                         PriceId = priceId != null ? priceId.Id : existingProduct.PriceId,
                         Unit = !string.IsNullOrWhiteSpace(product.Unit) ? product.Unit : existingProduct.Unit,
                         Stock = productStock,
-                        CategoryName = categoryName != null ? categoryName.CategoryName : existingProduct.CategoryName,
+                        CategoryId = categoryName != null ? categoryName.Id : existingProduct.Category.Id,
 
                     };
 

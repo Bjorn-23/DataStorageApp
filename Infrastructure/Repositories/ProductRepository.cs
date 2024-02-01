@@ -17,7 +17,7 @@ public class ProductRepository(ProductCatalog context) : BaseRepository<ProductE
         {
             var existingProducts = _context.Products
                 .Include(i => i.Price)
-                .Include(i => i.CategoryNameNavigation)
+                .Include(i => i.Category)
                 .ToList();
 
             if (existingProducts.Any())
@@ -36,7 +36,7 @@ public class ProductRepository(ProductCatalog context) : BaseRepository<ProductE
         {
             var existingProduct = _context.Products
                 .Where(predicate)
-                .Include(i => i.CategoryNameNavigation)
+                .Include(i => i.Category)
                 .Include(i => i.Price)
                 .FirstOrDefault();
 
