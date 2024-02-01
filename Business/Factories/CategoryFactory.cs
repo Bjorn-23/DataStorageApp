@@ -12,7 +12,9 @@ public static class CategoryFactory
         {
             return new CategoryDto
             {
+                Id = entity.Id,
                 CategoryName = entity.CategoryName,
+                Products = entity.Products
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

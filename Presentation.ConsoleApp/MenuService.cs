@@ -1,10 +1,9 @@
 ﻿using Business.Dtos;
 using Business.Services;
-using System.Diagnostics;
 
 namespace Presentation.ConsoleApp;
 
-internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService, OrderRowService orderRowService, PriceListService priceListService)
+internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService, OrderRowService orderRowService, PriceListService priceListService, CategoryService categoryService)
 {
 
     private readonly CustomerService _customerService = customerService;
@@ -16,7 +15,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     private readonly ProductService _productService = productService;
     private readonly OrderRowService _orderRowService = orderRowService;
     private readonly PriceListService _priceListService = priceListService;
-
+    private readonly CategoryService _categoryService = categoryService;
 
     internal void MenuStart()
     {
@@ -25,14 +24,14 @@ internal class MenuService(CustomerService customerService, AddressService addre
         while (loop)
         {
             Console.Clear();
-            Console.WriteLine($"{"",-5}Bjorn's Shop - Choose an option");
-            string hyphens = new string('-', $"{"",-5}Bjorn's Shop - Choose an option".Length);
+            Console.WriteLine($"{"",-5}Björn's Store - Choose an option");
+            string hyphens = new string('-', $"{"",-5}Björn's Store - Choose an option{"",-5}".Length);
             Console.WriteLine(hyphens);
             Console.WriteLine($"{"\n1.",-5} Login User");
             Console.WriteLine($"{"\n2.",-5} Create User");
             Console.WriteLine($"{"\n3.",-5} Webshop");
-            Console.WriteLine($"{"\n4.",-5} Settings Menu");
-            Console.WriteLine($"{"\n5.",-5} Product Menu (requires Admin privleges)");
+            Console.WriteLine($"{"\n4.",-5} User Settings Menu");
+            Console.WriteLine($"{"\n5.",-5} Product Menu");
             Console.WriteLine($"{"\n0.",-5} Exit application and Logout User");
             Console.Write($"\n\n{"",-5}Option: ");
             var option = Console.ReadLine();
@@ -49,7 +48,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     ShowWebShopMenu();
                     break;
                 case "4":
-                    ShowSettingsMenu();
+                    ShowUserSettingsMenu();
                     break;
                 case "5":
                     ShowProductMenu();
@@ -471,15 +470,15 @@ internal class MenuService(CustomerService customerService, AddressService addre
             }
         }
 
-        void ShowSettingsMenu()
+        void ShowUserSettingsMenu()
         {
             bool userMenuLoop = true;
 
             while (userMenuLoop)
             {
                 Console.Clear();
-                Console.WriteLine($"{"",-5}Settings menu - Choose an option");
-                string hyphens = new string('-', $"{"",5}Settings menu - Choose an option{"",-5}".Length);
+                Console.WriteLine($"{"",-5}User settings menu - Choose an option");
+                string hyphens = new string('-', $"{"",5}User settings menu - Choose an option{"",-5}".Length);
                 Console.WriteLine(hyphens);
                 Console.WriteLine($"{"\n1.",-5} Show User options");
                 Console.WriteLine($"{"\n2.",-5} Show Customer options");
@@ -780,7 +779,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         Console.WriteLine($"{"\n1.",-5} Show Customer details");
                         Console.WriteLine($"{"\n2.",-5} Show all Customers");
                         Console.WriteLine($"{"\n3.",-5} Update Customer (requires user to be logged in)");
-                        Console.WriteLine($"{"\n4.",-5} Delete Customer (requires user to be logged in)");
+                        //Console.WriteLine($"{"\n4.",-5} Delete Customer (requires user to be logged in)");
                         Console.WriteLine($"{"\n0.",-5} Go back");
                         Console.Write($"\n\n{"",-5}Option: ");
                         var option = Console.ReadLine();
@@ -796,9 +795,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             case "3":
                                 ShowUpdateCustomer();
                                 break;
-                            case "4":
-                                ShowDeleteCustomer();
-                                break;
+                            //case "4":
+                            //    ShowDeleteCustomer();
+                            //    break;
                             case "0":
                                 customerLoop = false;
                                 break;
@@ -915,32 +914,32 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         }
                     }
 
-                    void ShowDeleteCustomer() // Not sure if this shoukd be able to be deleted, would rather the User be deleted, or the customer updated.
-                    {
-                        SubMenuTemplate("Delete customer - Please choose an option");
+                    //void ShowDeleteCustomer() // Not sure if this shoukd be able to be deleted, would rather the User be deleted, or the customer updated.
+                    //{
+                    //    SubMenuTemplate("Delete customer - Please choose an option");
 
-                        CustomerDto customer = new();
+                    //    CustomerDto customer = new();
 
-                        Console.WriteLine("\nPlease choose an option.");
-                        Console.WriteLine("\n1. (Find by email).");
-                        Console.WriteLine("\n2. (Find by ID).");
-                        Console.WriteLine("\n3. (Find by Phone number).");
+                    //    Console.WriteLine("\nPlease choose an option.");
+                    //    Console.WriteLine("\n1. (Find by email).");
+                    //    Console.WriteLine("\n2. (Find by ID).");
+                    //    Console.WriteLine("\n3. (Find by Phone number).");
 
-                        Console.Write("Option: ");
-                        var answer = Console.ReadLine()!;
-                        customer = OptionsSwitch(answer);
+                    //    Console.Write("Option: ");
+                    //    var answer = Console.ReadLine()!;
+                    //    customer = OptionsSwitch(answer);
 
-                        var result = _customerService.DeleteCustomer(customer, answer);
-                        SubMenuTemplate("Delete status");
-                        if (result)
-                        {
-                            Console.WriteLine($"Id: {customer.Id}\n {customer.FirstName} {customer.LastName}\nEmail: {customer.EmailId}\nPhone Number: {customer.PhoneNumber}Has been deleted.");
-                        }
-                        else
-                            Console.WriteLine($"Customer could not be deleted");
+                    //    var result = _customerService.DeleteCustomer(customer, answer);
+                    //    SubMenuTemplate("Delete status");
+                    //    if (result)
+                    //    {
+                    //        Console.WriteLine($"Id: {customer.Id}\n {customer.FirstName} {customer.LastName}\nEmail: {customer.EmailId}\nPhone Number: {customer.PhoneNumber}Has been deleted.");
+                    //    }
+                    //    else
+                    //        Console.WriteLine($"Customer could not be deleted");
 
-                        PressKeyAndContinue();
-                    }
+                    //    PressKeyAndContinue();
+                    //}
                 }
 
                 void ShowAddressOptionsMenu()
@@ -1254,7 +1253,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         ShowPriceListMenu();
                         break;
                     case "7":
-                        ShowCateGoryMenu();
+                        ShowCategoryMenu();
                         break;
                     case "0":
                         productLoop = false;
@@ -1589,7 +1588,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             ShowCreatePriceListMenu();
                             break;
                         case "2":
-                            ShowPriceLisDetailsMenu();
+                            ShowPriceListDetailsMenu();
                             break;
                         case "3":
                             ShowAllPriceListsMenu();
@@ -1641,7 +1640,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         $"\nUnit type:{"",-10}{priceListDto.UnitType}");
 
                     var answer = Question("\nIs this the price list you want to create?");
-                    if(answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         var result = _priceListService.CreatePriceList(priceListDto);
                         SubMenuTemplate("Price list status");
@@ -1655,7 +1654,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 $"\nUnit type:{"",-10}{result.UnitType}");
                         }
                         else
-                            Console.WriteLine("Price list could not be created.");
+                            Console.WriteLine("Price list could not be created, make sure you are logged in as Admin.");
                     }
                     else
                         Console.WriteLine("Price list was not created.");
@@ -1663,20 +1662,16 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     PressKeyAndContinue();
                 }
 
-                void ShowPriceLisDetailsMenu()
+                void ShowPriceListDetailsMenu()
                 {
                     PriceListDto priceListDto = new();
 
-                    SubMenuTemplate("Show Price list details");
-
-                    Console.Write("\nPrice *: ");
-
                     var allPriceLists = _priceListService.GetAllPriceLists();
                     SubMenuTemplate("All current Price lists:");
-                    if(allPriceLists != null)
+                    if (allPriceLists != null)
                     {
 
-                        foreach(var priceList in allPriceLists)
+                        foreach (var priceList in allPriceLists)
                         {
                             Console.WriteLine(
                                 $"\nId:{"",-17}{priceList.Id}" +
@@ -1685,7 +1680,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 $"\nUnit type:{"",-10}{priceList.UnitType}");
                         }
 
-                        Console.WriteLine("\n\nFill in Id of Price list to show");
+                        Console.WriteLine("\n\nFill in Id of Price list to show details");
 
                         Console.Write("\nId: ");
                         var idResult = int.TryParse(Console.ReadLine()!, out int Id);
@@ -1707,12 +1702,12 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
                             Console.WriteLine("\nProducts currently associated to this Price list:");
 
-                            foreach(var product in priceListDetails.Products)
+                            foreach (var product in priceListDetails.Products)
                             {
                                 Console.WriteLine(
                                     $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                                     $"{"",-5}Title: {"",-13}{product.Title}\n" +
-                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +          
+                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
                                     $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
                                     $"{"",-5}Stock: {"",-13}{product.Stock}\n");
                             }
@@ -1728,27 +1723,554 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
                 void ShowAllPriceListsMenu()
                 {
-                    // This is next
+                    var priceLists = _priceListService.GetAllPriceLists();
+                    SubMenuTemplate("All Price lists");
+                    if (priceLists != null)
+                    {
+                        foreach (var priceList in priceLists)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{priceList.Id}" +
+                                $"\nPrice:{"",-14}{priceList.Price}" +
+                                $"\nDiscount price:{"",-5}{priceList.DiscountPrice}" +
+                                $"\nUnit type:{"",-10}{priceList.UnitType}");
+                        }
+                    }
+                    else
+                        Console.WriteLine("There are currently no Price lists.");
+
+                    PressKeyAndContinue();
                 }
 
                 void ShowUpdatePriceListMenu()
                 {
-                    // Then this
+                    PriceListDto priceListDto = new();
+
+                    var allPriceLists = _priceListService.GetAllPriceLists();
+                    SubMenuTemplate("All current Price lists:");
+                    if (allPriceLists != null)
+                    {
+
+                        foreach (var priceList in allPriceLists)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{priceList.Id}" +
+                                $"\nPrice:{"",-14}{priceList.Price}" +
+                                $"\nDiscount price:{"",-5}{priceList.DiscountPrice}" +
+                                $"\nUnit type:{"",-10}{priceList.UnitType}");
+                        }
+
+                        Console.WriteLine("\n\nFill in Id of Price list to update");
+
+                        Console.Write("\nId: ");
+                        var idResult = int.TryParse(Console.ReadLine()!, out int Id);
+                        if (idResult)
+                        {
+                            priceListDto.Id = Id;
+                        }
+
+                        var existingPriceList = _priceListService.GetPriceList(priceListDto);
+                        SubMenuTemplate("Price list to update");
+                        if (existingPriceList != null)
+                        {
+                            Console.WriteLine("\nPrice list:");
+                            Console.WriteLine(
+                                $"\n{"",-5}Id:{"",-17}{existingPriceList.Id}" +
+                                $"\n{"",-5}Price:{"",-14}{existingPriceList.Price}" +
+                                $"\n{"",-5}Discount price:{"",-5}{existingPriceList.DiscountPrice}" +
+                                $"\n{"",-5}Unit type:{"",-10}{existingPriceList.UnitType}\n");
+
+                            Console.WriteLine("\nProducts that will be affected by this update:");
+
+                            foreach (var product in existingPriceList.Products)
+                            {
+                                Console.WriteLine(
+                                    $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                                    $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                                    $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                            }
+
+                            var answer = Question("\nDo you want to update this pricelist?");
+                            SubMenuTemplate("Update Price list details");
+                            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                PriceListDto updatedPricelistDetails = new();
+
+                                Console.WriteLine("Fill in updated details for price list. Any fields left empty will keep their original values.");
+
+                                updatedPricelistDetails.Id = existingPriceList.Id;
+
+                                Console.Write("\nPrice: ");
+                                var priceResult = decimal.TryParse(Console.ReadLine()!, out decimal price);
+                                if (priceResult)
+                                {
+                                    updatedPricelistDetails.Price = price;
+                                }
+
+                                Console.Write("\nDiscount price: ");
+                                var discountPriceResult = decimal.TryParse(Console.ReadLine()!, out decimal discountPrice);
+                                if (discountPriceResult)
+                                {
+                                    updatedPricelistDetails.DiscountPrice = discountPrice;
+                                }
+
+                                Console.Write("\nUnit Type (ie. SEK, EUR, USD): ");
+                                updatedPricelistDetails.UnitType = Console.ReadLine()!;
+
+                                SubMenuTemplate("Confirm update");
+                                Console.WriteLine("\nPrice list:");
+                                Console.WriteLine(
+                                    $"\n{"",-5}Id:{"",-17}{updatedPricelistDetails.Id}" +
+                                    $"\n{"",-5}Price:{"",-14}{updatedPricelistDetails.Price}" +
+                                    $"\n{"",-5}Discount price:{"",-5}{updatedPricelistDetails.DiscountPrice}" +
+                                    $"\n{"",-5}Unit type:{"",-10}{updatedPricelistDetails.UnitType}\n");
+
+                                var updateAnswer = Question("Do you wish to update Price list with these details?");
+                                if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    var updatedPriceList = _priceListService.UpdatePriceList(existingPriceList, updatedPricelistDetails);
+                                    SubMenuTemplate("Update status");
+                                    if (updatedPriceList != null)
+                                    {
+                                        Console.WriteLine("\nPrice list:");
+                                        Console.WriteLine(
+                                            $"\n{"",-5}Id:{"",-17}{updatedPriceList.Id}" +
+                                            $"\n{"",-5}Price:{"",-14}{updatedPriceList.Price}" +
+                                            $"\n{"",-5}Discount price:{"",-5}{updatedPriceList.DiscountPrice}" +
+                                            $"\n{"",-5}Unit type:{"",-10}{updatedPriceList.UnitType}\n");
+
+                                        Console.WriteLine("Price list succesfully updated.");
+                                    }
+                                    else
+                                        Console.WriteLine("Price list could not be updated, make sure you are logged in as Admin.");
+                                }
+                                else
+                                    Console.WriteLine("Price list was not updated.");
+                            }
+                            else
+                                Console.WriteLine("Price List will not be updated.");
+                        }
+                        else
+                            Console.WriteLine("No Price Lists with that Id.");
+                    }
+                    else
+                        Console.WriteLine("No current Price Lists to show.");
+
+                    PressKeyAndContinue();
                 }
 
                 void ShowDeletePriceListMenu()
                 {
-                    // and this
+                    PriceListDto priceListDto = new();
+
+                    var allPriceLists = _priceListService.GetAllPriceLists();
+                    SubMenuTemplate("All current Price lists:");
+                    if (allPriceLists != null)
+                    {
+
+                        foreach (var priceList in allPriceLists)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{priceList.Id}" +
+                                $"\nPrice:{"",-14}{priceList.Price}" +
+                                $"\nDiscount price:{"",-5}{priceList.DiscountPrice}" +
+                                $"\nUnit type:{"",-10}{priceList.UnitType}");
+                        }
+
+                        Console.WriteLine("\n\nFill in Id of Price list to delete");
+
+                        Console.Write("\nId: ");
+                        var idResult = int.TryParse(Console.ReadLine()!, out int Id);
+                        if (idResult)
+                        {
+                            priceListDto.Id = Id;
+                        }
+
+                        var existingPriceList = _priceListService.GetPriceList(priceListDto);
+                        SubMenuTemplate("Price list to delete");
+                        if (existingPriceList != null)
+                        {
+                            Console.WriteLine("\nPrice list:");
+                            Console.WriteLine(
+                                $"\n{"",-5}Id:{"",-17}{existingPriceList.Id}" +
+                                $"\n{"",-5}Price:{"",-14}{existingPriceList.Price}" +
+                                $"\n{"",-5}Discount price:{"",-5}{existingPriceList.DiscountPrice}" +
+                                $"\n{"",-5}Unit type:{"",-10}{existingPriceList.UnitType}\n");
+
+                            Console.WriteLine("\nProducts that will be affected by this update:");
+
+                            foreach (var product in existingPriceList.Products)
+                            {
+                                Console.WriteLine(
+                                    $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                                    $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                                    $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                            }
+
+                            var answer = Question("\nDo you want to delete this pricelist?");
+                            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                var deletedPriceList = _priceListService.DeletePriceList(existingPriceList);
+                                if (deletedPriceList != null)
+                                {
+                                    SubMenuTemplate("Delete status");
+                                    Console.WriteLine("\nPrice list:");
+                                    Console.WriteLine(
+                                        $"\n{"",-5}Id:{"",-17}{deletedPriceList.Id}" +
+                                        $"\n{"",-5}Price:{"",-14}{deletedPriceList.Price}" +
+                                        $"\n{"",-5}Discount price:{"",-5}{deletedPriceList.DiscountPrice}" +
+                                        $"\n{"",-5}Unit type:{"",-10}{deletedPriceList.UnitType}\n");
+
+                                    Console.WriteLine("Price list succesfully Deleted.");
+                                }
+                                else
+                                    Console.WriteLine("Price list could not be deleted, make sure you are logged in as Admin.");
+                            }
+                            else
+                                Console.WriteLine("Price will not be deleted.");
+                        }
+                        else
+                            Console.WriteLine("No Price Lists with that Id.");
+                    }
+                    else
+                        Console.WriteLine("No current Price Lists to show.");
+
+                    PressKeyAndContinue();
                 }
 
             }
 
-            void ShowCateGoryMenu()
+            void ShowCategoryMenu()
             {
-                //Functionality for CRUD on PriceList
+                bool CategoryLoop = true;
+
+                while (CategoryLoop)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"{"",-5}Category menu - Choose an option");
+                    string hyphens = new string('-', $"{"",5}Category menu - Choose an option".Length);
+                    Console.WriteLine(hyphens);
+                    Console.WriteLine($"{"\n1.",-5} Create Category (requires Admin privileges)");
+                    Console.WriteLine($"{"\n2.",-5} Show Category details");
+                    Console.WriteLine($"{"\n3.",-5} Show all Category");
+                    Console.WriteLine($"{"\n4.",-5} Update Category (requires Admin privileges)");
+                    Console.WriteLine($"{"\n5.",-5} Delete Category (requires Admin privileges)");
+                    Console.WriteLine($"{"\n0.",-5} Go back");
+
+                    Console.Write($"\n\n{"",-5}Option: ");
+                    var option = Console.ReadLine();
+
+                    switch (option)
+                    {
+                        case "1":
+                            ShowCreateCategoryMenu();
+                            break;
+                        case "2":
+                            ShowCategoryDetailsMenu();
+                            break;
+                        case "3":
+                            ShowAllCategoriesMenu();
+                            break;
+                        case "4":
+                            ShowUpdateCategoryMenu();
+                            break;
+                        case "5":
+                            ShowDeleteCategoryMenu();
+                            break;
+                        case "0":
+                            CategoryLoop = false;
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+
+                void ShowCreateCategoryMenu()
+                {
+                    CategoryDto categoryDto = new();
+
+                    SubMenuTemplate("Create Category");
+                    Console.WriteLine("Fill in details for new Category. Required fields are marked with *");
+
+                    Console.Write("\nCategory name *: ");
+                    categoryDto.CategoryName = Console.ReadLine()!;
+
+
+                    SubMenuTemplate("Category status");
+                    Console.WriteLine(
+                        $"\nCategory name:{"",-14}{categoryDto.CategoryName}");
+
+                    var answer = Question("\nIs this the Category you want to create?");
+                    if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        var result = _categoryService.CreateCategory(categoryDto);
+                        SubMenuTemplate("Category status");
+                        if (result != null)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{result.Id}" +
+                                $"\nCategory name:{"",-6}{result.CategoryName}");
+                        }
+                        else
+                            Console.WriteLine("Category could not be created, make sure you are logged in as Admin.");
+                    }
+                    else
+                        Console.WriteLine("Category was not created.");
+
+                    PressKeyAndContinue();
+                }
+
+                void ShowCategoryDetailsMenu()
+                {
+                    CategoryDto categoryDto = new();
+
+                    var categories = _categoryService.GetAllCategories();
+                    SubMenuTemplate("All current Categories:");
+                    if (categories != null)
+                    {
+                        foreach (var category in categories)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{category.Id}" +
+                                $"\nCategory name:{"",-6}{category.CategoryName}");
+                        }
+
+                        Console.WriteLine("\n\nFill in Id of Category to show details");
+
+                        Console.Write("\nId: ");
+                        var idResult = int.TryParse(Console.ReadLine()!, out int Id);
+                        if (idResult)
+                        {
+                            categoryDto.Id = Id;
+                        }
+
+                        var categoryDetails = _categoryService.GetCategory(categoryDto);
+                        SubMenuTemplate("Category details");
+                        if (categoryDetails != null)
+                        {
+                            Console.WriteLine("\nCategory:");
+                            Console.WriteLine(
+                                     $"\nId:{"",-17}{categoryDetails.Id}" +
+                                     $"\nCategory name:{"",-6}{categoryDetails.CategoryName}");
+
+                            Console.WriteLine("\nProducts currently associated to this Category:");
+
+                            foreach (var product in categoryDetails.Products)
+                            {
+                                Console.WriteLine(
+                                    $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                                    $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                                    $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                            }
+                        }
+                        else
+                            Console.WriteLine("No Category with that Id.");
+                    }
+                    else
+                        Console.WriteLine("No current Categories to show.");
+
+                    PressKeyAndContinue();
+                }
+
+                void ShowAllCategoriesMenu()
+                {
+                    var categories = _categoryService.GetAllCategories();
+                    SubMenuTemplate("All current Categories:");
+                    if (categories != null)
+                    {
+                        foreach (var category in categories)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{category.Id}" +
+                                $"\nCategory name:{"",-6}{category.CategoryName}");
+                        }
+                    }
+                    else
+                        Console.WriteLine("\nThere are currently no Categories.");
+
+                    PressKeyAndContinue();
+                }
+
+                void ShowUpdateCategoryMenu()
+                {
+                    CategoryDto categoryDto = new();
+
+                    var categories = _categoryService.GetAllCategories();
+                    SubMenuTemplate("All current Categories:");
+                    if (categories != null)
+                    {
+                        foreach (var category in categories)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{category.Id}" +
+                                $"\nCategory name:{"",-6}{category.CategoryName}");
+                        } 
+
+                        Console.WriteLine("\n\nFill in Id of Category to update");
+
+                        Console.Write("\nId: ");
+                        var idResult = int.TryParse(Console.ReadLine()!, out int Id);
+                        if (idResult)
+                        {
+                            categoryDto.Id = Id;
+                        }
+
+                        var existingCategory = _categoryService.GetCategory(categoryDto);
+                        SubMenuTemplate("Category to update");
+                        if (existingCategory != null)
+                        {
+                            Console.WriteLine("\nCategory:");
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{existingCategory.Id}" +
+                                $"\nCategory name:{"",-6}{existingCategory.CategoryName}");
+
+                            Console.WriteLine("\nProducts that will be affected by this update:");
+
+                            foreach (var product in existingCategory.Products)
+                            {
+                                Console.WriteLine(
+                                    $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                                    $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                                    $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                            }
+
+                            var answer = Question("\nDo you want to update this Category?");
+                            SubMenuTemplate("Update Category details");
+                            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                CategoryDto updatedCategoryDetails = new();
+
+                                Console.WriteLine("Fill in updated details for Category. Any fields left empty will keep their original values.");
+
+                                Console.Write("\nCategory name: ");
+                                updatedCategoryDetails.CategoryName = Console.ReadLine()!;
+
+                                SubMenuTemplate("Confirm update");
+                                Console.WriteLine("\nCategory:");
+                                Console.WriteLine(
+                                    $"\nId:{"",-17}{updatedCategoryDetails.Id}" +
+                                    $"\nCategory name:{"",-6}{updatedCategoryDetails.CategoryName}");
+
+                                var updateAnswer = Question("\nDo you wish to update Category with these details?");
+                                if (updateAnswer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    var updatedCategory = _categoryService.UpdateCategory(existingCategory, updatedCategoryDetails);
+                                    SubMenuTemplate("Update status");
+                                    if (updatedCategory != null)
+                                    {
+                                        Console.WriteLine("\nPrice list:");
+                                        Console.WriteLine(
+                                            $"\nId:{"",-17}{existingCategory.Id}" +
+                                            $"\nCategory name:{"",-6}{updatedCategory.CategoryName}");
+
+                                        Console.WriteLine("Category succesfully updated.");
+                                    }
+                                    else
+                                        Console.WriteLine("Category could not be updated, make sure you are logged in as Admin.");
+                                }
+                                else
+                                    Console.WriteLine("Category was not updated.");
+                            }
+                            else
+                                Console.WriteLine("Category will not be updated.");
+                        }
+                        else
+                            Console.WriteLine("No Categories with that Id.");
+                    }
+                    else
+                        Console.WriteLine("\nThere are currently no Categories.");
+
+                    PressKeyAndContinue();
+                }
+
+                void ShowDeleteCategoryMenu()
+                {
+                    CategoryDto categoryDto = new();
+
+                    var allCategories = _categoryService.GetAllCategories();
+                    SubMenuTemplate("All current Categories:");
+                    if (allCategories != null)
+                    {
+
+                        foreach (var category in allCategories)
+                        {
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{category.Id}" +
+                                $"\nCategory name:{"",-6}{category.CategoryName}");
+                        }
+
+                        Console.WriteLine("\n\nFill in Id of Category to delete");
+
+                        Console.Write("\nId: ");
+                        var idResult = int.TryParse(Console.ReadLine()!, out int Id);
+                        if (idResult)
+                        {
+                            categoryDto.Id = Id;
+                        }
+
+                        var existingCategory = _categoryService.GetCategory(categoryDto);
+                        SubMenuTemplate("Category to delete");
+                        if (existingCategory != null)
+                        {
+                            Console.WriteLine("\nCategory:");
+                            Console.WriteLine(
+                                $"\nId:{"",-17}{existingCategory.Id}" +
+                                $"\nCategory name:{"",-6}{existingCategory.CategoryName}");
+
+                            Console.WriteLine("\nProducts that will be affected by this update:");
+
+                            foreach (var product in existingCategory.Products)
+                            {
+                                Console.WriteLine(
+                                    $"\n{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
+                                    $"{"",-5}Title: {"",-13}{product.Title}\n" +
+                                    $"{"",-5}Category: {"",-10}{product.CategoryName}\n" +
+                                    $"{"",-5}Unit: {"",-14}{product.Unit}\n" +
+                                    $"{"",-5}Stock: {"",-13}{product.Stock}\n");
+                            }
+
+                            var answer = Question("\nDo you want to delete this Category?");
+                            SubMenuTemplate("Delete Category details");
+                            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                var deletedCategory = _categoryService.DeleteCategory(existingCategory);
+                                SubMenuTemplate("Update status");
+                                if (deletedCategory != null)
+                                {
+                                    Console.WriteLine("\nPrice list:");
+                                    Console.WriteLine(
+                                        $"\nId:{"",-17}{deletedCategory.Id}" +
+                                        $"\nCategory name:{"",-6}{deletedCategory.CategoryName}");
+
+                                    Console.WriteLine("Category succesfully deleted.");
+                                }
+                                else
+                                    Console.WriteLine("Category could not be deleted, make sure you are logged in as Admin.");
+                            }
+                            else
+                                Console.WriteLine("Category will not be deleted.");
+                        }
+                        else
+                            Console.WriteLine("NoCategory with that Id.");
+                    }
+                    else
+                        Console.WriteLine("No current Categories to show.");
+
+                    PressKeyAndContinue();
+                }
             }
 
         }
+
 
         // Utility methods
         void PressKeyAndContinue()
