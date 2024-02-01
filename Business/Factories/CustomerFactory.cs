@@ -42,24 +42,6 @@ public static class CustomerFactory
         return null!;
     }
 
-    public static IEnumerable<CustomerEntity> Create(IEnumerable<CustomerDto> dtos)
-    {
-        try
-        {
-            List<CustomerEntity> list = new();
-
-            foreach (var dto in dtos)
-            {
-                list.Add(Create(dto));
-            }
-
-            return list;
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
     public static IEnumerable<CustomerDto> Create(IEnumerable<CustomerEntity> entities)
     {
         try
@@ -77,24 +59,4 @@ public static class CustomerFactory
 
         return null!;
     }
-
-
-    public static CustomerDetailsDto CreateCustomerDetails(CustomerEntity cEntity, UserEntity uEntity)
-    {
-        try
-        {
-            return new CustomerDetailsDto
-            {
-                Id  = cEntity.Id,
-                EmailId = cEntity.EmailId,
-                UserRoleName = uEntity.UserRoleName,
-                FirstName = cEntity.FirstName,
-                LastName = cEntity.LastName,
-                PhoneNumber = cEntity.PhoneNumber,
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    } 
 }

@@ -49,7 +49,7 @@ namespace Infrastructure.Migrations
                     Password = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
                     SecurityKey = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    isActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     UserRoleName = table.Column<string>(type: "nvarchar(50)", nullable: false)
                 },
                 constraints: table =>
@@ -60,7 +60,7 @@ namespace Infrastructure.Migrations
                         column: x => x.UserRoleName,
                         principalTable: "Roles",
                         principalColumn: "RoleName",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -99,13 +99,13 @@ namespace Infrastructure.Migrations
                         column: x => x.AddressId,
                         principalTable: "Address",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Customer_Addresses_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(

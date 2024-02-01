@@ -1,7 +1,7 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using Infrastructure.Repositories;
 using System.Diagnostics;
 
 namespace Business.Services;
@@ -9,16 +9,18 @@ namespace Business.Services;
 public class PriceListService
 {
     private readonly IPriceListRepository _priceListRepository;
+    private readonly UserService _userService;
 
-    public PriceListService(IPriceListRepository priceListRepository)
+    public PriceListService(IPriceListRepository priceListRepository, UserService userService)
     {
         _priceListRepository = priceListRepository;
+        _userService = userService;
     }
 
     public PriceListEntity GetOrCreatePriceList(ProductRegistrationDto product)
     {
         try
-        {            
+        {
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == product.Price && x.UnitType == product.Currency);
             if (existingPriceList == null && product.Price != 0)
             {
@@ -44,71 +46,70 @@ public class PriceListService
         return null!;
     }
 
-    public PriceListDto GetOrCreatePriceList(PriceListDto priceList)
+    public PriceListDto CreatePriceList(PriceListDto priceList)
     {
         try
         {
-            var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType);
-            if (existingPriceList == null)
+            var activeUser = _userService.FindRoleOfActiveUser();
+            var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType && x.DiscountPrice == priceList.DiscountPrice);
+            if (existingPriceList == null && priceList.Price != 0 && activeUser.UserRoleName == "Admin")
             {
-                var entity = Factories.PriceListFactory.Create(priceList);
+                var entity = PriceListFactory.Create(priceList);
                 var newPriceList = _priceListRepository.Create(entity);
                 if (newPriceList != null)
                 {
-                    return Factories.PriceListFactory.Create(newPriceList);                      
+                    return PriceListFactory.Create(newPriceList);                      
                 }
-            }
-            else
-                return Factories.PriceListFactory.Create(existingPriceList);
+            }            
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
 
-    public (string UnitType, decimal Price, decimal? DiscountPrice) GetPriceList(ProductDto dto)
+    public PriceListDto GetPriceList(PriceListDto priceList)
     {
         try
         {
-            var existingPriceList = _priceListRepository.GetOne(x => x.Id == dto.PriceId);
+            var existingPriceList = _priceListRepository.GetOne(x => x.Id == priceList.Id);
             if (existingPriceList != null)
             {
-                return (existingPriceList.UnitType, existingPriceList.Price, existingPriceList.DiscountPrice);
-                
+                return PriceListFactory.Create(existingPriceList);
+
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return (null!, 0, 0);
+        return null!;
     }
 
-    public (string UnitType, decimal Price, decimal? DiscountPrice) GetPriceList(ProductEntity Entity)
+    public IEnumerable<PriceListDto> GetAllPriceLists()
     {
         try
         {
-            var existingPriceList = _priceListRepository.GetOne(x => x.Id == Entity.PriceId);
-            if (existingPriceList != null)
+            var existingPriceLists = _priceListRepository.GetAll();
+            if (existingPriceLists != null)
             {
-                return (existingPriceList.UnitType, existingPriceList.Price, existingPriceList.DiscountPrice);
-
+                return PriceListFactory.Create(existingPriceLists);
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return (null!, 0, 0);
+        return null!;
     }
 
     public PriceListDto UpdatePriceList(PriceListDto existingPriceListDto, PriceListDto updatedPriceListDto)
     {
         try
         {
+            var activeUser = _userService.FindRoleOfActiveUser();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
-            if (existingPriceList != null)
+            if (existingPriceList != null && activeUser.UserRoleName == "Admin")
             {
                 PriceListEntity updatedEntity = new()
                 {
                     Id = existingPriceList.Id,
-                    Price = !string.IsNullOrWhiteSpace(updatedPriceListDto.Price.ToString()) ? updatedPriceListDto.Price : existingPriceList.Price,
+                    Price = updatedPriceListDto.Price <=0 ? existingPriceList.Price : updatedPriceListDto.Price,
                     DiscountPrice = !string.IsNullOrWhiteSpace(updatedPriceListDto.DiscountPrice.ToString()) ? updatedPriceListDto.DiscountPrice : existingPriceList.DiscountPrice,
                     UnitType = !string.IsNullOrWhiteSpace(updatedPriceListDto.UnitType) ? updatedPriceListDto.UnitType : existingPriceList.UnitType,
                 };
@@ -116,7 +117,7 @@ public class PriceListService
                 var updatedPriceList = _priceListRepository.Update(existingPriceList, updatedEntity);
                 if (updatedPriceList != null)
                 {
-                    return Factories.PriceListFactory.Create(updatedPriceList);
+                    return PriceListFactory.Create(updatedPriceList);
                 }
             }
         }
@@ -129,13 +130,14 @@ public class PriceListService
     {
         try
         {
+            var activeUser = _userService.FindRoleOfActiveUser();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
-            if (existingPriceList != null)
+            if (existingPriceList != null && activeUser.UserRoleName == "Admin")
             {
                 var result = _priceListRepository.Delete(existingPriceList);
                 if (result)
                 {
-                    return Factories.PriceListFactory.Create(existingPriceList);
+                    return PriceListFactory.Create(existingPriceList);
                 }
             }
         }

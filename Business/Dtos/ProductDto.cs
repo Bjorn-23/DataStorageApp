@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Business.Dtos;
+﻿namespace Business.Dtos;
 
 public class ProductDto
 {

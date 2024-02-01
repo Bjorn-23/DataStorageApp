@@ -1,11 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace Business.Dtos;
+﻿namespace Business.Dtos;
 
 public class AddressDto
-{
-
+{   
     public int Id { get; set; }
  
     public string City { get; set; } = null!;

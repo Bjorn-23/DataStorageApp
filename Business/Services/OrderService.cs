@@ -1,11 +1,8 @@
-﻿
-using Business.Dtos;
+﻿using Business.Dtos;
 using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using System.ComponentModel.Design;
 using System.Diagnostics;
-using System.Linq.Expressions;
 
 namespace Business.Services;
 
@@ -67,15 +64,18 @@ public class OrderService
         return null!;
     }
 
-    public IEnumerable<OrderDto> GetAllOrders()
+    public OrderDto GetUsersOrder()
     {
         try
         {
             var activeUser = GetActiveUser();
-            var existingOrders = _orderRepository.GetAllWithPredicate(x => x.CustomerId == activeUser.Id);
-            if (existingOrders != null)
+            if (activeUser != null)
             {
-                return Factories.OrderFactory.Create(existingOrders);
+                var existingOrder = _orderRepository.GetOne(x => x.CustomerId == activeUser.Id);
+                if (existingOrder != null)
+                {
+                    return OrderFactory.Create(existingOrder);
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -83,20 +83,75 @@ public class OrderService
         return null!;
     }
 
-    public OrderDto GetOneOrder(OrderDto order)
+    public (OrderDto order, List<OrderRowDto> orderRows, List<ProductRegistrationDto> products, CustomerDto customer) GetOrderDetails()
     {
         try
-        {  
+        {
             var activeUser = GetActiveUser();
-            var existingOrder = _orderRepository.GetOne(x => x.Id == order.Id);
-            if (existingOrder.CustomerId == activeUser.Id || activeUser.UserRoleName == "Admin")
+            var existingOrders = _orderRepository.GetAllWithPredicate(x => x.CustomerId == activeUser.Id);
+            if (existingOrders.Any())
             {
-                return Factories.OrderFactory.Create(existingOrder);
+                foreach (var existingOrder in existingOrders)
+                {
+
+                    OrderDto orderDto = new()
+                    {
+                        Id = existingOrder.Id,
+                        OrderDate = existingOrder.OrderDate,
+                        OrderPrice = existingOrder.OrderPrice,
+                        CustomerId = existingOrder.CustomerId,
+                    };
+
+                    var customer = _customerRepository.GetOne(x => x.Id == orderDto.CustomerId);
+
+                    CustomerDto customerDto = new()
+                    {
+                        Id = customer.Id,
+                        FirstName = customer.FirstName,
+                        LastName = customer.LastName,
+                        EmailId = customer.EmailId,
+                        PhoneNumber = customer.PhoneNumber,
+                    };
+
+                    List<OrderRowDto> orderRowDtos = new();
+                    List<ProductRegistrationDto> productDtos = new();
+
+                    foreach (var orderRow in existingOrder.OrderRows)
+                    {
+                        OrderRowDto orderRowDto = new()
+                        {
+                            Id = orderRow.Id,
+                            Quantity = orderRow.Quantity,
+                            OrderRowPrice = orderRow.OrderRowPrice,
+                            ArticleNumber = orderRow.ArticleNumber,
+                            OrderId = orderRow.OrderId,
+                        };
+
+                        orderRowDtos.Add(orderRowDto);
+
+                        ProductRegistrationDto productDto = new()
+                        {
+                            ArticleNumber = orderRow.ArticleNumberNavigation.ArticleNumber,
+                            Title = orderRow.ArticleNumberNavigation.Title,
+                            Price = orderRow.ArticleNumberNavigation.Price.Price,
+                            DiscountPrice = orderRow.ArticleNumberNavigation.Price.DiscountPrice,
+                            Currency = orderRow.ArticleNumberNavigation.Price.UnitType
+                        };
+
+                        productDtos.Add(productDto);
+                    }
+
+                    if (orderDto.CustomerId == activeUser.Id || activeUser.UserRoleName == "Admin")
+                    {
+                        return (orderDto, orderRowDtos, productDtos, customerDto);
+                    }
+                }
+
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return null!;
+        return (null!, null!, null!, null!);
     }
 
     public OrderDto UpdateOrder(OrderDto order)
@@ -121,7 +176,7 @@ public class OrderService
                 var newOrderDetails = _orderRepository.Update(existingOrder, updatedOrder);
                 if (newOrderDetails != null)
                 {
-                    return Factories.OrderFactory.Create(newOrderDetails);
+                    return OrderFactory.Create(newOrderDetails);
                 }
             }
 
@@ -143,7 +198,7 @@ public class OrderService
                     var newOrderDetails = _orderRepository.Update(existingOrder, updatedOrder);
                     if (newOrderDetails != null)
                     {
-                        return Factories.OrderFactory.Create(existingOrder);
+                        return OrderFactory.Create(existingOrder);
                     }
                 }
             }
@@ -165,7 +220,7 @@ public class OrderService
                 var result = _orderRepository.Delete(existingOrder);
                 if (result)
                 {
-                    return Factories.OrderFactory.Create(existingOrder);
+                    return OrderFactory.Create(existingOrder);
                 }
             }
             else if (activeUser.UserRoleName == "Admin") // Delete as admin
@@ -176,7 +231,7 @@ public class OrderService
                     var result = _orderRepository.Delete(existingOrder);
                     if (result)
                     {
-                        return Factories.OrderFactory.Create(existingOrder);
+                        return OrderFactory.Create(existingOrder);
                     }
                 }
             }

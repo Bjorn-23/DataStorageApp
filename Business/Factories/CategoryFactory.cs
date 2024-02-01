@@ -12,7 +12,9 @@ public static class CategoryFactory
         {
             return new CategoryDto
             {
+                Id = entity.Id,
                 CategoryName = entity.CategoryName,
+                Products = entity.Products
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -20,19 +22,6 @@ public static class CategoryFactory
         return null!;
     }
 
-    public static CategoryEntity Create(CategoryDto dto)
-    {
-        try
-        {
-            return new CategoryEntity
-            {
-                CategoryName = dto.CategoryName,
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
     public static IEnumerable<CategoryDto> Create(IEnumerable<CategoryEntity> entities)
     {
         try

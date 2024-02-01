@@ -113,6 +113,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -126,9 +129,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("UserRoleName")
                         .IsRequired()
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("isActive")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -171,15 +171,15 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.Customer_AddressEntity", b =>
                 {
                     b.HasOne("Infrastructure.Entities.AddressEntity", "Address")
-                        .WithMany()
+                        .WithMany("CustomerAddresses")
                         .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.CustomerEntity", "Customer")
-                        .WithMany()
+                        .WithMany("CustomerAddresses")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Address");
@@ -190,12 +190,27 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.UserEntity", b =>
                 {
                     b.HasOne("Infrastructure.Entities.UserRoleEntity", "UserRole")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("UserRoleName")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("UserRole");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.AddressEntity", b =>
+                {
+                    b.Navigation("CustomerAddresses");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.CustomerEntity", b =>
+                {
+                    b.Navigation("CustomerAddresses");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserRoleEntity", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

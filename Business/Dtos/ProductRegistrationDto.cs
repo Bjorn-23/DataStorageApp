@@ -1,7 +1,4 @@
-﻿using System.Data.SqlTypes;
-using System.Runtime.CompilerServices;
-
-namespace Business.Dtos
+﻿namespace Business.Dtos
 {
     public class ProductRegistrationDto
     {

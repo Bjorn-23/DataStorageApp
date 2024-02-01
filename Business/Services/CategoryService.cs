@@ -1,18 +1,20 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Business.Services;
 
 public class CategoryService
 {
     private readonly ICategoryRepository _categoryRepository;
+    private readonly UserService _userService;
 
-    public CategoryService(ICategoryRepository categoryRepository)
+    public CategoryService(ICategoryRepository categoryRepository, UserService userService)
     {
         _categoryRepository = categoryRepository;
+        _userService = userService;
     }
 
     public CategoryEntity GetOrCreateCategory(ProductRegistrationDto product)
@@ -36,34 +38,48 @@ public class CategoryService
         return null!;
     }
 
-    public CategoryDto GetOrCreateCategory(CategoryDto category)
+    public CategoryDto CreateCategory(CategoryDto category)
     {
         try
         {
+            var activeUser = _userService.FindRoleOfActiveUser();
             var exisitingCategoryName = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName);
-            if (exisitingCategoryName == null)
+            if (exisitingCategoryName == null && activeUser.UserRoleName == "Admin")
             {
                 var newCategoryName = _categoryRepository.Create(new CategoryEntity()
                 {
                     CategoryName = category.CategoryName
                 });
-                return Factories.CategoryFactory.Create(newCategoryName);
+                return CategoryFactory.Create(newCategoryName);
             }
-            else
-                return Factories.CategoryFactory.Create(exisitingCategoryName);
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
-    
+
+    public CategoryDto GetCategory(CategoryDto category)
+    {
+        try
+        {
+            var exisitingCategory = _categoryRepository.GetOne(x => x.Id == category.Id);
+            if (exisitingCategory != null)
+            {
+                return CategoryFactory.Create(exisitingCategory);
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
     public IEnumerable<CategoryDto> GetAllCategories()
     {
         try
         {
-            var result = _categoryRepository.GetAll();
-            if (result != null)
-                return Factories.CategoryFactory.Create(result);
+            var exisitingCategories = _categoryRepository.GetAll();
+            if (exisitingCategories != null)
+                return CategoryFactory.Create(exisitingCategories);
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -74,19 +90,20 @@ public class CategoryService
     {
         try
         {
-            var existingCategory = _categoryRepository.GetOne(x => x.CategoryName == existingDtoName.CategoryName);
-            if (existingCategory != null)
+            var activeUser = _userService.FindRoleOfActiveUser();
+            var existingCategory = _categoryRepository.GetOne(x => x.Id == existingDtoName.Id);
+            if (existingCategory != null && activeUser.UserRoleName == "Admin")
             {
                 CategoryEntity updatedEntity = new()
                 {
                     Id = existingCategory.Id,
-                    CategoryName = !string.IsNullOrEmpty(updatedDtoName.CategoryName) ? updatedDtoName.CategoryName : existingDtoName.CategoryName,
+                    CategoryName = !string.IsNullOrEmpty(updatedDtoName.CategoryName) ? updatedDtoName.CategoryName : existingCategory.CategoryName,
                 };
 
                 var result = _categoryRepository.Update(existingCategory, updatedEntity);
                 if (result != null)
                 {
-                    return Factories.CategoryFactory.Create(result);
+                    return CategoryFactory.Create(result);
                 }
             }
         }
@@ -99,13 +116,14 @@ public class CategoryService
     {
         try
         {
+            var activeUser = _userService.FindRoleOfActiveUser();
             var existingCategory = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName && x.Id == category.Id);
-            if (existingCategory != null)
+            if (existingCategory != null && activeUser.UserRoleName == "Admin")
             {
                 var result = _categoryRepository.Delete(existingCategory);
                 if (result)
                 {
-                    return Factories.CategoryFactory.Create(existingCategory);
+                    return CategoryFactory.Create(existingCategory);
                 }
             }
         }

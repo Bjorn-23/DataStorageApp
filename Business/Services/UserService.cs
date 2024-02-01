@@ -24,11 +24,11 @@ public class UserService
     {
         try
         {
-            var userRole = _userRoleService.GetOrCreateRole(user);
-
-            var userExists = GetOne(user);
+            var userExists = _userRepository.GetOne(x => x.Email == user.Email);
             if (userExists == null)
-            {                                
+            {
+                var userRole = _userRoleService.GetOrCreateRole(user);
+
                 UserEntity userEntity = new()
                 {
                     Email = user.Email,
@@ -48,27 +48,18 @@ public class UserService
 
         return null!;
     }
-
-    public UserEntity GetOne(UserDto dto)
-    {
-        try
-        {
-            var result = _userRepository.GetOne(x => x.Email == dto.Email);
-            if (result != null)
-                return result;
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
     
-    public UserEntity GetOne(CustomerEntity entity) // Currently only used in customer service.
+    public UserDto GetOne(UserDto userDto) // Currently not used.
     {
         try
         {
-            var result = _userRepository.GetOne(x => x.Email == entity.EmailId);
-            if (result != null)
-                return result;
+            var activeUser = FindRoleOfActiveUser();
+            if ( activeUser.Email == userDto.Email || activeUser.UserRoleName == "Admin")
+            {
+                var result = _userRepository.GetOne(x => x.Email == userDto.Email);
+                if (result != null)
+                    return UserFactory.Create(result);                
+            }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -79,10 +70,10 @@ public class UserService
     {
         try
         {
-            var existingUser = GetOne(user);
+            var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
             var checkRole = FindRoleOfActiveUser();
 
-            if (existingUser.IsActive || checkRole.UserRoleName.ToString() == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
+            if (existingUser.IsActive || checkRole.UserRoleName == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
             {
 
                 UserEntity updatedUserDetails = new()
@@ -142,7 +133,7 @@ public class UserService
     {
         try
         {
-            var existingUser = GetOne(user);
+            var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
             var checkRole = FindRoleOfActiveUser();
 
             // Add extra check to see if user should be deleted?
@@ -160,19 +151,18 @@ public class UserService
 
 
     }
-
-    // User functionality in program.
+    
     public bool UserLogin(UserDto user)
     {
         try
         {
-            var existingUser = GetOne(user);
+            var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
             if (existingUser != null)
             {
                 var checkPassword = PasswordGenerator.VerifyPassword(user.Password, existingUser.SecurityKey, existingUser.Password);
                 if (checkPassword)
                 {
-                    LogoutUsers(); // Remove comment If only one user should be active at any time on a single machine.
+                    LogOutActiveUser(); // Remove comment If only one user should be active at any time on a single machine.
 
                     UserEntity activeUser = new()
                     {
@@ -196,11 +186,11 @@ public class UserService
         return false;
     }
 
-    public bool UserLogout(UserDto user)
+    public bool UserLogOut(UserDto user)
     {
         try
         {
-            var existingUser = GetOne(user);
+            var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
             if (existingUser != null)
             {
                 UserEntity inactiveUser = new()
@@ -224,25 +214,31 @@ public class UserService
         return false;
     }
 
-    public UserDto LogoutUsers() //Inefficient in large databases, but works for now as a logout button that doesnt require user input.
+    public bool LogOutActiveUser()
     {
         try
         {
             var userEntities = _userRepository.GetAllWithPredicate(x => x.IsActive == true);
-            var UserDtos = UserFactory.Create(userEntities);
+            var userDtos = UserFactory.Create(userEntities);
 
-            foreach (var user in UserDtos)
-            {
-                var result = UserLogout(user);
-                return user;
-            }
+            // Use FirstOrDefault if only one user can be logged in at a time
+            var result = UserLogOut(userDtos.FirstOrDefault()!);
+
+            // Use foreach loop if app is changed to be able to have more users logged in at once. 
+            //foreach (var user in userDtos)
+            //{
+            //    var result = UserLogOut(user);
+            //}
+
+            if (result)
+            return true;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return null!;
+        return false;
     }
 
-    public UserEntity FindRoleOfActiveUser() //Inefficient in large databases, but works for now as a logout button that doesnt require user input.
+    public UserEntity FindRoleOfActiveUser()
     {
         try
         {
@@ -257,7 +253,4 @@ public class UserService
 
         return null!;
     }
-
-    
-
 }

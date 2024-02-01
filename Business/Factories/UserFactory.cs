@@ -6,26 +6,6 @@ namespace Business.Factories;
 
 public static class UserFactory
 {
-    public static UserEntity Create(UserDto dto)
-    {
-        try
-        {
-            return new UserEntity
-            {
-                Id = dto.Id,
-                Email = dto.Email,
-                Password = dto.Password,
-                SecurityKey = dto.SecurityKey,
-                Created = dto.Created,
-                IsActive = dto.isActive,
-                UserRoleName = dto.UserRoleName
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
     public static UserDto Create(UserEntity entity)
     {
         try

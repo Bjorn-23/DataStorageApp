@@ -2,7 +2,6 @@
 using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
-using Infrastructure.Repositories;
 using System.Diagnostics;
 
 namespace Business.Services;
@@ -49,37 +48,47 @@ public class AddressService
         return null!;
     }
 
-    public IEnumerable<AddressDto> GetAddressesWithCustomerId(CustomerDetailsDto customer)
+    public (AddressDto address, IEnumerable<CustomerDto> customers) GetOneAddressWithCustomers(AddressDto address)
     {
         try
         {
-            var allCustomerAddresses = _customer_AddressRepository.GetAllWithPredicate(x => x.CustomerId == customer.Id);
-
-            if (allCustomerAddresses.Any())
+            var existingAddressWithCustomers = _addressRepository.GetAllWithPredicate(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            if (existingAddressWithCustomers.Any())
             {
-                List<AddressDto> addressDtos = new();
+                List<CustomerDto> customerDtos = new();
 
-                foreach (var addressId in allCustomerAddresses)
+                foreach (var existingAddress in existingAddressWithCustomers)
                 {
-                    var address = _addressRepository.GetOne(x => x.Id == addressId.AddressId);
-
                     AddressDto addressDto = new()
                     {
-                        StreetName = address.StreetName,
-                        PostalCode = address.PostalCode,
-                        City = address.City,
-                        Country = address.Country,
+                        Id = existingAddress.Id,
+                        StreetName = existingAddress.StreetName,
+                        PostalCode = existingAddress.PostalCode,
+                        City = existingAddress.City,
+                        Country = existingAddress.Country,
                     };
 
-                    addressDtos.Add(addressDto);
-                }
+                    foreach (var customer in existingAddress.CustomerAddresses)
+                    {
+                        CustomerDto customerDto = new()
+                        {
+                            Id = customer.Customer.Id,
+                            FirstName = customer.Customer.FirstName,
+                            LastName = customer.Customer.LastName,
+                            EmailId = customer.Customer.EmailId,
+                            PhoneNumber = customer.Customer.PhoneNumber,
+                        };
 
-                return addressDtos;
+                        customerDtos.Add(customerDto);
+                    }
+
+                    return (addressDto, customerDtos);
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return null!;
+        return (null!, null!);
     }
 
     public AddressDto GetOneAddress(AddressDto address)

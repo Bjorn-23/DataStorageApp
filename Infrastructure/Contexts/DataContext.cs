@@ -1,7 +1,6 @@
 ﻿using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Infrastructure.Contexts;
 
 public partial class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
@@ -23,10 +22,12 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         //----------------------Users & UserRoles--------------------
 
         modelBuilder.Entity<UserEntity>()
-            .HasOne(x => x.UserRole)
-            .WithMany()
-            .HasForeignKey(x => x.UserRoleName)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(u => u.UserRole)
+            .WithMany(ur => ur.Users)
+            .HasForeignKey(u => u.UserRoleName)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
 
         modelBuilder.Entity<UserEntity>()
             .HasIndex(x => x.Email)
@@ -42,29 +43,20 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             .HasForeignKey<CustomerEntity>(x => x.Id)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<AddressEntity>()
-            .HasKey(x => x.Id);
-
-        modelBuilder.Entity<CustomerEntity>()
-            .HasKey(x => x.Id);
-
         modelBuilder.Entity<Customer_AddressEntity>()
             .HasKey(x => new { x.AddressId, x.CustomerId });
 
         modelBuilder.Entity<Customer_AddressEntity>()
-            .HasOne(ca => ca.Address)
-            .WithMany()
-            .HasForeignKey(ca => ca.AddressId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(ca => ca.Customer)
+            .WithMany(c => c.CustomerAddresses)
+            .HasForeignKey(ca => ca.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Customer_AddressEntity>()
-            .HasOne(ca => ca.Customer)
-            .WithMany()
-            .HasForeignKey(ca => ca.CustomerId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        //---------------------Customers & Adresses------------------
-
+            .HasOne(ca => ca.Address)
+            .WithMany(a => a.CustomerAddresses)
+            .HasForeignKey(ca => ca.AddressId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
 }

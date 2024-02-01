@@ -1,6 +1,8 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
+using Infrastructure.Migrations;
 using System.Diagnostics;
 using System.Linq.Expressions;
 
@@ -32,7 +34,7 @@ public class ProductService
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 if (existingProduct != null)
                 {
-                    return Factories.ProductFactory.Create(existingProduct);
+                    return ProductFactory.Create(existingProduct);
                 }
                 else
                 {
@@ -53,7 +55,7 @@ public class ProductService
                     });
                     if (newProduct != null)
                     {
-                        return Factories.ProductFactory.Create(newProduct);
+                        return ProductFactory.Create(newProduct);
                     }
                 }
             }
@@ -62,42 +64,27 @@ public class ProductService
 
         return null!;
     }
-
-    public ProductRegistrationDto GetProduct(Expression<Func<ProductEntity, bool>> predicate) // For OrderRowCreation
-    {
-        try
-        {
-            var existingProduct = _productRepository.GetOne(predicate);
-            var priceId = _priceListService.GetPriceList(existingProduct);
-            if (existingProduct != null)
-            {
-                return Factories.ProductFactory.Create(existingProduct, priceId.UnitType, priceId.Price, priceId.DiscountPrice);
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
+      
     public ProductRegistrationDto GetProductDisplay(ProductDto dto)
     {
         try
         {
-            var priceId = _priceListService.GetPriceList(dto);
-            if (priceId.Price >= 1 && priceId.UnitType != null!)
+            var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == dto.ArticleNumber);
+
+            if (existingProduct != null!)
             {
                 return new ProductRegistrationDto()
                 {
-                    ArticleNumber = dto.ArticleNumber,
-                    Title = dto.Title,
-                    Ingress = dto.Ingress,
-                    Description = dto.Description,
-                    Price = priceId.Price,
-                    Currency = priceId.UnitType,
-                    DiscountPrice = priceId.DiscountPrice,
-                    Unit = dto.Unit,
-                    Stock = dto.Stock,
-                    CategoryName = dto.CategoryName
+                    ArticleNumber = existingProduct.ArticleNumber,
+                    Title = existingProduct.Title,
+                    Ingress = existingProduct.Ingress,
+                    Description = existingProduct.Description,
+                    Price = existingProduct.Price.Price,
+                    Currency = existingProduct.Price.UnitType,
+                    DiscountPrice = existingProduct.Price.DiscountPrice,
+                    Unit = existingProduct.Unit,
+                    Stock = existingProduct.Stock,
+                    CategoryName = existingProduct.CategoryName
                 };
             }
         }
@@ -111,19 +98,32 @@ public class ProductService
     {
         try
         {
-            List<ProductRegistrationDto> productList = new();
-
             var products = _productRepository.GetAll();
-            if (products != null)
+            if (products.Any())
             {
+                List<ProductRegistrationDto> productList = new();
                 foreach (var product in products)
                 {
-                    var priceId = _priceListService.GetPriceList(product);
-                    var result = Factories.ProductFactory.Create(product, priceId.UnitType, priceId.Price, priceId.DiscountPrice);
-                    productList.Add(result);
+                    ProductRegistrationDto productDto = new()
+                    {
+                    ArticleNumber = product.ArticleNumber,
+                    Title = product.Title,
+                    Ingress = product.Ingress,
+                    Description = product.Description,
+                    Price = product.Price.Price,
+                    Currency = product.Price.UnitType,
+                    DiscountPrice = product.Price.DiscountPrice,
+                    Unit = product.Unit,
+                    Stock = product.Stock,
+                    CategoryName = product.CategoryName
+                    };
+
+                    productList.Add(productDto);
+                
                 }
                 return productList;
             }
+
         }
          catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -166,7 +166,7 @@ public class ProductService
                     var result = _productRepository.Update(existingProduct, updatedProduct);
                     if (result != null)
                     {
-                        return Factories.ProductFactory.Create(updatedProduct);
+                        return ProductFactory.Create(updatedProduct);
                     }
                 }
             }
@@ -189,7 +189,7 @@ public class ProductService
                     var result = _productRepository.Delete(existingProduct);
                     if (result)
                     {
-                        return Factories.ProductFactory.Create(existingProduct);
+                        return ProductFactory.Create(existingProduct);
                     }
                 }            
             }
