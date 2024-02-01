@@ -1,4 +1,5 @@
 ﻿using Business.Dtos;
+using Business.Factories;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using System.Diagnostics;
@@ -58,22 +59,26 @@ public class Customer_AddressService
     {
         try
         {
-            var customerExists = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-            var addressExists = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+            var existingCustomer_Address = _customer_AddressRepository.GetOne(x => x.Customer.EmailId == customer.EmailId && x.Address.StreetName == address.StreetName && x.Address.PostalCode == address.PostalCode); 
 
-            if (customerExists != null && addressExists != null)
+            if (existingCustomer_Address != null)
             {
-                
-                var customer_AddressExists = _customer_AddressRepository.GetOne(x => x.AddressId == addressExists.Id && x.CustomerId == customerExists.Id);
+                return Customer_AddressFactory.Create(existingCustomer_Address);
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-                if (customer_AddressExists != null)
-                {
-                    return new Customer_AddressDto()
-                    {
-                        CustomerId = customer_AddressExists.CustomerId,
-                        AddressId = customer_AddressExists.AddressId,
-                    };
-                }
+        return null!;
+    }
+
+    public IEnumerable<Customer_AddressDto> GetAlLCustomer_Addresses()
+    {
+        try
+        {
+            var result = _customer_AddressRepository.GetAll();
+            if (result.Count() > 0)
+            {
+                return Customer_AddressFactory.Create(result);
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -118,31 +123,21 @@ public class Customer_AddressService
         return null!;
     }
 
-    public bool DeleteCustomer_Address(CustomerDto customer, AddressDto address)
+    public Customer_AddressDto DeleteCustomer_Address(CustomerDto customer, AddressDto address)
     {
         try
         {
-            var customerExists = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-            var addressExists = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-
-            if (customerExists != null && addressExists != null)
+            var existingCustomer_Address = _customer_AddressRepository.GetOne(x => x.Customer.EmailId == customer.EmailId && x.Address.StreetName == address.StreetName && x.Address.PostalCode == address.PostalCode);
+            if (existingCustomer_Address != null)
             {
-
-                var customer_AddressExists = _customer_AddressRepository.GetOne(x => x.AddressId == addressExists.Id && x.CustomerId == customerExists.Id);
-
-                if (customer_AddressExists != null)
-                {
-                    var result = _customer_AddressRepository.Delete(customer_AddressExists);
-                    if (result)
-                    {
-                        return true;
-                    }
-                }
+                var result = _customer_AddressRepository.Delete(existingCustomer_Address);
+                if (result)
+                    return Customer_AddressFactory.Create(existingCustomer_Address);
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return false;
+        return null!;
     }
 
 }
