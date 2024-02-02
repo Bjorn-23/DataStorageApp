@@ -1,6 +1,5 @@
 ﻿using Business.Dtos;
 using Business.Services;
-using System.Diagnostics.Eventing.Reader;
 
 namespace Presentation.ConsoleApp;
 
