@@ -1,5 +1,6 @@
 ﻿using Business.Dtos;
 using Business.Services;
+using System.Diagnostics.Eventing.Reader;
 
 namespace Presentation.ConsoleApp;
 
@@ -24,8 +25,8 @@ internal class MenuService(CustomerService customerService, AddressService addre
         while (loop)
         {
             Console.Clear();
-            Console.WriteLine($"{"",-5}Björn's Store - Choose an option");
-            string hyphens = new string('-', $"{"",-5}Björn's Store - Choose an option{"",-5}".Length);
+            Console.WriteLine($"{"",-5}Björn's super Store - Choose an option");
+            string hyphens = new string('-', $"{"",-5}Björn's super Store - Choose an option{"",-5}".Length);
             Console.WriteLine(hyphens);
             Console.WriteLine($"{"\n1.",-5} Login User");
             Console.WriteLine($"{"\n2.",-5} Create User");
@@ -483,7 +484,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 Console.WriteLine($"{"\n1.",-5} Show User options");
                 Console.WriteLine($"{"\n2.",-5} Show Customer options");
                 Console.WriteLine($"{"\n3.",-5} Show Address options");
-                Console.WriteLine($"{"\n4.",-5} Show Create Customer_Adress Menu");
+                Console.WriteLine($"{"\n4.",-5} Show Customer_Adress Options");
                 Console.WriteLine($"{"\n0.",-5} Go back");
                 Console.Write($"\n\n{"",-5}Option: ");
 
@@ -501,7 +502,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         ShowAddressOptionsMenu();
                         break;
                     case "4":
-                        ShowCreateCustomer_AddressMenu();
+                        ShowCustomer_AddressOptions();
                         break;
                     case "0":
                         userMenuLoop = false;
@@ -1183,32 +1184,209 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     }
                 }
 
-                void ShowCreateCustomer_AddressMenu()
+                void ShowCustomer_AddressOptions()
                 {
-                    SubMenuTemplate("Type in details of new customer_address");
+                    bool Customer_AddressLoop = true;
 
-                    CustomerDto customer = new();
-                    AddressDto address = new();
-
-                    Console.Write("Please enter email of customer: ");
-                    customer.EmailId = Console.ReadLine()!;
-
-                    Console.Write("Please enter Street name of address: ");
-                    address.StreetName = Console.ReadLine()!;
-                    Console.Write("Please enter postal code of address: ");
-                    address.PostalCode = Console.ReadLine()!;
-
-                    var result = _customer_addressService.CreateCustomer_Address(customer, address);
-                    SubMenuTemplate("Customer_Address status");
-                    if (result)
+                    while (Customer_AddressLoop)
                     {
-                        Console.WriteLine("Customer Address created.");
-                    }
-                    else
-                        Console.WriteLine("Customer Address could not be created or already exists.");
+                        Console.Clear();
+                        Console.WriteLine($"{"",-5}Customer Address menu - Choose an option");
+                        string hyphens = new string('-', $"{"",5}Customer Adress menu - Choose an option".Length);
+                        Console.WriteLine(hyphens);
+                        Console.WriteLine($"{"\n1.",-5} Create Customer Address (requires user to be logged in)");
+                        Console.WriteLine($"{"\n2.",-5} Show Customer Address details");
+                        Console.WriteLine($"{"\n3.",-5} Show all Customer Addresses");
+                        Console.WriteLine($"{"\n5.",-5} Delete Customer Address (requires Admin privileges)");
+                        Console.WriteLine($"{"\n0.",-5} Go back");
+                        Console.Write($"\n\n{"",-5}Option: ");
+                        var option = Console.ReadLine();
 
-                    PressKeyAndContinue();
+                        switch (option)
+                        {
+                            case "1":
+                                ShowCreateCustomer_AddressMenu();
+                                break;
+                            case "2":
+                                ShowGetCustomer_AddressDetails();
+                                break;
+                            case "3":
+                                ShowGetAllCustomer_AddressesMenu();
+                                break;
+                            case "5":
+                                ShowDeleteCustomer_AddressMenu();
+                                break;
+                            case "0":
+                                Customer_AddressLoop = false;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    void ShowCreateCustomer_AddressMenu()
+                    {
+                        SubMenuTemplate("Type in details of new customer_address");
+
+                        CustomerDto customer = new();
+                        AddressDto address = new();
+
+                        Console.Write("Please enter email of customer: ");
+                        customer.EmailId = Console.ReadLine()!;
+
+                        Console.Write("Please enter Street name of address: ");
+                        address.StreetName = Console.ReadLine()!;
+                        Console.Write("Please enter postal code of address: ");
+                        address.PostalCode = Console.ReadLine()!;
+
+                        var result = _customer_addressService.CreateCustomer_Address(customer, address);
+                        SubMenuTemplate("Customer_Address status");
+                        if (result)
+                        {
+                            Console.WriteLine("Customer Address created.");
+                        }
+                        else
+                            Console.WriteLine("Customer Address could not be created or already exists.");
+
+                        PressKeyAndContinue();
+                    }
+
+                    void ShowGetCustomer_AddressDetails()
+                    {
+                        SubMenuTemplate("Fill in details of customer_address to view details");
+
+                        CustomerDto customer = new();
+                        AddressDto address = new();
+
+                        Console.Write("Please enter email of customer: ");
+                        customer.EmailId = Console.ReadLine()!;
+
+                        Console.Write("Please enter Street name of address: ");
+                        address.StreetName = Console.ReadLine()!;
+                        Console.Write("Please enter postal code of address: ");
+                        address.PostalCode = Console.ReadLine()!;
+
+                        var existingCustomer_Address = _customer_addressService.GetCustomer_Address(customer, address);
+                        SubMenuTemplate("Customer Address");
+                        if (existingCustomer_Address != null)
+                        {
+                            Console.WriteLine($"\n{"",-5}Customer:\n");
+                            Console.WriteLine($"" +
+                                $"{"",-5}{existingCustomer_Address.CustomerId}\n" +
+                                $"{"",-5}{existingCustomer_Address.Customer.FirstName}\n" +
+                                $"{"",-5}{existingCustomer_Address.Customer.LastName}\n" +
+                                $"{"",-5}{existingCustomer_Address.Customer.EmailId}\n");
+
+                            Console.WriteLine($"{"",-5}Address:\n");
+                            Console.WriteLine($"" +
+                                $"{"",-5}{existingCustomer_Address.AddressId}\n" +
+                                $"{"",-5}{existingCustomer_Address.Address.StreetName}\n" +
+                                $"{"",-5}{existingCustomer_Address.Address.PostalCode}\n" +
+                                $"{"",-5}{existingCustomer_Address.Address.City}\n" +
+                                $"{"",-5}{existingCustomer_Address.Address.Country}\n");
+                        }
+                        else
+                            Console.WriteLine($"{"",-5}No Customer Address was found with those details.");
+
+                        PressKeyAndContinue();
+                    }
+
+                    void ShowGetAllCustomer_AddressesMenu()
+                    {
+                        var existingCustomer_Addresses = _customer_addressService.GetAlLCustomer_Addresses();
+                        if (existingCustomer_Addresses != null)
+                        {
+                            
+                            SubMenuTemplate("All current Customer Addresses");
+                            foreach (Customer_AddressDto customer_Address in existingCustomer_Addresses)
+                            {
+                                Console.WriteLine($"\n" +
+                                    $"{"",-5}Email:{"",-14}{customer_Address.Customer.EmailId}\n" +
+                                    $"{"",-5}Customer Id:{"",-8}{customer_Address.CustomerId}\n" +
+                                    $"\n" +
+                                    $"{"",-5}Address Id:{"",-9}{customer_Address.AddressId}\n" +
+                                    $"{"",-5}Street name:{"",-8}{customer_Address.Address.StreetName}\n" +
+                                    $"{"",-5}Postal code:{"",-8}{customer_Address.Address.PostalCode}\n");
+                            }
+                        }
+                        else
+                            Console.WriteLine("There are currently no Customer Addresses.");
+
+                        PressKeyAndContinue();
+                    }
+
+                    void ShowDeleteCustomer_AddressMenu()
+                    {
+                        SubMenuTemplate("Fill in details of customer_address to delete");
+
+                        CustomerDto customer = new();
+                        AddressDto address = new();
+
+                        Console.Write("Please enter email of customer: ");
+                        customer.EmailId = Console.ReadLine()!;
+
+                        Console.Write("Please enter Street name of address: ");
+                        address.StreetName = Console.ReadLine()!;
+                        Console.Write("Please enter postal code of address: ");
+                        address.PostalCode = Console.ReadLine()!;
+
+                        var existingCustomer_Address = _customer_addressService.GetCustomer_Address(customer, address);
+                        SubMenuTemplate("Customer Address");
+                        if (existingCustomer_Address != null)
+                        {
+                            Console.WriteLine("Customer:");
+                            Console.WriteLine($"" +
+                                $"{existingCustomer_Address.CustomerId}" +
+                                $"{existingCustomer_Address.Customer.FirstName}\n" +
+                                $"{existingCustomer_Address.Customer.LastName}\n" +
+                                $"{existingCustomer_Address.Customer.EmailId}\n");
+
+                            Console.WriteLine("Address:");
+                            Console.WriteLine($"" +
+                                $"{existingCustomer_Address.AddressId}" +
+                                $"{existingCustomer_Address.Address.StreetName}\n" +
+                                $"{existingCustomer_Address.Address.PostalCode}\n" +
+                                $"{existingCustomer_Address.Address.City}\n" +
+                                $"{existingCustomer_Address.Address.Country}\n");
+
+                            var answer = Question("Is this the Customer Address connection you wish to delete?");
+                            SubMenuTemplate("Delete status");
+                            if (answer.Equals("y",StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                var deletedCustomer_Address = _customer_addressService.DeleteCustomer_Address(existingCustomer_Address);
+                                SubMenuTemplate("Delete Status");
+                                if (deletedCustomer_Address != null)
+                                {
+                                    Console.WriteLine("Customer:");
+                                    Console.WriteLine($"" +
+                                        $"{existingCustomer_Address.CustomerId}" +
+                                        $"{existingCustomer_Address.Customer.FirstName}\n" +
+                                        $"{existingCustomer_Address.Customer.LastName}\n" +
+                                        $"{existingCustomer_Address.Customer.EmailId}\n");
+
+                                    Console.WriteLine("Address:");
+                                    Console.WriteLine($"" +
+                                        $"{existingCustomer_Address.AddressId}" +
+                                        $"{existingCustomer_Address.Address.StreetName}\n" +
+                                        $"{existingCustomer_Address.Address.PostalCode}\n" +
+                                        $"{existingCustomer_Address.Address.City}\n" +
+                                        $"{existingCustomer_Address.Address.Country}\n");
+
+                                    Console.WriteLine("Customer Address connecting these two entities has been deleted.");
+                                }
+                                else
+                                    Console.WriteLine("Customer Address could not be deleted.");
+                            }
+                            else
+                                Console.WriteLine("Customer Address will not be deleted.");
+                        }
+                        else
+                            Console.WriteLine("No Customer Address was found with those details.");
+
+                        PressKeyAndContinue();
+                    }
                 }
+
             }
         }
 

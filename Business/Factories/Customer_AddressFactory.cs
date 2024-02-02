@@ -13,7 +13,9 @@ public class Customer_AddressFactory
             return new Customer_AddressEntity
             {
                 AddressId = dto.AddressId,
-                CustomerId = dto.CustomerId
+                Address = dto.Address,
+                CustomerId = dto.CustomerId,
+                Customer = dto.Customer
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -28,7 +30,9 @@ public class Customer_AddressFactory
             return new Customer_AddressDto
             {
                 AddressId = entity.AddressId,
-                CustomerId = entity.CustomerId
+                Address = entity.Address,
+                CustomerId = entity.CustomerId,
+                Customer = entity.Customer
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

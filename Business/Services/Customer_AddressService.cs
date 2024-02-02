@@ -75,10 +75,10 @@ public class Customer_AddressService
     {
         try
         {
-            var result = _customer_AddressRepository.GetAll();
-            if (result.Count() > 0)
+            var existingCustomer_Addresses = _customer_AddressRepository.GetAll();
+            if (existingCustomer_Addresses.Count() > 0)
             {
-                return Customer_AddressFactory.Create(result);
+                return Customer_AddressFactory.Create(existingCustomer_Addresses);
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -133,6 +133,22 @@ public class Customer_AddressService
                 var result = _customer_AddressRepository.Delete(existingCustomer_Address);
                 if (result)
                     return Customer_AddressFactory.Create(existingCustomer_Address);
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public Customer_AddressDto DeleteCustomer_Address(Customer_AddressDto existingCustomer_Address)
+    {
+        try
+        {
+            if (existingCustomer_Address != null)
+            {
+                var result = _customer_AddressRepository.Delete(Customer_AddressFactory.Create(existingCustomer_Address));
+                if (result)
+                    return existingCustomer_Address;
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
