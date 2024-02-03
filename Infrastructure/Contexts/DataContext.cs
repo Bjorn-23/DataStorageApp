@@ -33,7 +33,6 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             .HasIndex(x => x.Email)
             .IsUnique();
 
-        //----------------------Users & UserRoles--------------------
 
         //---------------------Customers & Adresses------------------
 

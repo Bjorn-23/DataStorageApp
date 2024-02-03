@@ -54,7 +54,7 @@ public class UserRegistrationService
 
                 var userResult = _userService.CreateUser(userDto);
                 if (userResult != null)
-                {
+                {  
                     var customerResult = _customerService.CreateCustomer(customerDto);
                     if (customerResult != null)
                     {
