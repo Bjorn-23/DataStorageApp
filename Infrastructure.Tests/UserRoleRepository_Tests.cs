@@ -237,7 +237,6 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
     {
         // Arrange
-        // Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
