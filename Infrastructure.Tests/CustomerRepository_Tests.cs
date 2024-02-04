@@ -22,7 +22,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void CreateShould_CreateOneCustomerInDatabase_ReturnThatCustomerIfSuccesful()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
 
@@ -37,7 +37,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void CreateShould_NotCreateOneCustomerInDatabase_ReturnNulll()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" }; // Email left out: EmailId = "bjorn@domain.com",
 
@@ -51,7 +51,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void GetAllShould_IfAnyUserExists_ReturnAllCustomerFromDataBase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -67,7 +67,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void GetAllShould_ReturnEmptyList_SinceNoCustomerInDatabase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
 
         //Act
@@ -81,7 +81,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void GetAllWithPredicate_Should_IfAnyCustomerWithTheSuppliedFirstNameExists_ReturnThatCustomerFromDataBase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -97,7 +97,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void GetAllWithPredicate_Should_SinceNoCustomerWithTheSuppliedFirstNameExists_ReturnEmptyList()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         string otherRole = "Arne";
@@ -114,7 +114,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void GetOneShould_IfCustomerExists_ReturnOneCustomerFromDataBase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -130,7 +130,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void GetOneShould_SinceNoUserExists_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         //var createResult = userRepository.Create(user); // User is never created in this test
@@ -145,7 +145,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -164,7 +164,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void UpdateShould_FailToUpdateExistingUser_BecauseOfPrimaryKeyBeingChanged_AndReturnNull()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -181,7 +181,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void UpdateWithPredicate_Should_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -199,7 +199,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void UpdateWithPredicate_Should_NotUpdateExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -217,7 +217,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -232,7 +232,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         //var createResult = customerRepository.Create(customer);
@@ -247,7 +247,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -263,7 +263,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void DeleteShould_NotDeleteExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         //var createResult = customerRepository.Create(customer);
@@ -279,7 +279,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         var createResult = customerRepository.Create(customer);
@@ -295,7 +295,7 @@ public class CustomerRepository_Tests : BaseRepository<CustomerEntity, DataConte
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
     {
-        // Arrange
+        //Arrange
         var customerRepository = new CustomerRepository_Tests();
         var customer = new CustomerEntity() { EmailId = "bjorn@domain.com", FirstName = "Björn", LastName = "Andersson", Id = Guid.NewGuid().ToString(), PhoneNumber = "0789456123" };
         //var createResult = customerRepository.Create(customer);

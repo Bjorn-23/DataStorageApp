@@ -23,7 +23,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void CreateShould_CreateOneUserInDatabase_ReturnThatUserIfSuccesfl()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
 
@@ -39,7 +39,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { };
 
@@ -53,7 +53,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -69,7 +69,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         //var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -85,7 +85,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -101,7 +101,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -118,7 +118,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -134,7 +134,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void GetOneShould_SinceNoUserExists_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         //var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -149,7 +149,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     //[Fact] // CANT UPDATE THIS ENTITY SINCE BOTH PROPS ARE PRIMARY KEYS AND MAKE UP A PRIMARY KEY TOGETHER - will leave commented out.
     //public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     //{
-    //    // Arrange
+    //    //Arrange
     //    var Customer_AddressRepository = new Customer_AddressRepository_Tests();
     //    var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
     //    var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -168,7 +168,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -183,7 +183,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         //var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -198,7 +198,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -213,7 +213,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void DeleteShould_NotDeleteExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         //var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -228,7 +228,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         var createResult = Customer_AddressRepository.Create(customerAddress);
@@ -244,7 +244,7 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
     {
-        // Arrange
+        //Arrange
         var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
         //var createResult = Customer_AddressRepository.Create(customerAddress);

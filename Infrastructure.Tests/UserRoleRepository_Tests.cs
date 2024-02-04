@@ -23,7 +23,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void CreateShould_CreateOneUserInDatabase_ReturnThatUserIfSuccesfl()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
 
@@ -38,7 +38,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() {  };
 
@@ -52,7 +52,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -68,7 +68,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
@@ -84,7 +84,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -100,7 +100,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -118,7 +118,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -134,7 +134,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void GetOneShould_SinceNoUserExists_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole); // No UserRole created, this should fail test.
@@ -149,7 +149,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact] // CANT CHANGE SINCE RoleName is primary Key
     public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -168,7 +168,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void UpdateShould_FailToUpdateExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -185,7 +185,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]  // CANT CHANGE SINCE RoleName is primary Key
     public void UpdateWithPredicate_Should_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -204,7 +204,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void UpdateWithPredicate_Should_NotUpdateExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -221,7 +221,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -236,7 +236,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
@@ -251,7 +251,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -266,7 +266,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void DeleteShould_NotDeleteExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
@@ -281,7 +281,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         var createResult = userRoleRepository.Create(userRole);
@@ -297,7 +297,7 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
     {
-        // Arrange
+        //Arrange
         var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);

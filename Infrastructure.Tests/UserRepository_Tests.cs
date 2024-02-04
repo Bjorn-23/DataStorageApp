@@ -24,7 +24,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void CreateShould_CreateOneUserInDatabase_ReturnThatUserIfSuccesfl()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
 
@@ -39,7 +39,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 }; // Email left out: Email = "bjorn@domain.com",
 
@@ -53,7 +53,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -69,7 +69,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
 
         //Act
@@ -83,7 +83,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -99,7 +99,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         int otherRoleId = 2;
@@ -116,7 +116,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -132,7 +132,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void GetOneShould_SinceNoUserExists_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         //var createResult = userRepository.Create(user); // User is never created in this test
@@ -147,7 +147,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -165,7 +165,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void UpdateShould_FailToUpdateExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -181,7 +181,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void UpdateWithPredicate_Should_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -199,7 +199,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void UpdateWithPredicate_Should_NotUpdateExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -215,7 +215,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -231,7 +231,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         //var createResult = userRepository.Create(user);
@@ -247,7 +247,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -263,7 +263,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void DeleteShould_NotDeleteExistingUser_ReturnNull()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         //var createResult = userRepository.Create(user);
@@ -279,7 +279,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
@@ -295,7 +295,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     [Fact]
     public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
     {
-        // Arrange
+        //Arrange
         var userRepository = new UserRepository_Tests();
         var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1   };
         //var createResult = userRepository.Create(user);
