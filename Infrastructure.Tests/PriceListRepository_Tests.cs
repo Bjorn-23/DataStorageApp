@@ -21,7 +21,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void CreateShould_CreateOneCategoryInDatabase_AndReturnCategory()
+    public void Create_ShouldCreateNewEntityInDatabase_AndReturnIt()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -39,7 +39,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
 
 
     [Fact]
-    public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
+    public void Create_ShouldNotCreateNewEntityInDatabase_AndReturnNull()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -53,7 +53,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
+    public void GetAllShould_IfAnyEntityExists_ReturnAllEntitiesFromDataBase()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -69,7 +69,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
+    public void GetAll_ShouldReturnEmptyList_SinceNoEntitiesExistInDatabase()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -85,7 +85,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
+    public void GetAllWithPredicate_ShouldReturnAnyUser_MatchingLambdaExpressionFromDataBase()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -101,7 +101,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
+    public void GetAllWithPredicate_ShouldReturnEmptyList_SinceTheEntityInPredicate_DoesNotExistInDatabase()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -119,7 +119,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
+    public void GetOne_ShouldIfEntityExists_ReturnOneEntityFromDataBase()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -137,7 +137,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
 
 
     [Fact]
-    public void GetOneShould_SinceNoUserExists_ReturnNull()
+    public void GetOne_ShouldReturnNull_SinceNoEntitiesExists()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -152,7 +152,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
+    public void Update_ShouldUpdateExistingEntity_ReturnUpdatedEntity_FromDataBase()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -171,7 +171,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void UpdateShould_FailToUpdateExistingUser_ReturnNull()
+    public void Update_ShouldFailToUpdateExistingEntity_AndReturnNull()
     {
         //Arrange
         //Arrange
@@ -189,7 +189,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void UpdateWithPredicate_Should_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
+    public void UpdateWithPredicate_ShouldUpdateExistingEntity_AndReturnUpdatedEntityFromDataBase()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -208,7 +208,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void UpdateWithPredicate_Should_NotUpdateExistingUser_ReturnNull()
+    public void UpdateWithPredicate_ShouldNotUpdateExistingEntity_AndThenReturnNull()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -225,7 +225,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void DeleteWithPredicate_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -240,7 +240,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
+    public void DeleteWithPredicate_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -255,7 +255,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void Delete_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -270,7 +270,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void DeleteShould_NotDeleteExistingUser_ReturnNull()
+    public void Delete_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -285,7 +285,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnTrue()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
@@ -300,7 +300,7 @@ public class PriceListRepository_Tests : BaseRepository<PriceListEntity, Product
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnFalse()
     {
         //Arrange
         var priceListRepository = new PriceListRepository_Tests();
