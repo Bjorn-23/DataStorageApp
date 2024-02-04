@@ -26,7 +26,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
 
         //Act
         var createResult = userRepository.Create(user);
@@ -41,7 +41,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" }; // Email left out: Email = "bjorn@domain.com",
+        var user = new UserEntity() { Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 }; // Email left out: Email = "bjorn@domain.com",
 
         //Act
         var createResult = userRepository.Create(user);
@@ -55,7 +55,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
         //Act
@@ -85,15 +85,15 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
         //Act
-        var getResult = userRepository.GetAllWithPredicate(x => x.UserRoleName == createResult.UserRoleName);
+        var getResult = userRepository.GetAllWithPredicate(x => x.UserRoleId == createResult.UserRoleId);
 
         //Assert
         Assert.NotNull(getResult);
-        Assert.Equal("Admin", getResult.FirstOrDefault()!.UserRoleName);
+        Assert.Equal(1, getResult.FirstOrDefault()!.UserRoleId);
     }
 
     [Fact]
@@ -101,12 +101,12 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
-        string otherRole = "User";
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
+        int otherRoleId = 2;
         var createResult = userRepository.Create(user);
 
         //Act
-        var getResult = userRepository.GetAllWithPredicate(x => x.UserRoleName == otherRole);
+        var getResult = userRepository.GetAllWithPredicate(x => x.UserRoleId == otherRoleId);
 
         //Assert
         Assert.NotNull(getResult);
@@ -118,7 +118,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
         //Act
@@ -134,7 +134,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         //var createResult = userRepository.Create(user); // User is never created in this test
 
         //Act
@@ -149,17 +149,17 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
-        var updatedUser = new UserEntity() { Id = user.Id, Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleName = "User" };
+        var updatedUser = new UserEntity() { Id = user.Id, Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleId = 2 };
         //Act
         var updatedResult = userRepository.Update(createResult, updatedUser);
 
         //Assert
         Assert.NotNull(updatedResult);
         Assert.Equal("bjorn@email.com", updatedResult.Email);
-        Assert.NotEqual("Admin",updatedResult.UserRoleName);
+        Assert.NotEqual(1 ,updatedResult.UserRoleId);
     }
 
     [Fact]
@@ -167,10 +167,10 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
-        var updatedUser = new UserEntity() { /*Id = user.Id,*/ Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleName = "User" };
+        var updatedUser = new UserEntity() { /*Id = user.Id,*/ Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleId = 2 };
         //Act
         var updatedResult = userRepository.Update(createResult, updatedUser);
 
@@ -183,17 +183,17 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
-        var updatedUser = new UserEntity() { Id = user.Id, Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleName = "User" };
+        var updatedUser = new UserEntity() { Id = user.Id, Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleId = 2 };
         //Act
         var updatedResult = userRepository.Update(x => x.Id == createResult.Id, updatedUser);
 
         //Assert
         Assert.NotNull(updatedResult);
         Assert.Equal("bjorn@email.com", updatedResult.Email);
-        Assert.NotEqual("Admin", updatedResult.UserRoleName);
+        Assert.NotEqual(1, updatedResult.UserRoleId);
     }
 
     [Fact]
@@ -201,10 +201,10 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
-        var updatedUser = new UserEntity() { /*Id = user.Id,*/ Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleName = "User" };
+        var updatedUser = new UserEntity() { /*Id = user.Id,*/ Password = user.Password, SecurityKey = user.SecurityKey, IsActive = user.IsActive, Created = user.Created, Email = "bjorn@email.com", UserRoleId = 2 };
         //Act
         var updatedResult = userRepository.Update(x => x.Id == createResult.Id, updatedUser);
 
@@ -217,7 +217,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
 
@@ -233,7 +233,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         //var createResult = userRepository.Create(user);
 
 
@@ -249,7 +249,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
 
@@ -265,7 +265,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         //var createResult = userRepository.Create(user);
 
 
@@ -281,7 +281,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1 };
         var createResult = userRepository.Create(user);
 
 
@@ -297,7 +297,7 @@ public class UserRepository_Tests : BaseRepository<UserEntity, DataContext>, IUs
     {
         // Arrange
         var userRepository = new UserRepository_Tests();
-        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleName = "Admin" };
+        var user = new UserEntity() { Email = "bjorn@domain.com", Password = "Bytmig123!", SecurityKey = "blabla", IsActive = true, UserRoleId = 1   };
         //var createResult = userRepository.Create(user);
 
 

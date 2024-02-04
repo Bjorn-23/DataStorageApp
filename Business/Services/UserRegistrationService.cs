@@ -10,13 +10,15 @@ public class UserRegistrationService
     private readonly CustomerService _customerService;
     private readonly AddressService _addressService;
     private readonly Customer_AddressService _customerAddressService;
+    private readonly UserRoleService _userRoleService;
 
-    public UserRegistrationService(UserService userService, CustomerService customerService, AddressService addressService, Customer_AddressService customerAddressService)
+    public UserRegistrationService(UserService userService, CustomerService customerService, AddressService addressService, Customer_AddressService customerAddressService, UserRoleService userRoleService)
     {
         _userService = userService;
         _customerService = customerService;
         _addressService = addressService;
         _customerAddressService = customerAddressService;
+        _userRoleService = userRoleService;
     }
 
     public (CustomerDto, AddressDto) CreateNewUser(UserRegistrationDto registration)
@@ -28,12 +30,15 @@ public class UserRegistrationService
             {
                 var securePassAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(registration.Password);
 
+                string roleName = registration.UserRoleName;
+                var roleId = _userRoleService.GetOrCreateRole(roleName);
+
                 UserDto userDto = new UserDto()
                 {
                     Email = registration.Email,
                     Password = securePassAndKey.Password,
                     SecurityKey = securePassAndKey.SecurityKey,
-                    UserRoleName = registration.UserRoleName,
+                    UserRoleId = roleId.UserRoleId
                 };
 
                 CustomerDto customerDto = new CustomerDto()
@@ -52,6 +57,7 @@ public class UserRegistrationService
                     Country = registration.Country
                 };
 
+
                 var userResult = _userService.CreateUser(userDto);
                 if (userResult != null)
                 {  
@@ -67,8 +73,6 @@ public class UserRegistrationService
                         }
                     }
                 }
-                else
-                    return (null!, null!); // Need rollback feature here!
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

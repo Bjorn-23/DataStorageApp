@@ -22,16 +22,20 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         //----------------------Users & UserRoles--------------------
 
         modelBuilder.Entity<UserEntity>()
+            .HasIndex(x => x.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<UserRoleEntity>()
+            .HasIndex(x => x.RoleName)
+            .IsUnique();
+
+        modelBuilder.Entity<UserEntity>()
             .HasOne(u => u.UserRole)
             .WithMany(ur => ur.Users)
-            .HasForeignKey(u => u.UserRoleName)
+            .HasForeignKey(u => u.UserRoleId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
-
-        modelBuilder.Entity<UserEntity>()
-            .HasIndex(x => x.Email)
-            .IsUnique();
 
 
         //---------------------Customers & Adresses------------------

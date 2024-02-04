@@ -3,7 +3,7 @@ using Business.Services;
 
 namespace Presentation.ConsoleApp;
 
-internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService, OrderRowService orderRowService, PriceListService priceListService, CategoryService categoryService)
+internal class MenuService(CustomerService customerService, AddressService addressService, Customer_AddressService customer_addressService, UserService userService, UserRegistrationService userRegistrationService, OrderService orderService, ProductService productService, OrderRowService orderRowService, PriceListService priceListService, CategoryService categoryService, UserRoleService userRoleService)
 {
 
     private readonly CustomerService _customerService = customerService;
@@ -16,6 +16,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
     private readonly OrderRowService _orderRowService = orderRowService;
     private readonly PriceListService _priceListService = priceListService;
     private readonly CategoryService _categoryService = categoryService;
+    private readonly UserRoleService _userRoleService = userRoleService;
 
     internal void MenuStart()
     {
@@ -709,8 +710,24 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             Console.Write("Password: ");
                             newUserDetails.Password = Console.ReadLine()!;
 
-                            Console.Write("Role: ");
-                            newUserDetails.UserRoleName = Console.ReadLine()!;
+                            var existingUserRoles = _userRoleService.GetAll();
+                            if (existingUserRoles.Count() >= 1)
+                            {
+                                foreach (var role in existingUserRoles)
+                                {
+                                    Console.WriteLine($"\n" +
+                                        $"Role Id: {role.Id}\n" +
+                                        $"Role name: {role.RoleName}");
+                                }
+
+                            }
+                            Console.WriteLine("Please select the Id of the Role you wish to update to");
+                            Console.Write("Role Id: ");
+                            var idResult = int.TryParse(Console.ReadLine()!, out int id);
+                            if (idResult)
+                            {
+                                newUserDetails.UserRoleId = id;
+                            }
 
                             var result = _userService.UpdateUser(existingUser, newUserDetails);
                             SubMenuTemplate("Update status");
@@ -740,7 +757,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             SubMenuTemplate("Delete Status");
                             if (deleteCheck != null)
                             {
-                                Console.WriteLine($"\nId:{"",-12}{deleteCheck.Id}\nEmail:{"",-9}{deleteCheck.Email}\nRole: {"",-9}{deleteCheck.UserRoleName}");
+                                Console.WriteLine($"\nId:{"",-12}{deleteCheck.Id}\nEmail:{"",-9}{deleteCheck.Email}\nRole: {"",-9}{deleteCheck.UserRole.RoleName}");
                                 Console.Write($"\nIs this the user you wish to delete?\n[Y]es / [N]o: ");
                                 var answer = Console.ReadLine()!;
                                 if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
@@ -903,11 +920,11 @@ internal class MenuService(CustomerService customerService, AddressService addre
                                 {
                                     Console.WriteLine($"\nCustomer updated succesfully\n\nNew Customer details:\nId: {customerResult.Id}\nFirst name: {customerResult.FirstName}\nLast name: {customerResult.LastName}\nEmail: {customerResult.EmailId}\nPhone number: {customerResult.PhoneNumber}"); // add feedback as to new user details.
                                 }
-                                else                                
+                                else
                                     Console.WriteLine("\nCustomer failed to update, please try again - if issue persists contact support.");
                             }
                             else
-                                Console.WriteLine("\nCustomer was not updated");                            
+                                Console.WriteLine("\nCustomer was not updated");
                         }
                         else
                             Console.WriteLine("\nCustomer will not be updated");
@@ -1295,7 +1312,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                         var existingCustomer_Addresses = _customer_addressService.GetAlLCustomer_Addresses();
                         if (existingCustomer_Addresses != null)
                         {
-                            
+
                             SubMenuTemplate("All current Customer Addresses");
                             foreach (Customer_AddressDto customer_Address in existingCustomer_Addresses)
                             {
@@ -1350,7 +1367,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
                             var answer = Question("Is this the Customer Address connection you wish to delete?");
                             SubMenuTemplate("Delete status");
-                            if (answer.Equals("y",StringComparison.CurrentCultureIgnoreCase))
+                            if (answer.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                             {
                                 var deletedCustomer_Address = _customer_addressService.DeleteCustomer_Address(existingCustomer_Address);
                                 SubMenuTemplate("Delete Status");
@@ -1506,7 +1523,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                     {
                         SubMenuTemplate("New Product created");
                         Console.WriteLine($"" +
-                            $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
+                            $"Article number: {"",-4}{productDisplay.ArticleNumber}\n" +
                             $"Title: {"",-13}{productDisplay.Title}\n" +
                             $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
                             $"Description: {"",-7}{productDisplay.Description}\n" +
@@ -1533,9 +1550,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 productDto.ArticleNumber = Console.ReadLine()!;
 
                 var product = _productService.GetProductDisplay(productDto);
+                SubMenuTemplate("Product search results:");
                 if (product != null)
                 {
-                    SubMenuTemplate("Product search:");
 
                     Console.WriteLine($"" +
                             $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
@@ -1557,10 +1574,9 @@ internal class MenuService(CustomerService customerService, AddressService addre
             void ShowAllProductsMenu()
             {
                 var products = _productService.GetAllProducts();
+                SubMenuTemplate("All Products");
                 if (products.Any())
                 {
-                    SubMenuTemplate("All Products");
-
                     var i = 1;
 
                     foreach (var product in products)
@@ -2290,7 +2306,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             Console.WriteLine(
                                 $"\nId:{"",-17}{category.Id}" +
                                 $"\nCategory name:{"",-6}{category.CategoryName}");
-                        } 
+                        }
 
                         Console.WriteLine("\n\nFill in Id of Category to update");
 

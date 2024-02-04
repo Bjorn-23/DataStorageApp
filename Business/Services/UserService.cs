@@ -27,14 +27,14 @@ public class UserService
             var userExists = _userRepository.GetOne(x => x.Email == user.Email);
             if (userExists == null)
             {
-                var userRole = _userRoleService.GetOrCreateRole(user);
+                //var userRole = _userRoleService.GetOrCreateRole(user);
 
                 UserEntity userEntity = new()
                 {
                     Email = user.Email,
                     Password = user.Password,
                     SecurityKey = user.SecurityKey,
-                    UserRoleName = userRole.UserRoleName
+                    UserRoleId = user.UserRoleId
                 };
 
                 var newUserEntity = _userRepository.Create(userEntity);
@@ -54,7 +54,7 @@ public class UserService
         try
         {
             var activeUser = FindRoleOfActiveUser();
-            if ( activeUser.Email == userDto.Email || activeUser.UserRoleName == "Admin")
+            if ( activeUser.Email == userDto.Email || activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _userRepository.GetOne(x => x.Email == userDto.Email);
                 if (result != null)
@@ -73,7 +73,7 @@ public class UserService
             var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
             var checkRole = FindRoleOfActiveUser();
 
-            if (existingUser.IsActive || checkRole.UserRoleName == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
+            if (existingUser.IsActive || checkRole.UserRole.RoleName == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
             {
 
                 UserEntity updatedUserDetails = new()
@@ -84,7 +84,7 @@ public class UserService
                     SecurityKey = existingUser.SecurityKey,
                     Created = existingUser.Created,
                     IsActive = existingUser.IsActive,
-                    UserRoleName = string.IsNullOrWhiteSpace(newUserDetails.UserRoleName) ? existingUser.UserRoleName : _userRoleService.GetOrCreateRole(newUserDetails).UserRoleName
+                    UserRoleId = newUserDetails.UserRoleId <= 0  ? existingUser.UserRoleId : newUserDetails.UserRoleId
                 };
 
                 // Generates new .SecurityKey and .Password combination if a new password was submitted
@@ -172,7 +172,7 @@ public class UserService
                         SecurityKey = existingUser.SecurityKey,
                         Created = existingUser.Created,
                         IsActive = true,
-                        UserRoleName = existingUser.UserRoleName    
+                        UserRoleId = existingUser.UserRole.Id    
                     };
 
                     var setIsActive = _userRepository.Update(existingUser, activeUser);
@@ -201,7 +201,7 @@ public class UserService
                     SecurityKey = existingUser.SecurityKey,
                     Created = existingUser.Created,
                     IsActive = false,
-                    UserRoleName = existingUser.UserRoleName
+                    UserRoleId = existingUser.UserRoleId
                 };
 
                 var setIsActive = _userRepository.Update(existingUser, inactiveUser);

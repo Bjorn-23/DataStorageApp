@@ -44,7 +44,7 @@ public class CategoryService
         {
             var activeUser = _userService.FindRoleOfActiveUser();
             var exisitingCategoryName = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName);
-            if (exisitingCategoryName == null && activeUser.UserRoleName == "Admin")
+            if (exisitingCategoryName == null && activeUser.UserRole.RoleName == "Admin")
             {
                 var newCategoryName = _categoryRepository.Create(new CategoryEntity()
                 {
@@ -92,7 +92,7 @@ public class CategoryService
         {
             var activeUser = _userService.FindRoleOfActiveUser();
             var existingCategory = _categoryRepository.GetOne(x => x.Id == existingDtoName.Id);
-            if (existingCategory != null && activeUser.UserRoleName == "Admin")
+            if (existingCategory != null && activeUser.UserRole.RoleName == "Admin")
             {
                 CategoryEntity updatedEntity = new()
                 {
@@ -118,7 +118,7 @@ public class CategoryService
         {
             var activeUser = _userService.FindRoleOfActiveUser();
             var existingCategory = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName && x.Id == category.Id);
-            if (existingCategory != null && activeUser.UserRoleName == "Admin")
+            if (existingCategory != null && activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _categoryRepository.Delete(existingCategory);
                 if (result)

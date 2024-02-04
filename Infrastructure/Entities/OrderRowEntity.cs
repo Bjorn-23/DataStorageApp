@@ -6,11 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
-[PrimaryKey("Id", "OrderId")]
-[Index("ArticleNumber", Name = "UQ__OrderRow__3C991142A882F032", IsUnique = true)]
+[PrimaryKey("ArticleNumber", "OrderId")]
 public partial class OrderRowEntity
 {
-    [Key]
     public int Id { get; set; }
 
     public int Quantity { get; set; }
@@ -18,13 +16,15 @@ public partial class OrderRowEntity
     [Column(TypeName = "money")]
     public decimal OrderRowPrice { get; set; }
 
+    [Key]
+    [StringLength(100)]
     public string ArticleNumber { get; set; } = null!;
 
     [Key]
     public int OrderId { get; set; }
 
     [ForeignKey("ArticleNumber")]
-    [InverseProperty("OrderRow")]
+    [InverseProperty("OrderRows")]
     public virtual ProductEntity ArticleNumberNavigation { get; set; } = null!;
 
     [ForeignKey("OrderId")]

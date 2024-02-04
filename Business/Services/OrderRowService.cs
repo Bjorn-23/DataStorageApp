@@ -51,7 +51,7 @@ public class OrderRowService
                         OrderPrice = newOrderRow.OrderRowPrice,
                     });
 
-                    _productService.UpdateProduct(new ProductRegistrationDto
+                    _productService.UpdateProductStock(new ProductRegistrationDto
                     {
                         ArticleNumber = product.ArticleNumber,
                         Stock = -newOrderRow.Quantity
@@ -86,9 +86,12 @@ public class OrderRowService
     {
         try
         {
-            // Checks that an updated value has been put in for order quantity, if less than 0, null or empty, return null.
+            // Checks that an updated value has been put in for order quantity, if less than 0, null or empty then delete OrderRow.
             if (orderRow.Quantity <= 0 || string.IsNullOrWhiteSpace(orderRow.Quantity.ToString()))
+            {
+                DeleteOrderRow(orderRow);
                 return null!;
+            }                
 
             var existingOrderRow = _orderRowRepository.GetOne(x => x.Id == orderRow.Id);
             var oldOrderRowPrice = existingOrderRow.OrderRowPrice; // saves old price to new variable as existing one will be updated.
@@ -121,7 +124,7 @@ public class OrderRowService
                         ArticleNumber = existingOrderRow.ArticleNumber,
                         Stock = oldOrderRowQuantity - updatedOrderRowDetails.Quantity
                     };
-                    var productStockResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
+                    var productStockResult = _productService.UpdateProductStock(stockUpdate); // updates product stock with new amount.
 
                     return OrderRowFactory.Create(updatedOrderRow);
                 }
@@ -158,7 +161,7 @@ public class OrderRowService
                         ArticleNumber = existingOrderRow.ArticleNumber,
                         Stock = oldOrderRowQuantity
                     };
-                    var prodcutUpdateResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
+                    var prodcutUpdateResult = _productService.UpdateProductStock(stockUpdate); // updates product stock with new amount.
 
                     return OrderRowFactory.Create(existingOrderRow);
                 }

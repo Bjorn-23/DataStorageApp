@@ -18,7 +18,7 @@ public static class UserFactory
                 SecurityKey = entity.SecurityKey,
                 Created = entity.Created,
                 isActive= entity.IsActive,
-                UserRoleName = entity.UserRoleName
+                UserRoleId = entity.UserRoleId
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

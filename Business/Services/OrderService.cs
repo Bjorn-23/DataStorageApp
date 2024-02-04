@@ -141,7 +141,7 @@ public class OrderService
                         productDtos.Add(productDto);
                     }
 
-                    if (orderDto.CustomerId == activeUser.Id || activeUser.UserRoleName == "Admin")
+                    if (orderDto.CustomerId == activeUser.Id || activeUser.UserRole.RoleName == "Admin")
                     {
                         return (orderDto, orderRowDtos, productDtos, customerDto);
                     }
@@ -180,7 +180,7 @@ public class OrderService
                 }
             }
 
-            else if (activeUser.UserRoleName == "Admin") // Update as admin 
+            else if (activeUser.UserRole.RoleName == "Admin") // Update as admin 
             {
                 existingOrder = _orderRepository.GetOne(x => x.Id == order.Id); // only checks for order id not customerId so that Admin can use it.
                 if (existingOrder != null)
@@ -223,7 +223,7 @@ public class OrderService
                     return OrderFactory.Create(existingOrder);
                 }
             }
-            else if (activeUser.UserRoleName == "Admin") // Delete as admin
+            else if (activeUser.UserRole.RoleName == "Admin") // Delete as admin
             {
                 existingOrder = _orderRepository.GetOne(x => x.Id == order.Id);  // only checks for order id not customerId so that Admin can use it.
                 if (existingOrder != null)

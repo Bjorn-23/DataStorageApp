@@ -52,7 +52,7 @@ public class PriceListService
         {
             var activeUser = _userService.FindRoleOfActiveUser();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType && x.DiscountPrice == priceList.DiscountPrice);
-            if (existingPriceList == null && priceList.Price != 0 && activeUser.UserRoleName == "Admin")
+            if (existingPriceList == null && priceList.Price != 0 && activeUser.UserRole.RoleName == "Admin")
             {
                 var entity = PriceListFactory.Create(priceList);
                 var newPriceList = _priceListRepository.Create(entity);
@@ -104,7 +104,7 @@ public class PriceListService
         {
             var activeUser = _userService.FindRoleOfActiveUser();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
-            if (existingPriceList != null && activeUser.UserRoleName == "Admin")
+            if (existingPriceList != null && activeUser.UserRole.RoleName == "Admin")
             {
                 PriceListEntity updatedEntity = new()
                 {
@@ -132,7 +132,7 @@ public class PriceListService
         {
             var activeUser = _userService.FindRoleOfActiveUser();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
-            if (existingPriceList != null && activeUser.UserRoleName == "Admin")
+            if (existingPriceList != null && activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _priceListRepository.Delete(existingPriceList);
                 if (result)

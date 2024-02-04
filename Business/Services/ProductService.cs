@@ -27,7 +27,7 @@ public class ProductService
         try
         {
             var checkRole = _userService.FindRoleOfActiveUser();
-            if (checkRole.UserRoleName == "Admin")
+            if (checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 if (existingProduct != null)
@@ -133,7 +133,7 @@ public class ProductService
         try
         {
             var checkRole = _userService.FindRoleOfActiveUser();
-            if (checkRole.UserRoleName == "Admin")
+            if (checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 var productStock = existingProduct.Stock;
@@ -174,12 +174,56 @@ public class ProductService
         return null!;
     }
 
+    public ProductDto UpdateProductStock(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
+    {
+        try
+        {
+            var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
+            var productStock = existingProduct.Stock;
+            if (existingProduct == null)
+            {
+                return null!;
+            }
+            else
+            {
+                productStock += product.Stock;
+
+                var categoryName = _categoryService.GetOrCreateCategory(!string.IsNullOrWhiteSpace(product.CategoryName) ? product : new ProductRegistrationDto() { CategoryName = existingProduct.Category.CategoryName });
+                var priceId = _priceListService.GetOrCreatePriceList(product);
+
+                ProductEntity updatedProduct = new()
+                {
+                    ArticleNumber = existingProduct.ArticleNumber,
+                    Title = existingProduct.Title,
+                    Ingress = existingProduct.Ingress,
+                    Description = existingProduct.Description,
+                    PriceId = existingProduct.PriceId,
+                    Unit = existingProduct.Unit,
+                    Stock = productStock,
+                    CategoryId = existingProduct.Category.Id,
+
+                };
+
+                var result = _productRepository.Update(existingProduct, updatedProduct);
+                if (result != null)
+                {
+                    return ProductFactory.Create(updatedProduct);
+                }
+            }
+            
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+
     public ProductDto DeleteProduct(ProductDto product)
     {
         try
         {
             var checkRole = _userService.FindRoleOfActiveUser();
-            if (checkRole.UserRoleName == "Admin")
+            if (checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 if (existingProduct != null)

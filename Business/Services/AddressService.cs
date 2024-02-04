@@ -130,7 +130,7 @@ public class AddressService
             var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
             var checkRole = _userService.FindRoleOfActiveUser();
 
-            if (existingAddress != null && checkRole.UserRoleName == "Admin")
+            if (existingAddress != null && checkRole.UserRole.RoleName == "Admin")
             {
                 AddressEntity addressEntity = new()
                 {
@@ -161,7 +161,7 @@ public class AddressService
             var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
             var checkRole = _userService.FindRoleOfActiveUser();
 
-            if (existingAddress != null && checkRole.UserRoleName == "Admin")
+            if (existingAddress != null && checkRole.UserRole.RoleName == "Admin")
             {
                 var result = _addressRepository.Delete(x => x.Id == existingAddress.Id);
 

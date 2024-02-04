@@ -1,4 +1,6 @@
-﻿namespace Business.Dtos;
+﻿using Infrastructure.Entities;
+
+namespace Business.Dtos;
 
 public class UserDto
 {
@@ -14,6 +16,7 @@ public class UserDto
 
     public bool isActive { get; set; }
 
-    public string UserRoleName { get; set; } = null!;
+    public int UserRoleId { get; set; }
+    public virtual UserRoleEntity UserRole { get; set; } = null!;
 
 }
