@@ -6,45 +6,46 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Tests;
 
-public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataContext>, ICategoryRepository
+public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCatalog>, ICategoryRepository
 {
 
-    private readonly DataContext _context;
+    private readonly ProductCatalog _context;
 
-    public CategoryRepository_Tests() : base(new DataContext(new DbContextOptionsBuilder<DataContext>()
+    public CategoryRepository_Tests() : base(new ProductCatalog(new DbContextOptionsBuilder<ProductCatalog>()
         .UseInMemoryDatabase($"{Guid.NewGuid()}")
         .Options))
     {
-        _context = new DataContext(new DbContextOptionsBuilder<DataContext>()
+        _context = new ProductCatalog(new DbContextOptionsBuilder<ProductCatalog>()
         .UseInMemoryDatabase($"{Guid.NewGuid()}")
         .Options);
     }
 
     [Fact]
-    public void CreateShould_CreateOneUserInDatabase_ReturnThatUserIfSuccesfl()
+    public void CreateShould_CreateOneCategoryInDatabase_AndReturnCategory()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
 
         //Act
-        var createResult = addressRepository.Create(address);
+        var createResult = categoryRepository.Create(category);
 
         //Assert
         Assert.NotNull(createResult);
-        Assert.Equal("Storgatan 1", createResult.StreetName);
-        Assert.Equal("222 22", createResult.PostalCode);
+        Assert.Equal("Demo", createResult.CategoryName);
+        Assert.Equal(1, createResult.Id);
     }
+
 
     [Fact]
     public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { };
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() {};
 
         //Act
-        var createResult = addressRepository.Create(address);
+        var createResult = categoryRepository.Create(category);
 
         //Assert
         Assert.Null(createResult);
@@ -54,28 +55,28 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
         //Act
-        var getResult = addressRepository.GetAll();
+        var getResult = categoryRepository.GetAll();
 
         //Assert
         Assert.NotNull(getResult);
-        Assert.Equal("Storgatan 1", getResult.FirstOrDefault()!.StreetName);
+        Assert.Equal("Demo", getResult.FirstOrDefault()!.CategoryName);
     }
 
     [Fact]
     public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        //var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        //var createResult = categoryRepository.Create(address);
 
         //Act
-        var getResult = addressRepository.GetAll();
+        var getResult = categoryRepository.GetAll();
 
         //Assert
         Assert.Empty(getResult);
@@ -86,30 +87,30 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
         //Act
-        var getResult = addressRepository.GetAllWithPredicate(x => x.StreetName == createResult.StreetName && x.PostalCode == createResult.PostalCode);
+        var getResult = categoryRepository.GetAllWithPredicate(x => x.CategoryName == createResult.CategoryName);
 
         //Assert
         Assert.NotNull(getResult);
-        Assert.Equal("222 22", getResult.FirstOrDefault()!.PostalCode);
-        Assert.Equal("Storgatan 1", getResult.FirstOrDefault()!.StreetName);
+        Assert.Equal("Demo", getResult.FirstOrDefault()!.CategoryName);
     }
 
     [Fact]
     public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
-        AddressEntity otherAddress = new() { StreetName = "Andragatan 2", PostalCode = "111 11" };
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
+
+        CategoryEntity otherCategory = new() { CategoryName = "Test" };
 
         //Act
-        var getResult = addressRepository.GetAllWithPredicate(x => x.StreetName == otherAddress.StreetName && x.PostalCode == otherAddress.PostalCode);
+        var getResult = categoryRepository.GetAllWithPredicate(x => x.CategoryName == otherCategory.CategoryName);
 
         //Assert
         Assert.NotNull(getResult);
@@ -120,17 +121,17 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
         //Act
-        var getResult = addressRepository.GetOne(x => x.StreetName == createResult.StreetName && x.PostalCode == createResult.PostalCode);
+        var getResult = categoryRepository.GetOne(x => x.CategoryName == createResult.CategoryName);
 
         //Assert
         Assert.NotNull(getResult);
-        Assert.Equal("Storgatan 1", getResult.StreetName);
-        Assert.Equal("222 22", getResult.PostalCode);
+        Assert.Equal("Demo", getResult.CategoryName);
+        Assert.Equal(1, getResult.Id);
     }
 
 
@@ -138,85 +139,84 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void GetOneShould_SinceNoUserExists_ReturnNull()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        //var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        //var createResult = categoryRepository.Create(address);
 
         //Act
-        var getResult = addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
+        var getResult = categoryRepository.GetOne(x => x.CategoryName == category.CategoryName);
 
         //Assert
         Assert.Null(getResult);
     }
 
-    [Fact] // CANT CHANGE SINCE RoleName is primary Key
+    [Fact]
     public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
-        AddressEntity updatedAddress = new() { Id = createResult.Id, StreetName = "Andragatan 2", PostalCode = "111 11", City = address.City, Country = address.Country };
+        CategoryEntity updatedCategory = new() { Id = createResult.Id, CategoryName = "Test" };
 
         //Act
-        var updatedResult = addressRepository.Update(createResult, updatedAddress);
+        var updatedResult = categoryRepository.Update(createResult, updatedCategory);
 
         //Assert
         Assert.NotNull(updatedResult);
-        Assert.Equal("Andragatan 2", updatedResult.StreetName);
-        Assert.NotEqual("222 22", updatedResult.PostalCode);
+        Assert.Equal("Test", updatedResult.CategoryName);
+        Assert.Equal(createResult.Id, updatedResult.Id);
     }
 
     [Fact]
     public void UpdateShould_FailToUpdateExistingUser_ReturnNull()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
-        AddressEntity updatedAddress = new() { Id = 0, StreetName = "Andragatan 2", PostalCode = "111 11", City = address.City, Country = address.Country }; //changes Id which should make it fail.
+        CategoryEntity updatedCategory = new() { Id = 0, CategoryName = "Test" }; //changes Id which should make it fail.
 
         //Act
-        var updatedResult = addressRepository.Update(createResult, updatedAddress);
+        var updatedResult = categoryRepository.Update(createResult, updatedCategory);
 
         //Assert
         Assert.Null(updatedResult);
     }
 
-    [Fact]  // CANT CHANGE SINCE RoleName is primary Key
+    [Fact]
     public void UpdateWithPredicate_Should_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
-        AddressEntity updatedAddress = new() { Id = createResult.Id, StreetName = "Andragatan 2", PostalCode = "111 11", City = address.City, Country = address.Country };
+        CategoryEntity updatedCategory = new() { Id = createResult.Id, CategoryName = "Test" };
 
         //Act
-        var updatedResult = addressRepository.Update(x => x.Id == createResult.Id, updatedAddress);
+        var updatedResult = categoryRepository.Update(x => x.Id == createResult.Id, updatedCategory);
 
         //Assert
         Assert.NotNull(updatedResult);
-        Assert.Equal("Andragatan 2", updatedResult.StreetName);
-        Assert.NotEqual("Storgatan 1", updatedResult.StreetName);
+        Assert.Equal("Test", updatedResult.CategoryName);
+        Assert.Equal(createResult.Id, updatedResult.Id);
     }
 
     [Fact]
     public void UpdateWithPredicate_Should_NotUpdateExistingUser_ReturnNull()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
-        AddressEntity updatedAddress = new() { Id = 0, StreetName = "Andragatan 2", PostalCode = "111 11", City = address.City, Country = address.Country }; //changes Id which should make it fail.
-
+        CategoryEntity updatedCategory = new() { Id = 0, CategoryName = "Test" }; //changes Id which should make it fail.
 
         //Act
-        var updatedResult = addressRepository.Update(x => x.Id == createResult.Id, updatedAddress);
+        var updatedResult = categoryRepository.Update(x => x.Id == createResult.Id, updatedCategory);
 
         //Assert
         Assert.Null(updatedResult);
@@ -226,12 +226,12 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
         //Act
-        var updatedResult = addressRepository.Delete(x => x.Id == createResult.Id);
+        var updatedResult = categoryRepository.Delete(x => x.Id == createResult.Id);
 
         //Assert
         Assert.True(updatedResult);
@@ -241,12 +241,12 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        //var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        //var createResult = categoryRepository.Create(category);
 
         //Act
-        var updatedResult = addressRepository.Delete(x => x.Id == address.Id);
+        var updatedResult = categoryRepository.Delete(x => x.Id == category.Id);
 
         //Assert
         Assert.False(updatedResult);
@@ -256,12 +256,12 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
         //Act
-        var updatedResult = addressRepository.Delete(createResult);
+        var updatedResult = categoryRepository.Delete(createResult);
 
         //Assert
         Assert.True(updatedResult);
@@ -271,12 +271,12 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void DeleteShould_NotDeleteExistingUser_ReturnNull()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        //var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        //var createResult = categoryRepository.Create(category);
 
         //Act
-        var updatedResult = addressRepository.Delete(address);
+        var updatedResult = categoryRepository.Delete(category);
 
         //Assert
         Assert.False(updatedResult);
@@ -286,13 +286,12 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        var createResult = addressRepository.Create(address);
-
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        var createResult = categoryRepository.Create(category);
 
         //Act
-        var updatedResult = addressRepository.Exists(x => x.Id == createResult.Id);
+        var updatedResult = categoryRepository.Exists(x => x.Id == createResult.Id);
 
         //Assert
         Assert.True(updatedResult);
@@ -302,13 +301,13 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, DataConte
     public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
     {
         //Arrange
-        var addressRepository = new AddressRepository_Tests();
-        var address = new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "222 22", City = "Storstan", Country = "Sverige" };
-        //var createResult = addressRepository.Create(address);
+        var categoryRepository = new CategoryRepository_Tests();
+        var category = new CategoryEntity() { CategoryName = "Demo" };
+        //var createResult = categoryRepository.Create(category);
 
 
         //Act
-        var updatedResult = addressRepository.Exists(x => x.Id == address.Id);
+        var updatedResult = categoryRepository.Exists(x => x.Id == category.Id);
 
         //Assert
         Assert.False(updatedResult);
