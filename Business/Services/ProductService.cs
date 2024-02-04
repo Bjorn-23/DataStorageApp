@@ -133,7 +133,7 @@ public class ProductService
         try
         {
             var checkRole = _userService.FindRoleOfActiveUser();
-            if (checkRole.UserRole.RoleName == "Admin")
+            if (checkRole !=null && checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 var productStock = existingProduct.Stock;

@@ -27,7 +27,7 @@ public class PriceListService
                 var newPriceList = _priceListRepository.Create(new PriceListEntity()
                 {
                     Price = product.Price,
-                    DiscountPrice = product.DiscountPrice,
+                    DiscountPrice = product.DiscountPrice <= 0 ? null! : product.DiscountPrice,
                     UnitType = product.Currency,
                 });
 
@@ -110,7 +110,7 @@ public class PriceListService
                 {
                     Id = existingPriceList.Id,
                     Price = updatedPriceListDto.Price <=0 ? existingPriceList.Price : updatedPriceListDto.Price,
-                    DiscountPrice = !string.IsNullOrWhiteSpace(updatedPriceListDto.DiscountPrice.ToString()) ? updatedPriceListDto.DiscountPrice : existingPriceList.DiscountPrice,
+                    DiscountPrice = updatedPriceListDto.DiscountPrice <= 0 || string.IsNullOrWhiteSpace(updatedPriceListDto.DiscountPrice.ToString()) ? existingPriceList.DiscountPrice : updatedPriceListDto.DiscountPrice,
                     UnitType = !string.IsNullOrWhiteSpace(updatedPriceListDto.UnitType) ? updatedPriceListDto.UnitType : existingPriceList.UnitType,
                 };
 

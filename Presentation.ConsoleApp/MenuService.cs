@@ -1617,7 +1617,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
 
                     Console.WriteLine($"\n" +
-                            $"{"",-5}Article number: {"",-5}{product.ArticleNumber}\n" +
+                            $"{"",-5}Article number: {"",-4}{product.ArticleNumber}\n" +
                             $"{"",-5}Title: {"",-13}{product.Title}\n" +
                             $"{"",-5}Ingress: {"",-11}{product.Ingress}\n" +
                             $"{"",-5}Description: {"",-7}{product.Description}\n" +
@@ -1694,7 +1694,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             {
                                 SubMenuTemplate("Product updated");
                                 Console.WriteLine($"\n" +
-                                    $"Article number: {"",-3}{productDisplay.ArticleNumber}\n" +
+                                    $"Article number: {"",-4}{productDisplay.ArticleNumber}\n" +
                                     $"Title: {"",-13}{productDisplay.Title}\n" +
                                     $"Ingress: {"",-11}{productDisplay.Ingress}\n" +
                                     $"Description: {"",-7}{productDisplay.Description}\n" +

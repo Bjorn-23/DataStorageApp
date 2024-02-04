@@ -178,7 +178,7 @@ public class OrderRowService
     {
         // Checks for discountprice and applies if it not null
         decimal? price = 0;
-        if (product.DiscountPrice != null)
+        if (product.DiscountPrice != null && product.DiscountPrice >= 1 )
             price = product.DiscountPrice;
         else
             price = product.Price;
