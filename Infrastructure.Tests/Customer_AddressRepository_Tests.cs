@@ -6,29 +6,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Tests;
 
-public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressEntity, DataContext>, ICustomer_AddressRepository
+public class Customer_AddressRepository_Tests
 {
 
-    private readonly DataContext _context;
+    private readonly Customer_AddressRepository _customer_AddressRepository;
+    private readonly CustomerRepository _customerRepository;
+    private readonly AddressRepository _addressRepository;
 
-    public Customer_AddressRepository_Tests() : base(new DataContext(new DbContextOptionsBuilder<DataContext>()
-        .UseInMemoryDatabase($"{Guid.NewGuid()}")
-        .Options))
+    public Customer_AddressRepository_Tests()
     {
-        _context = new DataContext(new DbContextOptionsBuilder<DataContext>()
+        var context = new DataContext(new DbContextOptionsBuilder<DataContext>()
         .UseInMemoryDatabase($"{Guid.NewGuid()}")
         .Options);
+
+        _customer_AddressRepository = new Customer_AddressRepository(context);
+        _customerRepository = new CustomerRepository(context);
+        _addressRepository = new AddressRepository(context);
     }
 
     [Fact]
-    public void CreateShould_CreateOneUserInDatabase_ReturnThatUserIfSuccesfl()
+    public void Create_ShouldCreateNewEntityInDatabase_AndReturnIt()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
 
         //Act
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Assert
         Assert.NotNull(createResult);
@@ -37,29 +40,29 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     }
 
     [Fact]
-    public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
+    public void Create_ShouldNotCreateNewEntityInDatabase_AndReturnNull()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { };
 
         //Act
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Assert
         Assert.Null(createResult);
     }
 
     [Fact]
-    public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
+    public void GetAllShould_IfAnyEntityExists_ReturnAllEntitiesFromDataBase()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
-        var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var customer = _customerRepository.Create(new CustomerEntity() { Id = Guid.NewGuid().ToString(), FirstName = "Björn", LastName = "Andersson", EmailId = "Björn@domain.com", PhoneNumber = "0789456123"});
+        var address = _addressRepository.Create(new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "111 11", City = "Storstan", Country = "Sverige" });
+        var customerAddress = new Customer_AddressEntity() { AddressId = address.Id, CustomerId = customer.Id };
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var getResult = Customer_AddressRepository.GetAll();
+        var getResult = _customer_AddressRepository.GetAll();
 
         //Assert
         Assert.NotNull(getResult);
@@ -67,15 +70,14 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     }
 
     [Fact]
-    public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
+    public void GetAll_ShouldReturnEmptyList_SinceNoEntitiesExistInDatabase()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        //var createResult = Customer_AddressRepository.Create(customerAddress);
+        //var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var getResult = Customer_AddressRepository.GetAll();
+        var getResult = _customer_AddressRepository.GetAll();
 
         //Assert
         Assert.Empty(getResult);
@@ -83,15 +85,14 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
+    public void GetAllWithPredicate_ShouldReturnAnyUser_MatchingLambdaExpressionFromDataBase()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var getResult = Customer_AddressRepository.GetAllWithPredicate(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
+        var getResult = _customer_AddressRepository.GetAllWithPredicate(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
 
         //Assert
         Assert.NotNull(getResult);
@@ -99,16 +100,15 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
+    public void GetAllWithPredicate_ShouldReturnEmptyList_SinceTheEntityInPredicate_DoesNotExistInDatabase()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var createResult = _customer_AddressRepository.Create(customerAddress);
         int otherAddress = 2;
 
         //Act
-        var getResult = Customer_AddressRepository.GetAllWithPredicate(x => x.AddressId == otherAddress && x.CustomerId == createResult.CustomerId);
+        var getResult = _customer_AddressRepository.GetAllWithPredicate(x => x.AddressId == otherAddress && x.CustomerId == createResult.CustomerId);
 
         //Assert
         Assert.NotNull(getResult);
@@ -116,15 +116,16 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     }
 
     [Fact]
-    public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
+    public void GetOne_ShouldIfEntityExists_ReturnOneEntityFromDataBase()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
-        var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var customer = _customerRepository.Create(new CustomerEntity() { Id = Guid.NewGuid().ToString(), FirstName = "Björn", LastName = "Andersson", EmailId = "Björn@domain.com", PhoneNumber = "0789456123" });
+        var address = _addressRepository.Create(new AddressEntity() { StreetName = "Storgatan 1", PostalCode = "111 11", City = "Storstan", Country = "Sverige" });
+        var customerAddress = new Customer_AddressEntity() { AddressId = address.Id, CustomerId = customer.Id };
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var getResult = Customer_AddressRepository.GetOne(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
+        var getResult = _customer_AddressRepository.GetOne(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
 
         //Assert
         Assert.NotNull(getResult);
@@ -132,15 +133,14 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     }
 
     [Fact]
-    public void GetOneShould_SinceNoUserExists_ReturnNull()
+    public void GetOne_ShouldReturnNull_SinceNoEntitiesExists()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        //var createResult = Customer_AddressRepository.Create(customerAddress);
+        //var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var getResult = Customer_AddressRepository.GetOne(x => x.AddressId == customerAddress.AddressId && x.CustomerId == customerAddress.CustomerId);
+        var getResult = _customer_AddressRepository.GetOne(x => x.AddressId == customerAddress.AddressId && x.CustomerId == customerAddress.CustomerId);
 
         //Assert
         Assert.Null(getResult);
@@ -150,14 +150,14 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     //public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
     //{
     //    //Arrange
-    //    var Customer_AddressRepository = new Customer_AddressRepository_Tests();
+    //    var _customer_AddressRepository = new Customer_AddressRepository_Tests();
     //    var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-    //    var createResult = Customer_AddressRepository.Create(customerAddress);
+    //    var createResult = _customer_AddressRepository.Create(customerAddress);
 
     //    var updatedCustomerAddress = new Customer_AddressEntity() { AddressId = 2, CustomerId = Guid.NewGuid().ToString() };
 
     //    //Act
-    //    var updatedResult = Customer_AddressRepository.Update(createResult, updatedCustomerAddress);
+    //    var updatedResult = _customer_AddressRepository.Update(createResult, updatedCustomerAddress);
 
     //    //Assert
     //    Assert.NotNull(updatedResult);
@@ -166,92 +166,86 @@ public class Customer_AddressRepository_Tests : BaseRepository<Customer_AddressE
     //}
 
     [Fact]
-    public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void DeleteWithPredicate_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var getResult = Customer_AddressRepository.Delete(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
+        var getResult = _customer_AddressRepository.Delete(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
 
         //Assert
         Assert.True(getResult);
     }
 
     [Fact]
-    public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
+    public void DeleteWithPredicate_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        //var createResult = Customer_AddressRepository.Create(customerAddress);
+        //var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var getResult = Customer_AddressRepository.Delete(x => x.AddressId == customerAddress.AddressId && x.CustomerId == customerAddress.CustomerId);
+        var getResult = _customer_AddressRepository.Delete(x => x.AddressId == customerAddress.AddressId && x.CustomerId == customerAddress.CustomerId);
 
         //Assert
         Assert.False(getResult);
     }
 
     [Fact]
-    public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void Delete_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var updatedResult = Customer_AddressRepository.Delete(createResult);
+        var updatedResult = _customer_AddressRepository.Delete(createResult);
 
         //Assert
         Assert.True(updatedResult);
     }
 
     [Fact]
-    public void DeleteShould_NotDeleteExistingUser_ReturnNull()
+    public void Delete_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        //var createResult = Customer_AddressRepository.Create(customerAddress);
+        //var createResult = _customer_AddressRepository.Create(customerAddress);
 
         //Act
-        var updatedResult = Customer_AddressRepository.Delete(customerAddress);
+        var updatedResult = _customer_AddressRepository.Delete(customerAddress);
 
         //Assert
         Assert.False(updatedResult);
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        var createResult = Customer_AddressRepository.Create(customerAddress);
+        var createResult = _customer_AddressRepository.Create(customerAddress);
 
 
         //Act
-        var getResult = Customer_AddressRepository.Exists(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
+        var getResult = _customer_AddressRepository.Exists(x => x.AddressId == createResult.AddressId && x.CustomerId == createResult.CustomerId);
 
         //Assert
         Assert.True(getResult);
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnFalse()
     {
         //Arrange
-        var Customer_AddressRepository = new Customer_AddressRepository_Tests();
         var customerAddress = new Customer_AddressEntity() { AddressId = 1, CustomerId = Guid.NewGuid().ToString() };
-        //var createResult = Customer_AddressRepository.Create(customerAddress);
+        //var createResult = _customer_AddressRepository.Create(customerAddress);
 
 
         //Act
-        var getResult = Customer_AddressRepository.Exists(x => x.AddressId == customerAddress.AddressId && x.CustomerId == customerAddress.CustomerId);
+        var getResult = _customer_AddressRepository.Exists(x => x.AddressId == customerAddress.AddressId && x.CustomerId == customerAddress.CustomerId);
 
         //Assert
         Assert.False(getResult);

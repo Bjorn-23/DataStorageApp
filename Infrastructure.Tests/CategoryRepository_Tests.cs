@@ -6,29 +6,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Tests;
 
-public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCatalog>, ICategoryRepository
+public class CategoryRepository_Tests
 {
 
-    private readonly ProductCatalog _context;
+    private readonly CategoryRepository _categoryRepository;
 
-    public CategoryRepository_Tests() : base(new ProductCatalog(new DbContextOptionsBuilder<ProductCatalog>()
-        .UseInMemoryDatabase($"{Guid.NewGuid()}")
-        .Options))
+    public CategoryRepository_Tests()
     {
-        _context = new ProductCatalog(new DbContextOptionsBuilder<ProductCatalog>()
+        var context = new ProductCatalog(new DbContextOptionsBuilder<ProductCatalog>()
         .UseInMemoryDatabase($"{Guid.NewGuid()}")
         .Options);
+
+        _categoryRepository = new CategoryRepository(context);
     }
 
     [Fact]
-    public void CreateShould_CreateOneCategoryInDatabase_AndReturnCategory()
+    public void Create_ShouldCreateNewEntityInDatabase_AndReturnIt()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
 
         //Act
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Assert
         Assert.NotNull(createResult);
@@ -38,29 +37,27 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
 
 
     [Fact]
-    public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
+    public void Create_ShouldNotCreateNewEntityInDatabase_AndReturnNull()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() {};
 
         //Act
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Assert
         Assert.Null(createResult);
     }
 
     [Fact]
-    public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
+    public void GetAllShould_IfAnyEntityExists_ReturnAllEntitiesFromDataBase()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Act
-        var getResult = categoryRepository.GetAll();
+        var getResult = _categoryRepository.GetAll();
 
         //Assert
         Assert.NotNull(getResult);
@@ -68,15 +65,14 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
     }
 
     [Fact]
-    public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
+    public void GetAll_ShouldReturnEmptyList_SinceNoEntitiesExistInDatabase()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        //var createResult = categoryRepository.Create(address);
+        //var createResult = _categoryRepository.Create(address);
 
         //Act
-        var getResult = categoryRepository.GetAll();
+        var getResult = _categoryRepository.GetAll();
 
         //Assert
         Assert.Empty(getResult);
@@ -84,15 +80,14 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
+    public void GetAllWithPredicate_ShouldReturnAnyUser_MatchingLambdaExpressionFromDataBase()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Act
-        var getResult = categoryRepository.GetAllWithPredicate(x => x.CategoryName == createResult.CategoryName);
+        var getResult = _categoryRepository.GetAllWithPredicate(x => x.CategoryName == createResult.CategoryName);
 
         //Assert
         Assert.NotNull(getResult);
@@ -100,17 +95,16 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
+    public void GetAllWithPredicate_ShouldReturnEmptyList_SinceTheEntityInPredicate_DoesNotExistInDatabase()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         CategoryEntity otherCategory = new() { CategoryName = "Test" };
 
         //Act
-        var getResult = categoryRepository.GetAllWithPredicate(x => x.CategoryName == otherCategory.CategoryName);
+        var getResult = _categoryRepository.GetAllWithPredicate(x => x.CategoryName == otherCategory.CategoryName);
 
         //Assert
         Assert.NotNull(getResult);
@@ -118,15 +112,14 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
     }
 
     [Fact]
-    public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
+    public void GetOne_ShouldIfEntityExists_ReturnOneEntityFromDataBase()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Act
-        var getResult = categoryRepository.GetOne(x => x.CategoryName == createResult.CategoryName);
+        var getResult = _categoryRepository.GetOne(x => x.CategoryName == createResult.CategoryName);
 
         //Assert
         Assert.NotNull(getResult);
@@ -136,32 +129,30 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
 
 
     [Fact]
-    public void GetOneShould_SinceNoUserExists_ReturnNull()
+    public void GetOne_ShouldReturnNull_SinceNoEntitiesExists()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        //var createResult = categoryRepository.Create(address);
+        //var createResult = _categoryRepository.Create(address);
 
         //Act
-        var getResult = categoryRepository.GetOne(x => x.CategoryName == category.CategoryName);
+        var getResult = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName);
 
         //Assert
         Assert.Null(getResult);
     }
 
     [Fact]
-    public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
+    public void Update_ShouldUpdateExistingEntity_ReturnUpdatedEntity_FromDataBase()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         CategoryEntity updatedCategory = new() { Id = createResult.Id, CategoryName = "Test" };
 
         //Act
-        var updatedResult = categoryRepository.Update(createResult, updatedCategory);
+        var updatedResult = _categoryRepository.Update(createResult, updatedCategory);
 
         //Assert
         Assert.NotNull(updatedResult);
@@ -170,34 +161,32 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
     }
 
     [Fact]
-    public void UpdateShould_FailToUpdateExistingUser_ReturnNull()
+    public void Update_ShouldFailToUpdateExistingEntity_AndReturnNull()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         CategoryEntity updatedCategory = new() { Id = 0, CategoryName = "Test" }; //changes Id which should make it fail.
 
         //Act
-        var updatedResult = categoryRepository.Update(createResult, updatedCategory);
+        var updatedResult = _categoryRepository.Update(createResult, updatedCategory);
 
         //Assert
         Assert.Null(updatedResult);
     }
 
     [Fact]
-    public void UpdateWithPredicate_Should_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
+    public void UpdateWithPredicate_ShouldUpdateExistingEntity_AndReturnUpdatedEntityFromDataBase()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         CategoryEntity updatedCategory = new() { Id = createResult.Id, CategoryName = "Test" };
 
         //Act
-        var updatedResult = categoryRepository.Update(x => x.Id == createResult.Id, updatedCategory);
+        var updatedResult = _categoryRepository.Update(x => x.Id == createResult.Id, updatedCategory);
 
         //Assert
         Assert.NotNull(updatedResult);
@@ -206,108 +195,101 @@ public class CategoryRepository_Tests : BaseRepository<CategoryEntity, ProductCa
     }
 
     [Fact]
-    public void UpdateWithPredicate_Should_NotUpdateExistingUser_ReturnNull()
+    public void UpdateWithPredicate_ShouldNotUpdateExistingEntity_AndThenReturnNull()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         CategoryEntity updatedCategory = new() { Id = 0, CategoryName = "Test" }; //changes Id which should make it fail.
 
         //Act
-        var updatedResult = categoryRepository.Update(x => x.Id == createResult.Id, updatedCategory);
+        var updatedResult = _categoryRepository.Update(x => x.Id == createResult.Id, updatedCategory);
 
         //Assert
         Assert.Null(updatedResult);
     }
 
     [Fact]
-    public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void DeleteWithPredicate_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Act
-        var updatedResult = categoryRepository.Delete(x => x.Id == createResult.Id);
+        var updatedResult = _categoryRepository.Delete(x => x.Id == createResult.Id);
 
         //Assert
         Assert.True(updatedResult);
     }
 
     [Fact]
-    public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
+    public void DeleteWithPredicate_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        //var createResult = categoryRepository.Create(category);
+        //var createResult = _categoryRepository.Create(category);
 
         //Act
-        var updatedResult = categoryRepository.Delete(x => x.Id == category.Id);
+        var updatedResult = _categoryRepository.Delete(x => x.Id == category.Id);
 
         //Assert
         Assert.False(updatedResult);
     }
 
     [Fact]
-    public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void Delete_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Act
-        var updatedResult = categoryRepository.Delete(createResult);
+        var updatedResult = _categoryRepository.Delete(createResult);
 
         //Assert
         Assert.True(updatedResult);
     }
 
     [Fact]
-    public void DeleteShould_NotDeleteExistingUser_ReturnNull()
+    public void Delete_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        //var createResult = categoryRepository.Create(category);
+        //var createResult = _categoryRepository.Create(category);
 
         //Act
-        var updatedResult = categoryRepository.Delete(category);
+        var updatedResult = _categoryRepository.Delete(category);
 
         //Assert
         Assert.False(updatedResult);
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        var createResult = categoryRepository.Create(category);
+        var createResult = _categoryRepository.Create(category);
 
         //Act
-        var updatedResult = categoryRepository.Exists(x => x.Id == createResult.Id);
+        var updatedResult = _categoryRepository.Exists(x => x.Id == createResult.Id);
 
         //Assert
         Assert.True(updatedResult);
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnFalse()
     {
         //Arrange
-        var categoryRepository = new CategoryRepository_Tests();
         var category = new CategoryEntity() { CategoryName = "Demo" };
-        //var createResult = categoryRepository.Create(category);
+        //var createResult = _categoryRepository.Create(category);
 
 
         //Act
-        var updatedResult = categoryRepository.Exists(x => x.Id == category.Id);
+        var updatedResult = _categoryRepository.Exists(x => x.Id == category.Id);
 
         //Assert
         Assert.False(updatedResult);

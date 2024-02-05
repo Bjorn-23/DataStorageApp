@@ -6,29 +6,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Tests;
 
-public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataContext>, IUserRoleRepository
+public class UserRoleRepository_Tests
 {
 
-    private readonly DataContext _context;
-
-    public UserRoleRepository_Tests() : base(new DataContext(new DbContextOptionsBuilder<DataContext>()
-        .UseInMemoryDatabase($"{Guid.NewGuid()}")
-        .Options))
+    private readonly UserRoleRepository _userRoleRepository;
+    public UserRoleRepository_Tests()
     {
-        _context = new DataContext(new DbContextOptionsBuilder<DataContext>()
+        var context = new DataContext(new DbContextOptionsBuilder<DataContext>()
         .UseInMemoryDatabase($"{Guid.NewGuid()}")
         .Options);
+
+        _userRoleRepository = new UserRoleRepository(context);
     }
 
     [Fact]
-    public void CreateShould_CreateOneUserInDatabase_ReturnThatUserIfSuccesfl()
+    public void Create_ShouldCreateNewEntityInDatabase_AndReturnIt()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
 
         //Act
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Assert
         Assert.NotNull(createResult);
@@ -36,29 +34,27 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void CreateShould_NotCreateOneUserInDatabase_ReturnNulll()
+    public void CreateShould_NotCreateOneUCreate_ShouldNotCreateNewEntityInDatabase_AndReturnNullserInDatabase_ReturnNulll()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() {  };
 
         //Act
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Assert
         Assert.Null(createResult);
     }
 
     [Fact]
-    public void GetAllShould_IfAnyUserExists_ReturnAllUsersFromDataBase()
+    public void GetAllShould_IfAnyEntityExists_ReturnAllEntitiesFromDataBase()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Act
-        var getResult = userRoleRepository.GetAll();
+        var getResult = _userRoleRepository.GetAll();
 
         //Assert
         Assert.NotNull(getResult);
@@ -66,15 +62,14 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void GetAllShould_ReturnEmptyList_SinceNoUsersInDatabase()
+    public void GetAll_ShouldReturnEmptyList_SinceNoEntitiesExistInDatabase()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
 
         //Act
-        var getResult = userRoleRepository.GetAll();
+        var getResult = _userRoleRepository.GetAll();
 
         //Assert
         Assert.Empty(getResult);
@@ -82,15 +77,14 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_IfAnyUserWithTheSuppliedRoleExists_ReturnThatUserFromDataBase()
+    public void GetAllWithPredicate_ShouldReturnAnyUser_MatchingLambdaExpressionFromDataBase()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Act
-        var getResult = userRoleRepository.GetAllWithPredicate(x => x.RoleName == createResult.RoleName);
+        var getResult = _userRoleRepository.GetAllWithPredicate(x => x.RoleName == createResult.RoleName);
 
         //Assert
         Assert.NotNull(getResult);
@@ -98,17 +92,16 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void GetAllWithPredicate_Should_SinceNoUserWithTheSuppliedRoleExists_ReturnEmptyList()
+    public void GetAllWithPredicate_ShouldReturnEmptyList_SinceTheEntityInPredicate_DoesNotExistInDatabase()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
         string otherRole = "User";
 
 
         //Act
-        var getResult = userRoleRepository.GetAllWithPredicate(x => x.RoleName == otherRole);
+        var getResult = _userRoleRepository.GetAllWithPredicate(x => x.RoleName == otherRole);
 
         //Assert
         Assert.NotNull(getResult);
@@ -116,15 +109,14 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void GetOneShould_IfUserExists_ReturnOneUserFromDataBase()
+    public void GetOne_ShouldIfEntityExists_ReturnOneEntityFromDataBase()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Act
-        var getResult = userRoleRepository.GetOne(x => x.RoleName == createResult.RoleName);
+        var getResult = _userRoleRepository.GetOne(x => x.RoleName == createResult.RoleName);
 
         //Assert
         Assert.NotNull(getResult);
@@ -132,32 +124,30 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void GetOneShould_SinceNoUserExists_ReturnNull()
+    public void GetOne_ShouldReturnNull_SinceNoEntitiesExists()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole); // No UserRole created, this should fail test.
 
         //Act
-        var getResult = userRoleRepository.GetOne(x => x.RoleName == userRole.RoleName);
+        var getResult = _userRoleRepository.GetOne(x => x.RoleName == userRole.RoleName);
 
         //Assert
         Assert.Null(getResult);
     }
 
     [Fact] // CANT CHANGE SINCE RoleName is primary Key
-    public void UpdateShould_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
+    public void Update_ShouldUpdateExistingEntity_ReturnUpdatedEntity_FromDataBase()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         var updatedUserRole = new UserRoleEntity() { Id = createResult.Id, RoleName = "User" };        
         
         //Act
-        var updatedResult = userRoleRepository.Update(createResult, updatedUserRole);
+        var updatedResult = _userRoleRepository.Update(createResult, updatedUserRole);
 
         //Assert
         Assert.NotNull(updatedResult);
@@ -166,34 +156,32 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void UpdateShould_FailToUpdateExistingUser_ReturnNull()
+    public void Update_ShouldFailToUpdateExistingEntity_AndReturnNull()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         var updatedUserRole = new UserRoleEntity() { Id = 0, RoleName = "User" };  //changes Id which should make it fail.
         
         //Act
-        var updatedResult = userRoleRepository.Update(createResult, updatedUserRole);
+        var updatedResult = _userRoleRepository.Update(createResult, updatedUserRole);
 
         //Assert
         Assert.Null(updatedResult);
     }
 
     [Fact]  // CANT CHANGE SINCE RoleName is primary Key
-    public void UpdateWithPredicate_Should_UpdateExistingUser_ReturnUpdatedUserFromDataBase()
+    public void UpdateWithPredicate_ShouldUpdateExistingEntity_AndReturnUpdatedEntityFromDataBase()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         var updatedUserRole = new UserRoleEntity() { Id = createResult.Id, RoleName = "User" };  
         
         //Act
-        var updatedResult = userRoleRepository.Update(x => x.Id == createResult.Id, updatedUserRole);
+        var updatedResult = _userRoleRepository.Update(x => x.Id == createResult.Id, updatedUserRole);
 
         //Assert
         Assert.NotNull(updatedResult);
@@ -202,109 +190,100 @@ public class UserRoleRepository_Tests : BaseRepository<UserRoleEntity, DataConte
     }
 
     [Fact]
-    public void UpdateWithPredicate_Should_NotUpdateExistingUser_ReturnNull()
+    public void UpdateWithPredicate_ShouldNotUpdateExistingEntity_AndThenReturnNull()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         var updatedUserRole = new UserRoleEntity() { Id = 0, RoleName = "User" };  
         
         //Act
-        var updatedResult = userRoleRepository.Update(x => x.Id == createResult.Id, updatedUserRole);
+        var updatedResult = _userRoleRepository.Update(x => x.Id == createResult.Id, updatedUserRole);
 
         //Assert
         Assert.Null(updatedResult);
     }
 
     [Fact]
-    public void DeleteWithPredicate_Should_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void DeleteWithPredicate_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Act
-        var updatedResult = userRoleRepository.Delete(x => x.Id == createResult.Id);
+        var updatedResult = _userRoleRepository.Delete(x => x.Id == createResult.Id);
 
         //Assert
         Assert.True(updatedResult);
     }
 
     [Fact]
-    public void DeleteWithPredicate_Should_NotDeleteExistingUser_ReturnFalse()
+    public void DeleteWithPredicate_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
 
         //Act
-        var updatedResult = userRoleRepository.Delete(x => x.Id == userRole.Id);
+        var updatedResult = _userRoleRepository.Delete(x => x.Id == userRole.Id);
 
         //Assert
         Assert.False(updatedResult);
     }
 
     [Fact]
-    public void DeleteShould_DeleteExistingUser_ReturnDeletedUserFromDataBase()
+    public void Delete_ShouldDeleteExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Act
-        var updatedResult = userRoleRepository.Delete(createResult);
+        var updatedResult = _userRoleRepository.Delete(createResult);
 
         //Assert
         Assert.True(updatedResult);
     }
 
     [Fact]
-    public void DeleteShould_NotDeleteExistingUser_ReturnNull()
+    public void Delete_ShouldNotDeleteAnyEntities_AndReturnFalse()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
 
         //Act
-        var updatedResult = userRoleRepository.Delete(userRole);
+        var updatedResult = _userRoleRepository.Delete(userRole);
 
         //Assert
         Assert.False(updatedResult);
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnTrueIfUserExists()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnTrue()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
-        var createResult = userRoleRepository.Create(userRole);
-
+        var createResult = _userRoleRepository.Create(userRole);
 
         //Act
-        var updatedResult = userRoleRepository.Exists(x => x.Id == createResult.Id);
+        var updatedResult = _userRoleRepository.Exists(x => x.Id == createResult.Id);
 
         //Assert
         Assert.True(updatedResult);
     }
 
     [Fact]
-    public void ExistsShould_CheckForExistingUser_ReturnFalseSinceUserDoesntExist()
+    public void Exists_ShouldCheckForExistingEntity_AndReturnFalse()
     {
         //Arrange
-        var userRoleRepository = new UserRoleRepository_Tests();
         var userRole = new UserRoleEntity() { RoleName = "Admin" };
         //var createResult = userRoleRepository.Create(userRole);
 
-
         //Act
-        var updatedResult = userRoleRepository.Exists(x => x.Id == userRole.Id);
+        var updatedResult = _userRoleRepository.Exists(x => x.Id == userRole.Id);
 
         //Assert
         Assert.False(updatedResult);
