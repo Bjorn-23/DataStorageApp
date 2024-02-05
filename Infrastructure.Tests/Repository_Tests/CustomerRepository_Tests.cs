@@ -1,10 +1,8 @@
 ﻿using Infrastructure.Contexts;
 using Infrastructure.Entities;
-using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using System.Net;
+
 
 namespace Infrastructure.Tests.Repository_Tests;
 

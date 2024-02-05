@@ -50,7 +50,7 @@ public class PriceListService
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType && x.DiscountPrice == priceList.DiscountPrice);
             if (existingPriceList == null && priceList.Price != 0 && activeUser.UserRole.RoleName == "Admin")
             {
@@ -102,7 +102,7 @@ public class PriceListService
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
             if (existingPriceList != null && activeUser.UserRole.RoleName == "Admin")
             {
@@ -130,7 +130,7 @@ public class PriceListService
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
             if (existingPriceList != null && activeUser.UserRole.RoleName == "Admin")
             {

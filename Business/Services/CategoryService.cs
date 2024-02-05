@@ -42,7 +42,7 @@ public class CategoryService
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var exisitingCategoryName = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName);
             if (exisitingCategoryName == null && activeUser.UserRole.RoleName == "Admin")
             {
@@ -90,7 +90,7 @@ public class CategoryService
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingCategory = _categoryRepository.GetOne(x => x.Id == existingDtoName.Id);
             if (existingCategory != null && activeUser.UserRole.RoleName == "Admin")
             {
@@ -116,7 +116,7 @@ public class CategoryService
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingCategory = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName && x.Id == category.Id);
             if (existingCategory != null && activeUser.UserRole.RoleName == "Admin")
             {

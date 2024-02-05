@@ -683,7 +683,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
                             SubMenuTemplate("User details result:");
                             if (result != null)
                             {
-                                Console.WriteLine($"\nId:{"",-17}{result.Id}\nEmail:{"",-14}{result.Email}\nLogged in:{"",-10}{result.isActive}\nAccount created:{"",-4}{result.Created}\n");
+                                Console.WriteLine($"\nId:{"",-17}{result.Id}\nEmail:{"",-14}{result.Email}\nLogged in:{"",-10}{result.IsActive}\nAccount created:{"",-4}{result.Created}\n");
                             }
                             else
                                 Console.WriteLine("No user found with that email.");

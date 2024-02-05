@@ -128,7 +128,7 @@ public class AddressService
         try
         {
             var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-            var checkRole = _userService.FindRoleOfActiveUser();
+            var checkRole = _userService.isUserActive();
 
             if (existingAddress != null && checkRole.UserRole.RoleName == "Admin")
             {
@@ -159,7 +159,7 @@ public class AddressService
         try
         {
             var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-            var checkRole = _userService.FindRoleOfActiveUser();
+            var checkRole = _userService.isUserActive();
 
             if (existingAddress != null && checkRole.UserRole.RoleName == "Admin")
             {

@@ -14,9 +14,10 @@ public class UserDto
 
     public DateTime Created {  get; set; }
 
-    public bool isActive { get; set; }
+    public bool IsActive { get; set; }
 
     public int UserRoleId { get; set; }
+
     public virtual UserRoleEntity UserRole { get; set; } = null!;
 
 }

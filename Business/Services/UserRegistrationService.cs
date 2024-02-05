@@ -28,16 +28,12 @@ public class UserRegistrationService
             bool noEmptyProps = PropCheck.CheckAllPropertiesAreSet(registration);
             if (noEmptyProps)
             {
-                var securePassAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(registration.Password);
-
-                string roleName = registration.UserRoleName;
-                var roleId = _userRoleService.GetOrCreateRole(roleName);
+                var roleId = _userRoleService.GetOrCreateRole(registration.UserRoleName);
 
                 UserDto userDto = new UserDto()
                 {
                     Email = registration.Email,
-                    Password = securePassAndKey.Password,
-                    SecurityKey = securePassAndKey.SecurityKey,
+                    Password = registration.Password,
                     UserRoleId = roleId.UserRoleId
                 };
 

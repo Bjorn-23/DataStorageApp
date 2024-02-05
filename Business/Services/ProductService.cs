@@ -26,7 +26,7 @@ public class ProductService
     {
         try
         {
-            var checkRole = _userService.FindRoleOfActiveUser();
+            var checkRole = _userService.isUserActive();
             if (checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
@@ -132,7 +132,7 @@ public class ProductService
     {
         try
         {
-            var checkRole = _userService.FindRoleOfActiveUser();
+            var checkRole = _userService.isUserActive();
             if (checkRole !=null && checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
@@ -222,7 +222,7 @@ public class ProductService
     {
         try
         {
-            var checkRole = _userService.FindRoleOfActiveUser();
+            var checkRole = _userService.isUserActive();
             if (checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);

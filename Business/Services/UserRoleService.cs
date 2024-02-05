@@ -41,6 +41,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
         return null!;
     }
 
+
     public IEnumerable<UserRoleDto> GetAll()
     {
         try
@@ -56,12 +57,12 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
         return new List<UserRoleDto>();
     }
 
-    public UserRoleDto UpdateRole(UserRoleDto user) // very basic, might want to include checks.
+    public UserRoleDto UpdateRole(UserRoleDto userRole, UserRoleDto updatedUserRoleDetails) // very basic, might want to include checks.
     {
         try
         {
-            var entity = UserRoleFactory.Create(user);
-            var result = _userRoleRepository.Update(x => x.RoleName == user.RoleName, entity);
+            var updatedEntityDetails = UserRoleFactory.Create(updatedUserRoleDetails);
+            var result = _userRoleRepository.Update(x => x.RoleName == userRole.RoleName, updatedEntityDetails);
             var dto = UserRoleFactory.Create(result);
             return dto;
         }

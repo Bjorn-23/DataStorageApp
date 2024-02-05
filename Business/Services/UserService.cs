@@ -11,13 +11,11 @@ public class UserService
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IUserRepository _userRepository;
-    private readonly UserRoleService _userRoleService;
 
-    public UserService(ICustomerRepository customerRepository, IUserRepository userRepository, UserRoleService userRoleService)
+    public UserService(ICustomerRepository customerRepository, IUserRepository userRepository)
     {
         _customerRepository = customerRepository;
         _userRepository = userRepository;
-        _userRoleService = userRoleService;
     }
 
     public UserDto CreateUser(UserDto user)
@@ -27,14 +25,15 @@ public class UserService
             var userExists = _userRepository.GetOne(x => x.Email == user.Email);
             if (userExists == null)
             {
-                //var userRole = _userRoleService.GetOrCreateRole(user);
+                var securePassAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(user.Password);
 
                 UserEntity userEntity = new()
                 {
                     Email = user.Email,
-                    Password = user.Password,
-                    SecurityKey = user.SecurityKey,
-                    UserRoleId = user.UserRoleId
+                    Password = securePassAndKey.Password,
+                    SecurityKey = securePassAndKey.SecurityKey,
+                    UserRoleId = user.UserRoleId,
+                    IsActive = user.IsActive
                 };
 
                 var newUserEntity = _userRepository.Create(userEntity);
@@ -53,7 +52,7 @@ public class UserService
     {
         try
         {
-            var activeUser = FindRoleOfActiveUser();
+            var activeUser = isUserActive();
             if ( activeUser.Email == userDto.Email || activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _userRepository.GetOne(x => x.Email == userDto.Email);
@@ -71,9 +70,9 @@ public class UserService
         try
         {
             var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
-            var checkRole = FindRoleOfActiveUser();
+            var checkRole = isUserActive();
 
-            if (existingUser.IsActive || checkRole.UserRole.RoleName == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
+            if (checkRole.Email == existingUser.Email || checkRole.UserRole.RoleName == "Admin") //current user or admin can change when logged in.
             {
 
                 UserEntity updatedUserDetails = new()
@@ -126,7 +125,7 @@ public class UserService
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return null!; ;
+        return null!;
     }
 
     public UserDto DeleteUser(UserDto user)
@@ -134,7 +133,7 @@ public class UserService
         try
         {
             var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
-            var checkRole = FindRoleOfActiveUser();
+            var checkRole = isUserActive();
 
             // Add extra check to see if user should be deleted?
 
@@ -148,8 +147,6 @@ public class UserService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         
         return null!;
-
-
     }
     
     public bool UserLogin(UserDto user)
@@ -231,14 +228,14 @@ public class UserService
             //}
 
             if (result)
-            return true;
+                return true;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return false;
     }
 
-    public UserEntity FindRoleOfActiveUser()
+    public UserEntity isUserActive()
     {
         try
         {
