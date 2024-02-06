@@ -33,7 +33,7 @@ public class UserService_Test
     }
 
     [Fact]
-    public void Create()
+    public void CreateUser_ShouldCreateANewUserInDataBase_ReturnUser()
     {
         //Arrange        
         var user = new UserDto() { Email = "bjorn@domain.com", Created = DateTime.Now, IsActive = true, UserRoleId = 1, Password = "Bytmig123!", SecurityKey = "bla" };
@@ -47,7 +47,7 @@ public class UserService_Test
     }
 
     [Fact]
-    public void Get()
+    public void GetOne_ShouldGetOneUserFromDataBaseAnd_ReturnUser()
     {
         //Arrange
         var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });
@@ -65,7 +65,7 @@ public class UserService_Test
 
 
     [Fact]
-    public void Update()
+    public void UpdateUser_ShouldUpdateUserInDatabaseAnd_ReturnUpdatedUser()
     {
         //Arrange
         var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });
@@ -89,7 +89,7 @@ public class UserService_Test
     }
 
     [Fact]
-    public void Delete()
+    public void DeleteUser_ShouldDeleteOneUserFromDatabaseAnd_ReturnDeletedUser()
     {
         //Arrange
         var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });
@@ -106,7 +106,7 @@ public class UserService_Test
     }
 
     [Fact]
-    public void UserLogin()
+    public void UserLogin_ShouldChangeIsActiveFromFalseToTrue_AndReturnTrue()
     {
         //Arrange
         var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });
@@ -122,7 +122,7 @@ public class UserService_Test
         Assert.True(getUser.IsActive);
     }
     [Fact]
-    public void UserLogOut()
+    public void UserLogOut_ShouldChangeIsActiveFromTrueToFalseAnd_ReturnTrue()
     {
         //Arrange
         var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });
@@ -139,7 +139,7 @@ public class UserService_Test
     }
 
     [Fact]
-    public void LogOutActiveUsers()
+    public void LogOutActiveUsers_ShouldLoopThroughAllUsersWhereIsActiveIsTrueAndLogThemOut_ThenReturnTrue()
     {
         //Arrange
         var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });
@@ -153,11 +153,10 @@ public class UserService_Test
         //Assert
         Assert.True(LoggedOutResults);
         Assert.False(getUser.IsActive);
-
     }
 
     [Fact]
-    public void isUserActive()
+    public void isUserActive_ShouldLoopTroughAllUsersWhereIsActiveIsTrueAnd_ReturnThoseUsers()
     {
         //Arrange
         var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });

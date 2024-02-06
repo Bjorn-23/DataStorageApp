@@ -21,7 +21,7 @@ public class UserRegistrationService
         _userRoleService = userRoleService;
     }
 
-    public (CustomerDto, AddressDto) CreateNewUser(UserRegistrationDto registration)
+    public (CustomerDto customer, AddressDto address) CreateNewUser(UserRegistrationDto registration)
     {
         try
         {
