@@ -196,8 +196,7 @@ public class OrderRowService
             order = _orderService.GetUsersOrder(); // first order associated to logged in customer.
             if (order == null)
             {
-                var result = _orderService.CreateOrder(); // If no order exists then create new order.
-                order = OrderFactory.Create(result);
+                order = _orderService.CreateOrder(); // If no order exists then create new order.
             }
         }
         else

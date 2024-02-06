@@ -65,7 +65,7 @@ public class UserRegistrationService
                         {
                             var customer_AddressResult = _customerAddressService.CreateCustomer_Address(customerResult, addressResult);
                             if (customer_AddressResult)
-                                return (customerDto, addressDto);
+                                return (customerResult, addressResult);
                         }
                     }
                 }

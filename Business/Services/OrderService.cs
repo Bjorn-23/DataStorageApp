@@ -37,7 +37,7 @@ public class OrderService
     }
 
     // Setup so that customer can only have one order, if system had payment system check could be implemented to see if order was paid and then another order could be created fro istance.
-    public OrderEntity CreateOrder()
+    public OrderDto CreateOrder()
     {
         try
         {
@@ -55,7 +55,7 @@ public class OrderService
                 var result = _orderRepository.Create(order);
                 if (result != null)
                 {
-                    return result;
+                    return OrderFactory.Create(result);
                 }            
             }
         }
