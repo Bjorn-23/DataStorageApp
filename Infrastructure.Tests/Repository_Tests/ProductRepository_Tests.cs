@@ -56,7 +56,7 @@ public class ProductRepository_Tests
     {
         //Arrange
         var priceList = _priceListRepository.Create(new PriceListEntity() { Id = 1, Price = 1, DiscountPrice = 1, UnitType = "SEK" });
-        var Category = _categoryRepository.Create(new CategoryEntity() { Id = 1, CategoryName = "Demo product" });
+        var category = _categoryRepository.Create(new CategoryEntity() { Id = 1, CategoryName = "Demo product" });
         var product = new ProductEntity() { ArticleNumber = "DEMO1BLKNO1", Title = "Demo Product 1", Ingress = "New Demo product, so much better than last years", Description = "lorem ipsum", Unit = "Each", Stock = 10, PriceId = 1, CategoryId = 1 };
         var createResult = _productRepository.Create(product);
 

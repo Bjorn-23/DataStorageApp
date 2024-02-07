@@ -188,8 +188,9 @@ public class ProductService
             {
                 productStock += product.Stock;
 
-                var categoryName = _categoryService.GetOrCreateCategory(!string.IsNullOrWhiteSpace(product.CategoryName) ? product : new ProductRegistrationDto() { CategoryName = existingProduct.Category.CategoryName });
-                var priceId = _priceListService.GetOrCreatePriceList(product);
+                //Dont think these are necessary as they are not used.. will leave for a while until testing is complete
+                //var categoryName = _categoryService.GetOrCreateCategory(!string.IsNullOrWhiteSpace(product.CategoryName) ? product : new ProductRegistrationDto() { CategoryName = existingProduct.Category.CategoryName });
+                //var priceId = _priceListService.GetOrCreatePriceList(product);
 
                 ProductEntity updatedProduct = new()
                 {

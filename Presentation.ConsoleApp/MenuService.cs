@@ -1153,7 +1153,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
                     void ShowGetAllCustomer_AddressesMenu()
                     {
-                        var existingCustomer_Addresses = _customer_addressService.GetAlLCustomer_Addresses();
+                        var existingCustomer_Addresses = _customer_addressService.GetAllCustomer_Addresses();
                         if (existingCustomer_Addresses != null)
                         {
                             SubMenuTemplate("All current Customer Addresses");

@@ -71,7 +71,7 @@ public class Customer_AddressService
         return null!;
     }
 
-    public IEnumerable<Customer_AddressDto> GetAlLCustomer_Addresses()
+    public IEnumerable<Customer_AddressDto> GetAllCustomer_Addresses()
     {
         try
         {
@@ -86,59 +86,7 @@ public class Customer_AddressService
         return null!;
     }
 
-    public Customer_AddressDto UpdateCustomer_Address(CustomerDto existingCustomer, CustomerDto updatedCustomer, AddressDto existingAddress, AddressDto updatedAddress)
-    {
-        try
-        {
-            var customerExists = _customerRepository.GetOne(x => x.EmailId == existingCustomer.EmailId);
-            var addressExists = _addressRepository.GetOne(x => x.StreetName == existingAddress.StreetName && x.PostalCode == existingAddress.PostalCode);
-
-            if (customerExists != null && addressExists != null)
-            {
-
-                var customer_AddressExists = _customer_AddressRepository.GetOne(x => x.AddressId == addressExists.Id && x.CustomerId == customerExists.Id);
-
-                if (customer_AddressExists != null)
-                {
-                    Customer_AddressEntity updatedCustomer_Address = new()
-                    {
-                        CustomerId = !string.IsNullOrWhiteSpace(updatedCustomer.Id) ? updatedCustomer.Id : customer_AddressExists.CustomerId,
-                        AddressId = !string.IsNullOrWhiteSpace(updatedAddress.Id.ToString()) ? updatedAddress.Id : customer_AddressExists.AddressId,
-                    };
-
-                    var result = _customer_AddressRepository.Update(customer_AddressExists, updatedCustomer_Address);
-                    if (result != null)
-                    {
-                        return new Customer_AddressDto()
-                        {
-                            CustomerId = result.CustomerId,
-                            AddressId = result.AddressId,
-                        };
-                    }
-                }
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
-
-    public Customer_AddressDto DeleteCustomer_Address(CustomerDto customer, AddressDto address)
-    {
-        try
-        {
-            var existingCustomer_Address = _customer_AddressRepository.GetOne(x => x.Customer.EmailId == customer.EmailId && x.Address.StreetName == address.StreetName && x.Address.PostalCode == address.PostalCode);
-            if (existingCustomer_Address != null)
-            {
-                var result = _customer_AddressRepository.Delete(existingCustomer_Address);
-                if (result)
-                    return Customer_AddressFactory.Create(existingCustomer_Address);
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!;
-    }
+   // No update function for this as both Properties are Principal Keys and cant be updated
 
     public Customer_AddressDto DeleteCustomer_Address(Customer_AddressDto existingCustomer_Address)
     {
@@ -146,7 +94,7 @@ public class Customer_AddressService
         {
             if (existingCustomer_Address != null)
             {
-                var result = _customer_AddressRepository.Delete(Customer_AddressFactory.Create(existingCustomer_Address));
+                var result = _customer_AddressRepository.Delete(x => x.CustomerId == existingCustomer_Address.CustomerId && x.AddressId == existingCustomer_Address.AddressId);
                 if (result)
                     return existingCustomer_Address;
             }

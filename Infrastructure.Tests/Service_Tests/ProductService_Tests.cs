@@ -121,6 +121,27 @@ public class ProductService_Tests
     }
 
     [Fact]
+    public void UpdateProductStock_ShouldUpdateExistingProductStockInDatabaseAnd_ReturnUpdatedProduct()
+    {
+        //Arrange
+        var userRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = "Admin" });
+        var activeUser = _userService.CreateUser(new UserDto() { Email = "bjorn@domain.com", Password = "Bytmig123!", IsActive = true, UserRoleId = 1 });
+        var category = _categoryRepository.Create(new CategoryEntity() { CategoryName = "Demo" });
+        var priceList = _priceListService.CreatePriceList(new PriceListDto() { Price = 200, DiscountPrice = 100, UnitType = "SEK" });
+        var productRegistration = _productService.CreateProduct(new ProductRegistrationDto() { ArticleNumber = "DemoProduct1", Title = "Demo product", Ingress = "", Description = "", CategoryName = "Demoproducts", Unit = "Each", Stock = 10, Price = 100, Currency = "SEK", DiscountPrice = 50, });
+
+        var updateproducRegistrationForm = new ProductRegistrationDto() { ArticleNumber = productRegistration.ArticleNumber, Stock = -1 }; // Stock is calculated from when OrderRow is updated and is basically plus or minus the wuantity in the orderRow.
+
+        //Act
+        var updateResult = _productService.UpdateProductStock(updateproducRegistrationForm);
+
+        //Assert
+        Assert.NotNull(updateResult);
+        Assert.Equal("DemoProduct1", updateResult.ArticleNumber);
+        Assert.Equal(9, updateResult.Stock);
+    }
+
+    [Fact]
     public void DeleteProduct_ShouldDeleteExistingProductFromDatabaseAnd_ReturnDeletedProduct()
     {
         //Arrange

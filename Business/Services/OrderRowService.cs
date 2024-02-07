@@ -13,10 +13,10 @@ public class OrderRowService
     private readonly OrderService _orderService;
     private readonly ICustomerRepository _customerRepository;
 
-    public OrderRowService(IOrderRowRepository orderRowRepository, ProductService prorductService, OrderService orderService, ICustomerRepository customerRepository)
+    public OrderRowService(IOrderRowRepository orderRowRepository, ProductService productService, OrderService orderService, ICustomerRepository customerRepository)
     {
         _orderRowRepository = orderRowRepository;
-        _productService = prorductService;
+        _productService = productService;
         _orderService = orderService;
         _customerRepository = customerRepository;
     }
@@ -174,37 +174,49 @@ public class OrderRowService
 
 
     // Helpers
-    private decimal GetPriceOrDiscountPrice(ProductRegistrationDto product)
+    public decimal GetPriceOrDiscountPrice(ProductRegistrationDto product)
     {
-        // Checks for discountprice and applies if it not null
-        decimal? price = 0;
-        if (product.DiscountPrice != null && product.DiscountPrice >= 1 )
-            price = product.DiscountPrice;
-        else
-            price = product.Price;
+        try
+        {
+            // Checks for discountprice and applies if it not null
+            decimal? price = 0;
+            if (product.DiscountPrice != null && product.DiscountPrice >= 1)
+                price = product.DiscountPrice;
+            else
+                price = product.Price;
 
-        return price.Value;
+            return price.Value;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return 0;
     }
 
-    private OrderDto GetOrderId(OrderRowDto orderRow)
+    public OrderDto GetOrderId(OrderRowDto orderRow)
     {
-        var order = new OrderDto();
-
-        // Checks if orderRow.OrderId is null, if it is then either gets the first order in a list or creates a new order.
-        if (orderRow.OrderId <= 0)
+        try
         {
-            order = _orderService.GetUsersOrder(); // first order associated to logged in customer.
-            if (order == null)
+            var order = new OrderDto();
+
+            // Checks if orderRow.OrderId is null, if it is then either gets the first order in a list or creates a new order.
+            if (orderRow.OrderId <= 0)
             {
-                order = _orderService.CreateOrder(); // If no order exists then create new order.
+                order = _orderService.GetUsersOrder(); // first order associated to logged in customer.
+                if (order == null)
+                {
+                    order = _orderService.CreateOrder(); // If no order exists then create new order.
+                }
             }
-        }
-        else
-        {
-            order.Id = orderRow.OrderId; // return the OrderId supplied in orderRow.OrderId
-        }
+            else
+            {
+                order.Id = orderRow.OrderId; // return the OrderId supplied in orderRow.OrderId
+            }
 
-        return order;
+            return order;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
     }
 
 }
