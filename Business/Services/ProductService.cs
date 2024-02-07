@@ -217,7 +217,6 @@ public class ProductService
         return null!;
     }
 
-
     public ProductDto DeleteProduct(ProductDto product)
     {
         try

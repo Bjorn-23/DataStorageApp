@@ -50,32 +50,12 @@ public class CustomerService
 
                 foreach (var existingCustomer in existingCustomerDetails)
                 {
-                    CustomerDto customerDto = new()
-                    {
-                        Id = existingCustomer.Id,
-                        FirstName = existingCustomer.FirstName,
-                        LastName = existingCustomer.LastName,
-                        EmailId = existingCustomer.EmailId,
-                        PhoneNumber = existingCustomer.PhoneNumber,
-                    };
-
-                    UserRoleDto userRoleDto = new()
-                    {
-                        Id = existingCustomer.User.UserRole.Id,
-                        RoleName = existingCustomer.User.UserRole.RoleName,
-                    };
+                    var customerDto = CustomerFactory.Create(existingCustomer);
+                    var userRoleDto = UserRoleFactory.Create(existingCustomer.User);
 
                     foreach (var addresses in existingCustomer.CustomerAddresses)
                     {
-                        AddressDto addressDto = new()
-                        {
-                            Id = addresses.Address.Id,
-                            StreetName = addresses.Address.StreetName,
-                            PostalCode = addresses.Address.PostalCode,
-                            City = addresses.Address.City,
-                            Country = addresses.Address.Country,
-                        };        
-
+                        var addressDto = AddressFactory.Create(addresses.Address);       
                         addressDtos.Add(addressDto);
                     }
 
@@ -102,36 +82,6 @@ public class CustomerService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
-    } // Decide which one to keep- THIS ( NOT USED BUT SIMPLE)
-
-    public CustomerDto GetOneCustomer(CustomerDto customer, string option)  // Or THIS (USED BUT MAYBE UNNECESSARY)
-    {
-        try
-        {
-            CustomerEntity existingCustomer = new();
-
-            switch (option)
-            {
-                case "1":
-                    existingCustomer = _customerRepository.GetOne(x => x.EmailId == customer.EmailId);
-                    break;
-                case "2":
-                    existingCustomer = _customerRepository.GetOne(x => x.Id == customer.Id);
-                    break;
-                case "3":
-                    existingCustomer = _customerRepository.GetOne(x => x.PhoneNumber == customer.PhoneNumber);
-                    break;
-            }
-
-            if (existingCustomer != null)
-            {
-                var customerDto = CustomerFactory.Create(existingCustomer);
-                return customerDto;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
-
-        return null!; ;
     }
 
     public IEnumerable<CustomerDto> GetAll()
@@ -179,7 +129,7 @@ public class CustomerService
         return null!;
     }
     
-    public bool DeleteCustomer(CustomerDto customer, string option) // Currently undecided if I should let Users delete customer.
+    public CustomerDto DeleteCustomer(CustomerDto customer, string option) // Currently undecided if I should let Users delete customer.
     {
         try
         {
@@ -202,14 +152,14 @@ public class CustomerService
             {
                 var result = _customerRepository.Delete(entity);
                 if (result)
-                    return true;
+                    return CustomerFactory.Create(entity);
             }
 
 
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return false;
+        return null!;
     }
 
 }

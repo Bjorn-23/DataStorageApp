@@ -36,11 +36,11 @@ public static class UserRoleFactory
         return null!;
     }
 
-    public static UserRoleEntity Create(UserEntity entity)
+    public static UserRoleDto Create(UserEntity entity)
     {
         try
         {
-            return new UserRoleEntity
+            return new UserRoleDto
             {
                 Id = entity.UserRole.Id,
                 RoleName = entity.UserRole.RoleName,

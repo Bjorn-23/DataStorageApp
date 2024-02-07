@@ -2193,7 +2193,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
         void PrintRole(UserRoleDto role)
         {
             Console.WriteLine(
-                $"\n{"",-5}Role Id:{"",-12}{role.Id}\n" +
+                $"\n{"",-5}Role Id:{"",-12}{role.Id}" +
                 $"\n{"",-5}Role name:{"",-10}{role.RoleName}");
         }
 

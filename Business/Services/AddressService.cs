@@ -29,14 +29,7 @@ public class AddressService
                 var addressDto = AddressFactory.Create(existingAddress);
                 return addressDto;
             }
-
-            AddressEntity addressEntity = new()
-            {
-                StreetName = address.StreetName,
-                PostalCode = address.PostalCode,
-                City = address.City,
-                Country = address.Country,
-            };
+            var addressEntity = AddressFactory.Create(address);
 
             var result = _addressRepository.Create(addressEntity);
             if (result != null)
@@ -59,26 +52,11 @@ public class AddressService
 
                 foreach (var existingAddress in existingAddressWithCustomers)
                 {
-                    AddressDto addressDto = new()
-                    {
-                        Id = existingAddress.Id,
-                        StreetName = existingAddress.StreetName,
-                        PostalCode = existingAddress.PostalCode,
-                        City = existingAddress.City,
-                        Country = existingAddress.Country,
-                    };
+                    var addressDto = AddressFactory.Create(existingAddress);
 
                     foreach (var customer in existingAddress.CustomerAddresses)
                     {
-                        CustomerDto customerDto = new()
-                        {
-                            Id = customer.Customer.Id,
-                            FirstName = customer.Customer.FirstName,
-                            LastName = customer.Customer.LastName,
-                            EmailId = customer.Customer.EmailId,
-                            PhoneNumber = customer.Customer.PhoneNumber,
-                        };
-
+                        CustomerDto customerDto = CustomerFactory.Create(customer.Customer);
                         customerDtos.Add(customerDto);
                     }
 
