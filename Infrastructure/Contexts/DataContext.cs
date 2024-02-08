@@ -34,7 +34,7 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             .WithMany(ur => ur.Users)
             .HasForeignKey(u => u.UserRoleId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
 
 
@@ -53,13 +53,13 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             .HasOne(ca => ca.Customer)
             .WithMany(c => c.CustomerAddresses)
             .HasForeignKey(ca => ca.CustomerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Customer_AddressEntity>()
             .HasOne(ca => ca.Address)
             .WithMany(a => a.CustomerAddresses)
             .HasForeignKey(ca => ca.AddressId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
 }
