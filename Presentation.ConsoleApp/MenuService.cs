@@ -532,7 +532,7 @@ internal class MenuService(CustomerService customerService, AddressService addre
 
                             SubMenuTemplate("Login user");
 
-                            CWBreak("\nEmail: ");
+                            CWBreak("Email: ");
                             user.Email = Console.ReadLine()!;
                             CW("Password: ");
                             user.Password = Console.ReadLine()!;

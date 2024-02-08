@@ -53,12 +53,13 @@ public class UserService
         try
         {
             var activeUser = isUserActive();
-            if ( activeUser.Email == userDto.Email || activeUser.UserRole.RoleName == "Admin")
+            if (activeUser.Email == userDto.Email || activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _userRepository.GetOne(x => x.Email == userDto.Email);
                 if (result != null)
-                    return UserFactory.Create(result);                
+                    return UserFactory.Create(result);
             }
+            else return null!;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
@@ -137,7 +138,7 @@ public class UserService
 
             // Add extra check to see if user should be deleted?
 
-            if (existingUser.IsActive || checkRole.UserRole.ToString() == "Admin")
+            if (existingUser.IsActive || checkRole.UserRole.RoleName.ToString() == "Admin")
             {
                 var result = _userRepository.Delete(existingUser);
                 if (result)
