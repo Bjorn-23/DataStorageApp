@@ -21,6 +21,10 @@ public class OrderService
         _userService = userService;
     }
 
+    /// <summary>
+    /// Fetches any user where IsActive == true, from database.
+    /// </summary>
+    /// <returns>UserEntity</returns>
     public UserEntity GetActiveUser()
     {
         try
@@ -37,6 +41,10 @@ public class OrderService
     }
 
     // Setup so that customer can only have one order, if system had payment system check could be implemented to see if order was paid and then another order could be created fro istance.
+   /// <summary>
+   /// Checks for logged in users and compares id to all orders customerId. If there are no matches creates a new Order.
+   /// </summary>
+   /// <returns>OrderDto</returns>
     public OrderDto CreateOrder()
     {
         try
@@ -64,6 +72,10 @@ public class OrderService
         return null!;
     }
 
+    /// <summary>
+    /// Get active users order.
+    /// </summary>
+    /// <returns>OrderDto</returns>
     public OrderDto GetUsersOrder()
     {
         try
@@ -83,6 +95,10 @@ public class OrderService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches an order associated with the loggeed in user, then fetches the customer associated with it and the OrderRows and products associated with the order.
+    /// </summary>
+    /// <returns>OrderDto, List of OrderRows, List of Products,  CustomerDto</returns>
     public (OrderDto order, List<OrderRowDto> orderRows, List<ProductRegistrationDto> products, CustomerDto customer) GetOrderDetails()
     {
         try
@@ -154,6 +170,11 @@ public class OrderService
         return (null!, null!, null!, null!);
     }
 
+    /// <summary>
+    /// Updates an Order if the order input is associated with the logged in user and if order.id matches an Id in database. Also works if Rolename of logged in user is "Admin"
+    /// </summary>
+    /// <param name="order"></param>
+    /// <returns>OrderDto</returns>
     public OrderDto UpdateOrder(OrderDto order)
     {
         try
@@ -208,6 +229,11 @@ public class OrderService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes an Order if the order input is associated with the logged in user and if order.id matches an Id in database. Also works if Rolename of logged in user is "Admin" 
+    /// </summary>
+    /// <param name="order"></param>
+    /// <returns>OrderDto</returns>
     public OrderDto DeleteOrder(OrderDto order)
     {
         try

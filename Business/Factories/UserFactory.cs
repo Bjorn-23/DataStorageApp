@@ -18,7 +18,9 @@ public static class UserFactory
                 SecurityKey = entity.SecurityKey,
                 Created = entity.Created,
                 IsActive= entity.IsActive,
-                UserRoleId = entity.UserRoleId
+                UserRoleId = entity.UserRoleId,
+                UserRole = entity.UserRole
+                
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -38,7 +40,8 @@ public static class UserFactory
                 SecurityKey = dto.SecurityKey,
                 Created = dto.Created,
                 IsActive = dto.IsActive,
-                UserRoleId = dto.UserRoleId
+                UserRoleId = dto.UserRoleId,
+                UserRole = dto.UserRole
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

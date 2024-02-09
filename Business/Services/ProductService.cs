@@ -22,6 +22,11 @@ public class ProductService
         _userService = userService;
     }
 
+    /// <summary>
+    /// Checks if logged in User is Admin and that a product with the sarticle number input doesnt exist in database. If true creates new product.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>ProductDto</returns>
     public ProductDto CreateProduct(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
     {
         try
@@ -62,7 +67,12 @@ public class ProductService
 
         return null!;
     }
-      
+    
+    /// <summary>
+    /// Gets a product from database..
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns>ProductRegistrationDto</returns>
     public ProductRegistrationDto GetProductDisplay(ProductDto dto)
     {
         try
@@ -88,10 +98,13 @@ public class ProductService
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return null!;
-        
+        return null!;        
     }
 
+    /// <summary>
+    /// Gets all products from database.
+    /// </summary>
+    /// <returns>List of ProductRegistrationDto</returns>
     public IEnumerable<ProductRegistrationDto> GetAllProducts()
     {
         try
@@ -128,6 +141,11 @@ public class ProductService
         return new List<ProductRegistrationDto>();
     }
 
+    /// <summary>
+    /// Checks if User is Admin and that products exists in database, if true updates product with new details.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns></returns>
     public ProductDto UpdateProduct(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
     {
         try
@@ -174,6 +192,11 @@ public class ProductService
         return null!;
     }
 
+    /// <summary>
+    /// Updates a products stock property if it exists in database.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>ProductDto</returns>
     public ProductDto UpdateProductStock(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
     {
         try
@@ -187,10 +210,6 @@ public class ProductService
             else
             {
                 productStock += product.Stock;
-
-                //Dont think these are necessary as they are not used.. will leave for a while until testing is complete
-                //var categoryName = _categoryService.GetOrCreateCategory(!string.IsNullOrWhiteSpace(product.CategoryName) ? product : new ProductRegistrationDto() { CategoryName = existingProduct.Category.CategoryName });
-                //var priceId = _priceListService.GetOrCreatePriceList(product);
 
                 ProductEntity updatedProduct = new()
                 {
@@ -218,6 +237,11 @@ public class ProductService
         return null!;
     }
 
+    /// <summary>
+    /// Checks if User is Admin and that products exists in database, if true deletes.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns></returns>
     public ProductDto DeleteProduct(ProductDto product)
     {
         try

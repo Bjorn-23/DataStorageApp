@@ -18,6 +18,11 @@ public class UserService
         _userRepository = userRepository;
     }
 
+    /// <summary>
+    /// Creates a new user if user doesnt already exists. Also generates asecure password and security key.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public UserDto CreateUser(UserDto user)
     {
         try
@@ -48,7 +53,12 @@ public class UserService
         return null!;
     }
     
-    public UserDto GetOne(UserDto userDto) // Currently not used.
+    /// <summary>
+    /// Gets one user from database if the the input email matches logged in user or logged in user is an admin.
+    /// </summary>
+    /// <param name="userDto"></param>
+    /// <returns>UserDto</returns>
+    public UserDto GetOne(UserDto userDto)
     {
         try
         {
@@ -66,6 +76,12 @@ public class UserService
         return null!;
     }
 
+    /// <summary>
+    /// Checks if input user matches logged in user or logged in user is admin, if true updates existing user with new details.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="newUserDetails"></param>
+    /// <returns></returns>
     public UserDto UpdateUser(UserDto user, UserDto newUserDetails)
     {
         try
@@ -128,7 +144,12 @@ public class UserService
 
         return null!;
     }
-
+  
+    /// <summary>
+    /// Checks if input user matches logged in user or logged in user is admin, if true deletes existing user.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public UserDto DeleteUser(UserDto user)
     {
         try
@@ -150,6 +171,11 @@ public class UserService
         return null!;
     }
     
+    /// <summary>
+    /// Check if user exists then verifies email and password towards existing user, then logs out any active users and finally logs in user.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns>Bool</returns>
     public bool UserLogin(UserDto user)
     {
         try
@@ -184,6 +210,11 @@ public class UserService
         return false;
     }
 
+    /// <summary>
+    /// Logs a user out base on input email.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns>Bool</returns>
     public bool UserLogOut(UserDto user)
     {
         try
@@ -212,6 +243,10 @@ public class UserService
         return false;
     }
 
+    /// <summary>
+    /// Finds all active users that are logged in (system currently only allows one user to be logged in as all other users(1) are logged out before new login) and logs them out.
+    /// </summary>
+    /// <returns>Bool</returns>
     public bool LogOutActiveUser()
     {
         try
@@ -236,6 +271,10 @@ public class UserService
         return false;
     }
 
+    /// <summary>
+    /// Checks if IsActice == true on any user and if so returns them (can currently only be one if not changed directly in database)
+    /// </summary>
+    /// <returns>Bool</returns>
     public UserEntity isUserActive()
     {
         try

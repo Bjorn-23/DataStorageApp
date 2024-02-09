@@ -17,6 +17,11 @@ public class CustomerService
         _userRepository = userRepository;
     }
 
+    /// <summary>
+    /// Creates new customer provided a user exists with the same Email. 
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <returns>CustomerDto</returns>
     public CustomerDto CreateCustomer(CustomerDto customer)
     {
         try
@@ -39,6 +44,11 @@ public class CustomerService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches one customer from database along with associated addreses and user Role information.
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <returns>List of AddressDto, UserRoleDto and CustomerDto</returns>
     public (IEnumerable<AddressDto> address, UserRoleDto userRole, CustomerDto customer) GetOneCustomerWithDetails(CustomerDto customer)
     {
         try
@@ -68,6 +78,11 @@ public class CustomerService
         return (null!, null!, null!);
     }
 
+    /// <summary>
+    /// GetOneCustomer, checks if customer exists in database and returns it.
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <returns>CustomerDto</returns>
     public CustomerDto GetOneCustomer(CustomerDto customer)
     {
         try
@@ -84,6 +99,10 @@ public class CustomerService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all Customers from database and returns them.
+    /// </summary>
+    /// <returns>List of CustomerDto</returns>
     public IEnumerable<CustomerDto> GetAll()
     {
         try
@@ -100,6 +119,12 @@ public class CustomerService
         return new List<CustomerDto>();
     }
 
+    /// <summary>
+    /// Updates existing customer in database.
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <param name="newCustomerDetails"></param>
+    /// <returns>CustomerDto</returns>
     public CustomerDto UpdateCustomer(CustomerDto customer, CustomerDto newCustomerDetails)
     {
         try
@@ -129,6 +154,12 @@ public class CustomerService
         return null!;
     }
     
+    /// <summary>
+    /// Deletes existing Customer from database.
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <param name="option"></param>
+    /// <returns>CustomerDto</returns>
     public CustomerDto DeleteCustomer(CustomerDto customer, string option) // Currently undecided if I should let Users delete customer.
     {
         try

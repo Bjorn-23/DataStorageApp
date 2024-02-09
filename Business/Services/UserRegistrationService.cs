@@ -21,6 +21,11 @@ public class UserRegistrationService
         _userRoleService = userRoleService;
     }
 
+    /// <summary>
+    /// Creates a new user, customer, address and customer_Address in database, provided they don't already exist.
+    /// </summary>
+    /// <param name="registration"></param>
+    /// <returns>customerDto and AddresDto</returns>
     public (CustomerDto customer, AddressDto address) CreateNewUser(UserRegistrationDto registration)
     {
         try

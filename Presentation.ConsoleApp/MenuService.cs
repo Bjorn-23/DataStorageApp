@@ -2186,8 +2186,8 @@ internal class MenuService(CustomerService customerService, AddressService addre
                 $"\n{"",-5}User Id:{"",-12}{user.Id}" +
                 $"\n{"",-5}Email:{"",-14}{user.Email}" +
                 $"\n{"",-5}Logged in:{"",-10}{user.IsActive}" +
-                $"\n{"",-5}Account created:{"",-4}{user.Created}");
-
+                $"\n{"",-5}Account created:{"",-4}{user.Created}" +
+                $"\n{"",-5}User role:{"",-10}{user.UserRole.RoleName}");
         }
 
         void PrintRole(UserRoleDto role)

@@ -19,6 +19,12 @@ public class Customer_AddressService
         _customerRepository = customerRepository;
     }
 
+    /// <summary>
+    /// Creates a new customer_Address based on one CustomerId and one AddressId.
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <param name="address"></param>
+    /// <returns>Bool</returns>
     public bool CreateCustomer_Address(CustomerDto customer, AddressDto address)
     {
         try
@@ -55,6 +61,12 @@ public class Customer_AddressService
         return false;
     }
 
+    /// <summary>
+    /// Fetches customer_address from database. Needs Email, Streetname and postalcode.
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <param name="address"></param>
+    /// <returns>Customer_addressDto</returns>
     public Customer_AddressDto GetCustomer_Address(CustomerDto customer, AddressDto address)
     {
         try
@@ -71,6 +83,10 @@ public class Customer_AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all existing Customer_Addresses from database and return them.
+    /// </summary>
+    /// <returns>List of Customer_AddressDto</returns>
     public IEnumerable<Customer_AddressDto> GetAllCustomer_Addresses()
     {
         try
@@ -88,6 +104,11 @@ public class Customer_AddressService
 
    // No update function for this as both Properties are Principal Keys and cant be updated
 
+    /// <summary>
+    /// Deletes existing Customer_Address in database.
+    /// </summary>
+    /// <param name="existingCustomer_Address"></param>
+    /// <returns>Customer_AddresDto</returns>
     public Customer_AddressDto DeleteCustomer_Address(Customer_AddressDto existingCustomer_Address)
     {
         try

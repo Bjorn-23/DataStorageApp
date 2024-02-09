@@ -10,6 +10,11 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
 {
     private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
 
+    /// <summary>
+    /// Checks if input roleName exists, if tru then returns it, otherwise creates new UserRole with the correct UserRole.Id for the user to be associated with.
+    /// </summary>
+    /// <param name="roleName"></param>
+    /// <returns>UserEntity</returns>
     public UserEntity GetOrCreateRole(string roleName)
     {
         try
@@ -41,7 +46,10 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
         return null!;
     }
 
-
+    /// <summary>
+    /// Gets all existing UserRoles from database.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<UserRoleDto> GetAll()
     {
         try
@@ -57,6 +65,12 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
         return new List<UserRoleDto>();
     }
 
+    /// <summary>
+    /// Updates a userRole with new details. Doesnt currently have checks but should probably have a password check to make sure not anyone can make themselves an admin.
+    /// </summary>
+    /// <param name="userRole"></param>
+    /// <param name="updatedUserRoleDetails"></param>
+    /// <returns></returns>
     public UserRoleDto UpdateRole(UserRoleDto userRole, UserRoleDto updatedUserRoleDetails) // very basic, might want to include checks.
     {
         try
@@ -71,7 +85,13 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
         return null!;
     }
 
-    public UserRoleDto DeleteRole(UserRoleDto role) // very basic, might want to include checks.
+    /// <summary>
+    /// Deletes a userRole. Doesnt currently have checks but should probably have a password check to make sure not anyone can delete a role.
+    /// </summary>
+    /// <param name="userRole"></param>
+    /// <param name="updatedUserRoleDetails"></param>
+    /// <returns></returns>
+    public UserRoleDto DeleteRole(UserRoleDto role)
     {
         try
         {

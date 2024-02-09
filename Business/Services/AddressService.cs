@@ -20,10 +20,10 @@ public class AddressService
     }
 
     /// <summary>
-    /// 
+    /// Checks if address exists in database returns if it does, else creates new addres and returns it.
     /// </summary>
     /// <param name="address"></param>
-    /// <returns></returns>
+    /// <returns>AddressDto</returns>
     public AddressDto CreateAddress(AddressDto address)
     {
         try
@@ -46,6 +46,11 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Uses supplied addres to find existing customers associated with it.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns>AddressDto and list of of CustomerDto</returns>
     public (AddressDto address, IEnumerable<CustomerDto> customers) GetOneAddressWithCustomers(AddressDto address)
     {
         try
@@ -74,6 +79,11 @@ public class AddressService
         return (null!, null!);
     }
 
+    /// <summary>
+    /// Fetches existing address from database.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns>AddressDto</returns>
     public AddressDto GetOneAddress(AddressDto address)
     {
         try
@@ -90,6 +100,10 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all existing addresses from database.
+    /// </summary>
+    /// <returns>List of AddresDto</returns>
     public IEnumerable<AddressDto> GetAll()
     {
         try
@@ -106,6 +120,12 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Updates address in Database. Since several users can have the same address this is limited to logged in users where Rolename == "Admin".
+    /// </summary>
+    /// <param name="address"></param>
+    /// <param name="newAddressDetails"></param>
+    /// <returns>AddressDto</returns>
     public AddressDto UpdateAddress(AddressDto address, AddressDto newAddressDetails)
     {
         try
@@ -137,6 +157,11 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes address in Database. Since several users can have the same address this is limited to logged in users where Rolename == "Admin".
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns>AddressDto</returns>
     public AddressDto DeleteAddress(AddressDto address)
     {
         try

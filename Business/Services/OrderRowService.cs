@@ -21,6 +21,11 @@ public class OrderRowService
         _customerRepository = customerRepository;
     }
 
+    /// <summary>
+    /// Creates a new orderRow in an order.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns>OrderRowDto</returns>
     public OrderRowDto CreateOrderRow(OrderRowDto orderRow)
     {
         try
@@ -66,6 +71,10 @@ public class OrderRowService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all orders asscociated with the currents user.
+    /// </summary>
+    /// <returns>List of orderRows</returns>
     public IEnumerable<OrderRowDto> GetAllOrderRows()
     {
         try
@@ -82,6 +91,11 @@ public class OrderRowService
         return new List<OrderRowDto>();
     }
 
+    /// <summary>
+    /// Updates an existing OrderRow with new quantity of the same product, then updates Total Price for order and amount of product in stock.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns>OrderRowDto</returns>
     public OrderRowDto UpdateOrderRow(OrderRowDto orderRow)
     {
         try
@@ -135,6 +149,11 @@ public class OrderRowService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes an exisiting orderRow and updates stock quantity on product and Total Price of order.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns></returns>
     public OrderRowDto DeleteOrderRow(OrderRowDto orderRow)
     {
         try
@@ -174,6 +193,11 @@ public class OrderRowService
 
 
     // Helpers
+    /// <summary>
+    /// Checks if Dicountprice has a value equal or greater than 1, if so then uses that price, else regular price.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns></returns>
     public decimal GetPriceOrDiscountPrice(ProductRegistrationDto product)
     {
         try
@@ -192,6 +216,11 @@ public class OrderRowService
         return 0;
     }
 
+    /// <summary>
+    /// Either gets current users orderId or creates a new order for user.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns></returns>
     public OrderDto GetOrderId(OrderRowDto orderRow)
     {
         try

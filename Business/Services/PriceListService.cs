@@ -16,7 +16,11 @@ public class PriceListService
         _priceListRepository = priceListRepository;
         _userService = userService;
     }
-
+    /// <summary>
+    /// Compares input to PriceLists in database, if a match exist then returns it, else creates a new PriceList.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>PriceListEntity</returns>
     public PriceListEntity GetOrCreatePriceList(ProductRegistrationDto product)
     {
         try
@@ -46,6 +50,11 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Checks if User is an Admin, if there are no existing priceLists matching the input ant that input Price prop is not 0. If all pass then creates a new PriceList.
+    /// </summary>
+    /// <param name="priceList"></param>
+    /// <returns></returns>
     public PriceListDto CreatePriceList(PriceListDto priceList)
     {
         try
@@ -67,6 +76,11 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches an existing PriceList from database.
+    /// </summary>
+    /// <param name="priceList"></param>
+    /// <returns>PriceListDto</returns>
     public PriceListDto GetPriceList(PriceListDto priceList)
     {
         try
@@ -83,6 +97,10 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all existing PriceLists from database.
+    /// </summary>
+    /// <returns>List of PriceListDto</returns>
     public IEnumerable<PriceListDto> GetAllPriceLists()
     {
         try
@@ -98,6 +116,12 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Updates existing PriceList if userRole.Rolename == "Admin" and the PriceList exists in database.
+    /// </summary>
+    /// <param name="existingPriceListDto"></param>
+    /// <param name="updatedPriceListDto"></param>
+    /// <returns>PriceListDto</returns>
     public PriceListDto UpdatePriceList(PriceListDto existingPriceListDto, PriceListDto updatedPriceListDto)
     {
         try
@@ -126,6 +150,11 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes existing PriceList if userRole.Rolename == "Admin" and the PriceList exists in database.
+    /// </summary>
+    /// <param name="existingPriceListDto"></param>
+    /// <returns>PriceListDto</returns>
     public PriceListDto DeletePriceList(PriceListDto existingPriceListDto)
     {
         try

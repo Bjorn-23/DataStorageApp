@@ -17,6 +17,11 @@ public class CategoryService
         _userService = userService;
     }
 
+    /// <summary>
+    /// Checks for CategoryName in database, returns if exists, else creates new CategoryEntity.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>CategoryEntity/returns>
     public CategoryEntity GetOrCreateCategory(ProductRegistrationDto product)
     {
         try
@@ -38,6 +43,11 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Creates a new CategoryEntity in database. Requires Rolename of activeUser == "Admin".
+    /// </summary>
+    /// <param name="category"></param>
+    /// <returns>CategoryDto</returns>
     public CategoryDto CreateCategory(CategoryDto category)
     {
         try
@@ -58,6 +68,11 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Checks database for matching category and returns it.
+    /// </summary>
+    /// <param name="category"></param>
+    /// <returns>CategoryDto</returns>
     public CategoryDto GetCategory(CategoryDto category)
     {
         try
@@ -73,6 +88,10 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Checks database for categories and returns all entries.
+    /// </summary>
+    /// <returns>List of CategoryDto</returns>
     public IEnumerable<CategoryDto> GetAllCategories()
     {
         try
@@ -86,6 +105,12 @@ public class CategoryService
         return new List<CategoryDto>();
     }
 
+    /// <summary>
+    /// Updates existing categoryEntity in database with new values. 
+    /// </summary>
+    /// <param name="existingDtoName"></param>
+    /// <param name="updatedDtoName"></param>
+    /// <returnsCategoryDto></returns>
     public CategoryDto UpdateCategory(CategoryDto existingDtoName, CategoryDto updatedDtoName)
     {
         try
@@ -112,6 +137,11 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes existing category from database.
+    /// </summary>
+    /// <param name="category"></param>
+    /// <returns>CategoryDto</returns>
     public CategoryDto DeleteCategory(CategoryDto category)
     {
         try
