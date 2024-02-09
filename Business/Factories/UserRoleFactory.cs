@@ -12,6 +12,7 @@ public static class UserRoleFactory
         {
             return new UserRoleEntity
             {
+                Id = dto.Id,
                 RoleName = dto.RoleName,
             };
         }
@@ -26,7 +27,8 @@ public static class UserRoleFactory
         {
             return new UserRoleEntity
             {
-                RoleName = dto.UserRoleName,
+                Id = dto.UserRole.Id,
+                RoleName = dto.UserRole.RoleName,
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -34,13 +36,14 @@ public static class UserRoleFactory
         return null!;
     }
 
-    public static UserRoleEntity Create(UserEntity entity)
+    public static UserRoleDto Create(UserEntity entity)
     {
         try
         {
-            return new UserRoleEntity
+            return new UserRoleDto
             {
-                RoleName = entity.UserRoleName,
+                Id = entity.UserRole.Id,
+                RoleName = entity.UserRole.RoleName,
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -54,8 +57,28 @@ public static class UserRoleFactory
         {
             return new UserRoleDto
             {
+                Id = entity.Id,
                 RoleName = entity.RoleName,
             };
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public static IEnumerable<UserRoleDto> Create(IEnumerable<UserRoleEntity> entities)
+    {
+        try
+        {
+            List<UserRoleDto> dtos = new();
+
+            foreach (var entity in entities)
+            {
+                dtos.Add(Create(entity));
+            }
+
+            return dtos;
+           
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 

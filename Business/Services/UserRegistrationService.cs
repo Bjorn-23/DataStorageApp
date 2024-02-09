@@ -10,30 +10,36 @@ public class UserRegistrationService
     private readonly CustomerService _customerService;
     private readonly AddressService _addressService;
     private readonly Customer_AddressService _customerAddressService;
+    private readonly UserRoleService _userRoleService;
 
-    public UserRegistrationService(UserService userService, CustomerService customerService, AddressService addressService, Customer_AddressService customerAddressService)
+    public UserRegistrationService(UserService userService, CustomerService customerService, AddressService addressService, Customer_AddressService customerAddressService, UserRoleService userRoleService)
     {
         _userService = userService;
         _customerService = customerService;
         _addressService = addressService;
         _customerAddressService = customerAddressService;
+        _userRoleService = userRoleService;
     }
 
-    public (CustomerDto, AddressDto) CreateNewUser(UserRegistrationDto registration)
+    /// <summary>
+    /// Creates a new user, customer, address and customer_Address in database, provided they don't already exist.
+    /// </summary>
+    /// <param name="registration"></param>
+    /// <returns>customerDto and AddresDto</returns>
+    public (CustomerDto customer, AddressDto address) CreateNewUser(UserRegistrationDto registration)
     {
         try
         {
             bool noEmptyProps = PropCheck.CheckAllPropertiesAreSet(registration);
             if (noEmptyProps)
             {
-                var securePassAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(registration.Password);
+                var roleId = _userRoleService.GetOrCreateRole(registration.UserRoleName);
 
                 UserDto userDto = new UserDto()
                 {
                     Email = registration.Email,
-                    Password = securePassAndKey.Password,
-                    SecurityKey = securePassAndKey.SecurityKey,
-                    UserRoleName = registration.UserRoleName,
+                    Password = registration.Password,
+                    UserRoleId = roleId.UserRoleId
                 };
 
                 CustomerDto customerDto = new CustomerDto()
@@ -52,9 +58,10 @@ public class UserRegistrationService
                     Country = registration.Country
                 };
 
+
                 var userResult = _userService.CreateUser(userDto);
                 if (userResult != null)
-                {
+                {  
                     var customerResult = _customerService.CreateCustomer(customerDto);
                     if (customerResult != null)
                     {
@@ -63,12 +70,10 @@ public class UserRegistrationService
                         {
                             var customer_AddressResult = _customerAddressService.CreateCustomer_Address(customerResult, addressResult);
                             if (customer_AddressResult)
-                                return (customerDto, addressDto);
+                                return (customerResult, addressResult);
                         }
                     }
                 }
-                else
-                    return (null!, null!); // Need rollback feature here!
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

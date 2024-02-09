@@ -21,9 +21,6 @@ public static class ProductFactory
                 Unit = entity.Unit,
                 Stock = entity.Stock,
                 CategoryId = entity.CategoryId,
-                Category = entity.Category,
-                OrderRow = entity.OrderRow,
-                Price = entity.Price,
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

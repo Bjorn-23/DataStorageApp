@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240201122858_Init")]
+    [Migration("20240204080737_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -129,33 +129,36 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar");
 
-                    b.Property<string>("UserRoleName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("UserRoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("UserRoleName");
+                    b.HasIndex("UserRoleId");
 
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserRoleEntity", b =>
                 {
-                    b.Property<string>("RoleName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.HasKey("RoleName");
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleName")
+                        .IsUnique();
 
                     b.ToTable("Roles");
                 });
@@ -194,7 +197,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Infrastructure.Entities.UserRoleEntity", "UserRole")
                         .WithMany("Users")
-                        .HasForeignKey("UserRoleName")
+                        .HasForeignKey("UserRoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

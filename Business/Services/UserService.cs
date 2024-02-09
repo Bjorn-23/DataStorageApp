@@ -11,15 +11,18 @@ public class UserService
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IUserRepository _userRepository;
-    private readonly UserRoleService _userRoleService;
 
-    public UserService(ICustomerRepository customerRepository, IUserRepository userRepository, UserRoleService userRoleService)
+    public UserService(ICustomerRepository customerRepository, IUserRepository userRepository)
     {
         _customerRepository = customerRepository;
         _userRepository = userRepository;
-        _userRoleService = userRoleService;
     }
 
+    /// <summary>
+    /// Creates a new user if user doesnt already exists. Also generates asecure password and security key.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public UserDto CreateUser(UserDto user)
     {
         try
@@ -27,14 +30,15 @@ public class UserService
             var userExists = _userRepository.GetOne(x => x.Email == user.Email);
             if (userExists == null)
             {
-                var userRole = _userRoleService.GetOrCreateRole(user);
+                var securePassAndKey = PasswordGenerator.GenerateSecurePasswordAndKey(user.Password);
 
                 UserEntity userEntity = new()
                 {
                     Email = user.Email,
-                    Password = user.Password,
-                    SecurityKey = user.SecurityKey,
-                    UserRoleName = userRole.UserRoleName
+                    Password = securePassAndKey.Password,
+                    SecurityKey = securePassAndKey.SecurityKey,
+                    UserRoleId = user.UserRoleId,
+                    IsActive = user.IsActive
                 };
 
                 var newUserEntity = _userRepository.Create(userEntity);
@@ -49,31 +53,43 @@ public class UserService
         return null!;
     }
     
-    public UserDto GetOne(UserDto userDto) // Currently not used.
+    /// <summary>
+    /// Gets one user from database if the the input email matches logged in user or logged in user is an admin.
+    /// </summary>
+    /// <param name="userDto"></param>
+    /// <returns>UserDto</returns>
+    public UserDto GetOne(UserDto userDto)
     {
         try
         {
-            var activeUser = FindRoleOfActiveUser();
-            if ( activeUser.Email == userDto.Email || activeUser.UserRoleName == "Admin")
+            var activeUser = isUserActive();
+            if (activeUser.Email == userDto.Email || activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _userRepository.GetOne(x => x.Email == userDto.Email);
                 if (result != null)
-                    return UserFactory.Create(result);                
+                    return UserFactory.Create(result);
             }
+            else return null!;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return null!;
     }
 
+    /// <summary>
+    /// Checks if input user matches logged in user or logged in user is admin, if true updates existing user with new details.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="newUserDetails"></param>
+    /// <returns></returns>
     public UserDto UpdateUser(UserDto user, UserDto newUserDetails)
     {
         try
         {
             var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
-            var checkRole = FindRoleOfActiveUser();
+            var checkRole = isUserActive();
 
-            if (existingUser.IsActive || checkRole.UserRoleName == "Admin") // add || statement to if user role == "Admin" so an admin can change when logged in.
+            if (checkRole.Email == existingUser.Email || checkRole.UserRole.RoleName == "Admin") //current user or admin can change when logged in.
             {
 
                 UserEntity updatedUserDetails = new()
@@ -84,7 +100,7 @@ public class UserService
                     SecurityKey = existingUser.SecurityKey,
                     Created = existingUser.Created,
                     IsActive = existingUser.IsActive,
-                    UserRoleName = string.IsNullOrWhiteSpace(newUserDetails.UserRoleName) ? existingUser.UserRoleName : _userRoleService.GetOrCreateRole(newUserDetails).UserRoleName
+                    UserRoleId = newUserDetails.UserRoleId <= 0  ? existingUser.UserRoleId : newUserDetails.UserRoleId
                 };
 
                 // Generates new .SecurityKey and .Password combination if a new password was submitted
@@ -126,19 +142,24 @@ public class UserService
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return null!; ;
+        return null!;
     }
-
+  
+    /// <summary>
+    /// Checks if input user matches logged in user or logged in user is admin, if true deletes existing user.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public UserDto DeleteUser(UserDto user)
     {
         try
         {
             var existingUser = _userRepository.GetOne(x => x.Email == user.Email);
-            var checkRole = FindRoleOfActiveUser();
+            var checkRole = isUserActive();
 
             // Add extra check to see if user should be deleted?
 
-            if (existingUser.IsActive || checkRole.UserRole.ToString() == "Admin")
+            if (existingUser.IsActive || checkRole.UserRole.RoleName.ToString() == "Admin")
             {
                 var result = _userRepository.Delete(existingUser);
                 if (result)
@@ -148,10 +169,13 @@ public class UserService
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         
         return null!;
-
-
     }
     
+    /// <summary>
+    /// Check if user exists then verifies email and password towards existing user, then logs out any active users and finally logs in user.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns>Bool</returns>
     public bool UserLogin(UserDto user)
     {
         try
@@ -172,7 +196,7 @@ public class UserService
                         SecurityKey = existingUser.SecurityKey,
                         Created = existingUser.Created,
                         IsActive = true,
-                        UserRoleName = existingUser.UserRoleName    
+                        UserRoleId = existingUser.UserRole.Id    
                     };
 
                     var setIsActive = _userRepository.Update(existingUser, activeUser);
@@ -186,6 +210,11 @@ public class UserService
         return false;
     }
 
+    /// <summary>
+    /// Logs a user out base on input email.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns>Bool</returns>
     public bool UserLogOut(UserDto user)
     {
         try
@@ -201,7 +230,7 @@ public class UserService
                     SecurityKey = existingUser.SecurityKey,
                     Created = existingUser.Created,
                     IsActive = false,
-                    UserRoleName = existingUser.UserRoleName
+                    UserRoleId = existingUser.UserRoleId
                 };
 
                 var setIsActive = _userRepository.Update(existingUser, inactiveUser);
@@ -214,6 +243,10 @@ public class UserService
         return false;
     }
 
+    /// <summary>
+    /// Finds all active users that are logged in (system currently only allows one user to be logged in as all other users(1) are logged out before new login) and logs them out.
+    /// </summary>
+    /// <returns>Bool</returns>
     public bool LogOutActiveUser()
     {
         try
@@ -231,14 +264,18 @@ public class UserService
             //}
 
             if (result)
-            return true;
+                return true;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
         return false;
     }
 
-    public UserEntity FindRoleOfActiveUser()
+    /// <summary>
+    /// Checks if IsActice == true on any user and if so returns them (can currently only be one if not changed directly in database)
+    /// </summary>
+    /// <returns>Bool</returns>
+    public UserEntity isUserActive()
     {
         try
         {

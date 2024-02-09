@@ -19,6 +19,11 @@ public class AddressService
         _userService = userService;
     }
 
+    /// <summary>
+    /// Checks if address exists in database returns if it does, else creates new addres and returns it.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns>AddressDto</returns>
     public AddressDto CreateAddress(AddressDto address)
     {
         try
@@ -29,14 +34,7 @@ public class AddressService
                 var addressDto = AddressFactory.Create(existingAddress);
                 return addressDto;
             }
-
-            AddressEntity addressEntity = new()
-            {
-                StreetName = address.StreetName,
-                PostalCode = address.PostalCode,
-                City = address.City,
-                Country = address.Country,
-            };
+            var addressEntity = AddressFactory.Create(address);
 
             var result = _addressRepository.Create(addressEntity);
             if (result != null)
@@ -48,6 +46,11 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Uses supplied addres to find existing customers associated with it.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns>AddressDto and list of of CustomerDto</returns>
     public (AddressDto address, IEnumerable<CustomerDto> customers) GetOneAddressWithCustomers(AddressDto address)
     {
         try
@@ -59,26 +62,11 @@ public class AddressService
 
                 foreach (var existingAddress in existingAddressWithCustomers)
                 {
-                    AddressDto addressDto = new()
-                    {
-                        Id = existingAddress.Id,
-                        StreetName = existingAddress.StreetName,
-                        PostalCode = existingAddress.PostalCode,
-                        City = existingAddress.City,
-                        Country = existingAddress.Country,
-                    };
+                    var addressDto = AddressFactory.Create(existingAddress);
 
                     foreach (var customer in existingAddress.CustomerAddresses)
                     {
-                        CustomerDto customerDto = new()
-                        {
-                            Id = customer.Customer.Id,
-                            FirstName = customer.Customer.FirstName,
-                            LastName = customer.Customer.LastName,
-                            EmailId = customer.Customer.EmailId,
-                            PhoneNumber = customer.Customer.PhoneNumber,
-                        };
-
+                        CustomerDto customerDto = CustomerFactory.Create(customer.Customer);
                         customerDtos.Add(customerDto);
                     }
 
@@ -91,6 +79,11 @@ public class AddressService
         return (null!, null!);
     }
 
+    /// <summary>
+    /// Fetches existing address from database.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns>AddressDto</returns>
     public AddressDto GetOneAddress(AddressDto address)
     {
         try
@@ -107,6 +100,10 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all existing addresses from database.
+    /// </summary>
+    /// <returns>List of AddresDto</returns>
     public IEnumerable<AddressDto> GetAll()
     {
         try
@@ -123,14 +120,20 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Updates address in Database. Since several users can have the same address this is limited to logged in users where Rolename == "Admin".
+    /// </summary>
+    /// <param name="address"></param>
+    /// <param name="newAddressDetails"></param>
+    /// <returns>AddressDto</returns>
     public AddressDto UpdateAddress(AddressDto address, AddressDto newAddressDetails)
     {
         try
         {
             var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-            var checkRole = _userService.FindRoleOfActiveUser();
+            var checkRole = _userService.isUserActive();
 
-            if (existingAddress != null && checkRole.UserRoleName == "Admin")
+            if (existingAddress != null && checkRole.UserRole.RoleName == "Admin")
             {
                 AddressEntity addressEntity = new()
                 {
@@ -154,14 +157,19 @@ public class AddressService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes address in Database. Since several users can have the same address this is limited to logged in users where Rolename == "Admin".
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns>AddressDto</returns>
     public AddressDto DeleteAddress(AddressDto address)
     {
         try
         {
             var existingAddress = _addressRepository.GetOne(x => x.StreetName == address.StreetName && x.PostalCode == address.PostalCode);
-            var checkRole = _userService.FindRoleOfActiveUser();
+            var checkRole = _userService.isUserActive();
 
-            if (existingAddress != null && checkRole.UserRoleName == "Admin")
+            if (existingAddress != null && checkRole.UserRole.RoleName == "Admin")
             {
                 var result = _addressRepository.Delete(x => x.Id == existingAddress.Id);
 

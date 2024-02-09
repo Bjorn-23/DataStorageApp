@@ -9,6 +9,7 @@ namespace Infrastructure.Entities;
 public partial class ProductEntity
 {
     [Key]
+    [StringLength(100)]
     public string ArticleNumber { get; set; } = null!;
 
     [StringLength(50)]
@@ -33,7 +34,7 @@ public partial class ProductEntity
     public virtual CategoryEntity Category { get; set; } = null!;
 
     [InverseProperty("ArticleNumberNavigation")]
-    public virtual OrderRowEntity? OrderRow { get; set; }
+    public virtual ICollection<OrderRowEntity> OrderRows { get; set; } = new List<OrderRowEntity>();
 
     [ForeignKey("PriceId")]
     [InverseProperty("Products")]

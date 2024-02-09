@@ -17,6 +17,11 @@ public class CategoryService
         _userService = userService;
     }
 
+    /// <summary>
+    /// Checks for CategoryName in database, returns if exists, else creates new CategoryEntity.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>CategoryEntity/returns>
     public CategoryEntity GetOrCreateCategory(ProductRegistrationDto product)
     {
         try
@@ -38,13 +43,18 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Creates a new CategoryEntity in database. Requires Rolename of activeUser == "Admin".
+    /// </summary>
+    /// <param name="category"></param>
+    /// <returns>CategoryDto</returns>
     public CategoryDto CreateCategory(CategoryDto category)
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var exisitingCategoryName = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName);
-            if (exisitingCategoryName == null && activeUser.UserRoleName == "Admin")
+            if (exisitingCategoryName == null && activeUser.UserRole.RoleName == "Admin")
             {
                 var newCategoryName = _categoryRepository.Create(new CategoryEntity()
                 {
@@ -58,6 +68,11 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Checks database for matching category and returns it.
+    /// </summary>
+    /// <param name="category"></param>
+    /// <returns>CategoryDto</returns>
     public CategoryDto GetCategory(CategoryDto category)
     {
         try
@@ -73,6 +88,10 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Checks database for categories and returns all entries.
+    /// </summary>
+    /// <returns>List of CategoryDto</returns>
     public IEnumerable<CategoryDto> GetAllCategories()
     {
         try
@@ -86,13 +105,19 @@ public class CategoryService
         return new List<CategoryDto>();
     }
 
+    /// <summary>
+    /// Updates existing categoryEntity in database with new values. 
+    /// </summary>
+    /// <param name="existingDtoName"></param>
+    /// <param name="updatedDtoName"></param>
+    /// <returnsCategoryDto></returns>
     public CategoryDto UpdateCategory(CategoryDto existingDtoName, CategoryDto updatedDtoName)
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingCategory = _categoryRepository.GetOne(x => x.Id == existingDtoName.Id);
-            if (existingCategory != null && activeUser.UserRoleName == "Admin")
+            if (existingCategory != null && activeUser.UserRole.RoleName == "Admin")
             {
                 CategoryEntity updatedEntity = new()
                 {
@@ -112,13 +137,18 @@ public class CategoryService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes existing category from database.
+    /// </summary>
+    /// <param name="category"></param>
+    /// <returns>CategoryDto</returns>
     public CategoryDto DeleteCategory(CategoryDto category)
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingCategory = _categoryRepository.GetOne(x => x.CategoryName == category.CategoryName && x.Id == category.Id);
-            if (existingCategory != null && activeUser.UserRoleName == "Admin")
+            if (existingCategory != null && activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _categoryRepository.Delete(existingCategory);
                 if (result)
