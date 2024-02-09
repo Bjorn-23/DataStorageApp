@@ -13,6 +13,6 @@ public class ProductDto
     public int Stock {  get; set; }
     public int CategoryId { get; set; }
     public virtual CategoryEntity Category { get; set; } = null!;
-    public virtual OrderRowEntity? OrderRow { get; set; } = null!;
+    public virtual OrderRowEntity? OrderRows { get; set; } = null!;
     public virtual PriceListEntity Price { get; set; } = null!;
 }

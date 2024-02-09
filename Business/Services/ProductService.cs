@@ -22,12 +22,17 @@ public class ProductService
         _userService = userService;
     }
 
+    /// <summary>
+    /// Checks if logged in User is Admin and that a product with the sarticle number input doesnt exist in database. If true creates new product.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>ProductDto</returns>
     public ProductDto CreateProduct(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
     {
         try
         {
-            var checkRole = _userService.FindRoleOfActiveUser();
-            if (checkRole.UserRoleName == "Admin")
+            var checkRole = _userService.isUserActive();
+            if (checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 if (existingProduct != null)
@@ -62,7 +67,12 @@ public class ProductService
 
         return null!;
     }
-      
+    
+    /// <summary>
+    /// Gets a product from database..
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns>ProductRegistrationDto</returns>
     public ProductRegistrationDto GetProductDisplay(ProductDto dto)
     {
         try
@@ -88,10 +98,13 @@ public class ProductService
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
 
-        return null!;
-        
+        return null!;        
     }
 
+    /// <summary>
+    /// Gets all products from database.
+    /// </summary>
+    /// <returns>List of ProductRegistrationDto</returns>
     public IEnumerable<ProductRegistrationDto> GetAllProducts()
     {
         try
@@ -128,12 +141,17 @@ public class ProductService
         return new List<ProductRegistrationDto>();
     }
 
+    /// <summary>
+    /// Checks if User is Admin and that products exists in database, if true updates product with new details.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns></returns>
     public ProductDto UpdateProduct(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
     {
         try
         {
-            var checkRole = _userService.FindRoleOfActiveUser();
-            if (checkRole.UserRoleName == "Admin")
+            var checkRole = _userService.isUserActive();
+            if (checkRole !=null && checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 var productStock = existingProduct.Stock;
@@ -174,12 +192,62 @@ public class ProductService
         return null!;
     }
 
+    /// <summary>
+    /// Updates a products stock property if it exists in database.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>ProductDto</returns>
+    public ProductDto UpdateProductStock(ProductRegistrationDto product) // Requires user to be logged in and have "Admin" as UserRoleName
+    {
+        try
+        {
+            var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
+            var productStock = existingProduct.Stock;
+            if (existingProduct == null)
+            {
+                return null!;
+            }
+            else
+            {
+                productStock += product.Stock;
+
+                ProductEntity updatedProduct = new()
+                {
+                    ArticleNumber = existingProduct.ArticleNumber,
+                    Title = existingProduct.Title,
+                    Ingress = existingProduct.Ingress,
+                    Description = existingProduct.Description,
+                    PriceId = existingProduct.PriceId,
+                    Unit = existingProduct.Unit,
+                    Stock = productStock,
+                    CategoryId = existingProduct.Category.Id,
+
+                };
+
+                var result = _productRepository.Update(existingProduct, updatedProduct);
+                if (result != null)
+                {
+                    return ProductFactory.Create(updatedProduct);
+                }
+            }
+            
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    /// <summary>
+    /// Checks if User is Admin and that products exists in database, if true deletes.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns></returns>
     public ProductDto DeleteProduct(ProductDto product)
     {
         try
         {
-            var checkRole = _userService.FindRoleOfActiveUser();
-            if (checkRole.UserRoleName == "Admin")
+            var checkRole = _userService.isUserActive();
+            if (checkRole.UserRole.RoleName == "Admin")
             {
                 var existingProduct = _productRepository.GetOne(x => x.ArticleNumber == product.ArticleNumber);
                 if (existingProduct != null)

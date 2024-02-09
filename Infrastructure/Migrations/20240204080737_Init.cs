@@ -31,13 +31,13 @@ namespace Infrastructure.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    RoleName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1")
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.RoleName);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -50,16 +50,16 @@ namespace Infrastructure.Migrations
                     SecurityKey = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    UserRoleName = table.Column<string>(type: "nvarchar(50)", nullable: false)
+                    UserRoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_Roles_UserRoleName",
-                        column: x => x.UserRoleName,
+                        name: "FK_Users_Roles_UserRoleId",
+                        column: x => x.UserRoleId,
                         principalTable: "Roles",
-                        principalColumn: "RoleName",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -114,15 +114,21 @@ namespace Infrastructure.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Roles_RoleName",
+                table: "Roles",
+                column: "RoleName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_UserRoleName",
+                name: "IX_Users_UserRoleId",
                 table: "Users",
-                column: "UserRoleName");
+                column: "UserRoleId");
         }
 
         /// <inheritdoc />

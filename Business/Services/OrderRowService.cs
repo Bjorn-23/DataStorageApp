@@ -13,14 +13,19 @@ public class OrderRowService
     private readonly OrderService _orderService;
     private readonly ICustomerRepository _customerRepository;
 
-    public OrderRowService(IOrderRowRepository orderRowRepository, ProductService prorductService, OrderService orderService, ICustomerRepository customerRepository)
+    public OrderRowService(IOrderRowRepository orderRowRepository, ProductService productService, OrderService orderService, ICustomerRepository customerRepository)
     {
         _orderRowRepository = orderRowRepository;
-        _productService = prorductService;
+        _productService = productService;
         _orderService = orderService;
         _customerRepository = customerRepository;
     }
 
+    /// <summary>
+    /// Creates a new orderRow in an order.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns>OrderRowDto</returns>
     public OrderRowDto CreateOrderRow(OrderRowDto orderRow)
     {
         try
@@ -51,7 +56,7 @@ public class OrderRowService
                         OrderPrice = newOrderRow.OrderRowPrice,
                     });
 
-                    _productService.UpdateProduct(new ProductRegistrationDto
+                    _productService.UpdateProductStock(new ProductRegistrationDto
                     {
                         ArticleNumber = product.ArticleNumber,
                         Stock = -newOrderRow.Quantity
@@ -66,6 +71,10 @@ public class OrderRowService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all orders asscociated with the currents user.
+    /// </summary>
+    /// <returns>List of orderRows</returns>
     public IEnumerable<OrderRowDto> GetAllOrderRows()
     {
         try
@@ -82,13 +91,21 @@ public class OrderRowService
         return new List<OrderRowDto>();
     }
 
+    /// <summary>
+    /// Updates an existing OrderRow with new quantity of the same product, then updates Total Price for order and amount of product in stock.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns>OrderRowDto</returns>
     public OrderRowDto UpdateOrderRow(OrderRowDto orderRow)
     {
         try
         {
-            // Checks that an updated value has been put in for order quantity, if less than 0, null or empty, return null.
+            // Checks that an updated value has been put in for order quantity, if less than 0, null or empty then delete OrderRow.
             if (orderRow.Quantity <= 0 || string.IsNullOrWhiteSpace(orderRow.Quantity.ToString()))
+            {
+                DeleteOrderRow(orderRow);
                 return null!;
+            }                
 
             var existingOrderRow = _orderRowRepository.GetOne(x => x.Id == orderRow.Id);
             var oldOrderRowPrice = existingOrderRow.OrderRowPrice; // saves old price to new variable as existing one will be updated.
@@ -121,7 +138,7 @@ public class OrderRowService
                         ArticleNumber = existingOrderRow.ArticleNumber,
                         Stock = oldOrderRowQuantity - updatedOrderRowDetails.Quantity
                     };
-                    var productStockResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
+                    var productStockResult = _productService.UpdateProductStock(stockUpdate); // updates product stock with new amount.
 
                     return OrderRowFactory.Create(updatedOrderRow);
                 }
@@ -132,6 +149,11 @@ public class OrderRowService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes an exisiting orderRow and updates stock quantity on product and Total Price of order.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns></returns>
     public OrderRowDto DeleteOrderRow(OrderRowDto orderRow)
     {
         try
@@ -158,7 +180,7 @@ public class OrderRowService
                         ArticleNumber = existingOrderRow.ArticleNumber,
                         Stock = oldOrderRowQuantity
                     };
-                    var prodcutUpdateResult = _productService.UpdateProduct(stockUpdate); // updates product stock with new amount.
+                    var prodcutUpdateResult = _productService.UpdateProductStock(stockUpdate); // updates product stock with new amount.
 
                     return OrderRowFactory.Create(existingOrderRow);
                 }
@@ -171,38 +193,59 @@ public class OrderRowService
 
 
     // Helpers
-    private decimal GetPriceOrDiscountPrice(ProductRegistrationDto product)
+    /// <summary>
+    /// Checks if Dicountprice has a value equal or greater than 1, if so then uses that price, else regular price.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns></returns>
+    public decimal GetPriceOrDiscountPrice(ProductRegistrationDto product)
     {
-        // Checks for discountprice and applies if it not null
-        decimal? price = 0;
-        if (product.DiscountPrice != null)
-            price = product.DiscountPrice;
-        else
-            price = product.Price;
+        try
+        {
+            // Checks for discountprice and applies if it not null
+            decimal? price = 0;
+            if (product.DiscountPrice != null && product.DiscountPrice >= 1)
+                price = product.DiscountPrice;
+            else
+                price = product.Price;
 
-        return price.Value;
+            return price.Value;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return 0;
     }
 
-    private OrderDto GetOrderId(OrderRowDto orderRow)
+    /// <summary>
+    /// Either gets current users orderId or creates a new order for user.
+    /// </summary>
+    /// <param name="orderRow"></param>
+    /// <returns></returns>
+    public OrderDto GetOrderId(OrderRowDto orderRow)
     {
-        var order = new OrderDto();
-
-        // Checks if orderRow.OrderId is null, if it is then either gets the first order in a list or creates a new order.
-        if (orderRow.OrderId <= 0)
+        try
         {
-            order = _orderService.GetUsersOrder(); // first order associated to logged in customer.
-            if (order == null)
+            var order = new OrderDto();
+
+            // Checks if orderRow.OrderId is null, if it is then either gets the first order in a list or creates a new order.
+            if (orderRow.OrderId <= 0)
             {
-                var result = _orderService.CreateOrder(); // If no order exists then create new order.
-                order = OrderFactory.Create(result);
+                order = _orderService.GetUsersOrder(); // first order associated to logged in customer.
+                if (order == null)
+                {
+                    order = _orderService.CreateOrder(); // If no order exists then create new order.
+                }
             }
-        }
-        else
-        {
-            order.Id = orderRow.OrderId; // return the OrderId supplied in orderRow.OrderId
-        }
+            else
+            {
+                order.Id = orderRow.OrderId; // return the OrderId supplied in orderRow.OrderId
+            }
 
-        return order;
+            return order;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
     }
 
 }

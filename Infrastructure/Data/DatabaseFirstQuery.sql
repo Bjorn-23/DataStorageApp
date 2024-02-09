@@ -1,7 +1,7 @@
 ﻿--DROP TABLE Orderrows, Orders, Categories, PriceLists, Products
 
 CREATE TABLE [Products] (
-  [ArticleNumber] nvarchar(450) PRIMARY KEY NOT NULL,
+  [ArticleNumber] nvarchar(100) PRIMARY KEY NOT NULL,
   [Title] nvarchar(50) NOT NULL,
   [Ingress] nvarchar(200),
   [Description] nvarchar(max),
@@ -38,9 +38,9 @@ CREATE TABLE [OrderRows] (
   [Id] int NOT NULL IDENTITY(1, 1),
   [Quantity] int NOT NULL,
   [OrderRowPrice] money NOT NULL,
-  [ArticleNumber] nvarchar(450) UNIQUE NOT NULL,
+  [ArticleNumber] nvarchar(100) NOT NULL,
   [OrderId] int NOT NULL,
-  PRIMARY KEY ([Id], [OrderId])
+  PRIMARY KEY ([ArticleNumber], [OrderId])
 )
 GO
 
@@ -60,6 +60,3 @@ GO
 --SELECT name, compatibility_level
 --FROM sys.databases
 --WHERE name LIKE 'D:\%NEW_DATASTORAGEAPP_DB%' OR name LIKE 'D:\%NEW_ORDERINGSYSTEM_DB%';
-
-
-

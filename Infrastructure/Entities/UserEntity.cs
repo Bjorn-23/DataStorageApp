@@ -29,7 +29,8 @@ public class UserEntity
     public bool IsActive { get; set; } = false;
 
     [Required]
-    public string UserRoleName { get; set; } = null!;
+    public int UserRoleId { get; set; }
+
     public virtual UserRoleEntity UserRole { get; set; } = null!;
 
 }

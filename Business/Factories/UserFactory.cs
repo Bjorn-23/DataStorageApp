@@ -17,8 +17,31 @@ public static class UserFactory
                 Password = entity.Password,
                 SecurityKey = entity.SecurityKey,
                 Created = entity.Created,
-                isActive= entity.IsActive,
-                UserRoleName = entity.UserRoleName
+                IsActive= entity.IsActive,
+                UserRoleId = entity.UserRoleId,
+                UserRole = entity.UserRole
+                
+            };
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return null!;
+    }
+
+    public static UserEntity Create(UserDto dto)
+    {
+        try
+        {
+            return new UserEntity
+            {
+                Id = dto.Id,
+                Email = dto.Email,
+                Password = dto.Password,
+                SecurityKey = dto.SecurityKey,
+                Created = dto.Created,
+                IsActive = dto.IsActive,
+                UserRoleId = dto.UserRoleId,
+                UserRole = dto.UserRole
             };
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }

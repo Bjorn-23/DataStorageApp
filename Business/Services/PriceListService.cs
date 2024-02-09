@@ -16,7 +16,11 @@ public class PriceListService
         _priceListRepository = priceListRepository;
         _userService = userService;
     }
-
+    /// <summary>
+    /// Compares input to PriceLists in database, if a match exist then returns it, else creates a new PriceList.
+    /// </summary>
+    /// <param name="product"></param>
+    /// <returns>PriceListEntity</returns>
     public PriceListEntity GetOrCreatePriceList(ProductRegistrationDto product)
     {
         try
@@ -27,7 +31,7 @@ public class PriceListService
                 var newPriceList = _priceListRepository.Create(new PriceListEntity()
                 {
                     Price = product.Price,
-                    DiscountPrice = product.DiscountPrice,
+                    DiscountPrice = product.DiscountPrice <= 0 ? null! : product.DiscountPrice,
                     UnitType = product.Currency,
                 });
 
@@ -46,13 +50,18 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Checks if User is an Admin, if there are no existing priceLists matching the input ant that input Price prop is not 0. If all pass then creates a new PriceList.
+    /// </summary>
+    /// <param name="priceList"></param>
+    /// <returns></returns>
     public PriceListDto CreatePriceList(PriceListDto priceList)
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == priceList.Price && x.UnitType == priceList.UnitType && x.DiscountPrice == priceList.DiscountPrice);
-            if (existingPriceList == null && priceList.Price != 0 && activeUser.UserRoleName == "Admin")
+            if (existingPriceList == null && priceList.Price != 0 && activeUser.UserRole.RoleName == "Admin")
             {
                 var entity = PriceListFactory.Create(priceList);
                 var newPriceList = _priceListRepository.Create(entity);
@@ -67,6 +76,11 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches an existing PriceList from database.
+    /// </summary>
+    /// <param name="priceList"></param>
+    /// <returns>PriceListDto</returns>
     public PriceListDto GetPriceList(PriceListDto priceList)
     {
         try
@@ -83,6 +97,10 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Fetches all existing PriceLists from database.
+    /// </summary>
+    /// <returns>List of PriceListDto</returns>
     public IEnumerable<PriceListDto> GetAllPriceLists()
     {
         try
@@ -98,19 +116,25 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Updates existing PriceList if userRole.Rolename == "Admin" and the PriceList exists in database.
+    /// </summary>
+    /// <param name="existingPriceListDto"></param>
+    /// <param name="updatedPriceListDto"></param>
+    /// <returns>PriceListDto</returns>
     public PriceListDto UpdatePriceList(PriceListDto existingPriceListDto, PriceListDto updatedPriceListDto)
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
-            if (existingPriceList != null && activeUser.UserRoleName == "Admin")
+            if (existingPriceList != null && activeUser.UserRole.RoleName == "Admin")
             {
                 PriceListEntity updatedEntity = new()
                 {
                     Id = existingPriceList.Id,
                     Price = updatedPriceListDto.Price <=0 ? existingPriceList.Price : updatedPriceListDto.Price,
-                    DiscountPrice = !string.IsNullOrWhiteSpace(updatedPriceListDto.DiscountPrice.ToString()) ? updatedPriceListDto.DiscountPrice : existingPriceList.DiscountPrice,
+                    DiscountPrice = updatedPriceListDto.DiscountPrice <= 0 || string.IsNullOrWhiteSpace(updatedPriceListDto.DiscountPrice.ToString()) ? existingPriceList.DiscountPrice : updatedPriceListDto.DiscountPrice,
                     UnitType = !string.IsNullOrWhiteSpace(updatedPriceListDto.UnitType) ? updatedPriceListDto.UnitType : existingPriceList.UnitType,
                 };
 
@@ -126,13 +150,18 @@ public class PriceListService
         return null!;
     }
 
+    /// <summary>
+    /// Deletes existing PriceList if userRole.Rolename == "Admin" and the PriceList exists in database.
+    /// </summary>
+    /// <param name="existingPriceListDto"></param>
+    /// <returns>PriceListDto</returns>
     public PriceListDto DeletePriceList(PriceListDto existingPriceListDto)
     {
         try
         {
-            var activeUser = _userService.FindRoleOfActiveUser();
+            var activeUser = _userService.isUserActive();
             var existingPriceList = _priceListRepository.GetOne(x => x.Price == existingPriceListDto.Price && x.UnitType == existingPriceListDto.UnitType);
-            if (existingPriceList != null && activeUser.UserRoleName == "Admin")
+            if (existingPriceList != null && activeUser.UserRole.RoleName == "Admin")
             {
                 var result = _priceListRepository.Delete(existingPriceList);
                 if (result)

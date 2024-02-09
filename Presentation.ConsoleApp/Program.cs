@@ -53,16 +53,16 @@ try
 {
     builder.Start();
 
-    var userService = builder.Services.GetRequiredService<UserService>(); ////Enable Again once testing is over and done with
-    userService.LogOutActiveUser();
+    //var userService = builder.Services.GetRequiredService<UserService>(); ////Enable Again once testing is over and done with
+    //userService.LogOutActiveUser();
 
     var menuService = builder.Services.GetRequiredService<MenuService>();
     menuService.MenuStart();
 
-    AppDomain.CurrentDomain.ProcessExit += (sender, e) => ////Enable Again once testing is over and done with
-    {
-        userService.LogOutActiveUser();
-    };
+    //AppDomain.CurrentDomain.ProcessExit += (sender, e) => ////Enable Again once testing is over and done with
+    //{
+    //    userService.LogOutActiveUser();
+    //};
 }
 catch (Exception ex)
 {

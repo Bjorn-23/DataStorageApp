@@ -10,27 +10,32 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
 {
     private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
 
-    public UserEntity GetOrCreateRole(UserDto user)
+    /// <summary>
+    /// Checks if input roleName exists, if tru then returns it, otherwise creates new UserRole with the correct UserRole.Id for the user to be associated with.
+    /// </summary>
+    /// <param name="roleName"></param>
+    /// <returns>UserEntity</returns>
+    public UserEntity GetOrCreateRole(string roleName)
     {
         try
         {
-            if (!string.IsNullOrWhiteSpace(user.UserRoleName)) // changed from is nullOrEmpty
+            if (!string.IsNullOrWhiteSpace(roleName)) // changed from is nullOrEmpty
             {
-                var userRoleEntity = UserRoleFactory.Create(user);
-                UserRoleEntity userRole = _userRoleRepository.GetOne(x => x.RoleName == userRoleEntity.RoleName);
+                UserRoleEntity userRole = _userRoleRepository.GetOne(x => x.RoleName == roleName);
                 UserEntity roleEntity = new();
 
                 if (userRole != null)
                 {
-                    roleEntity.UserRoleName = userRole.RoleName;
+                    roleEntity.UserRoleId = userRole.Id;
+
                     return roleEntity;
                 }
                 else
                 {
-                    var newUserRole = _userRoleRepository.Create(userRoleEntity);
+                    var newUserRole = _userRoleRepository.Create(new UserRoleEntity() { RoleName = roleName });
                     if (newUserRole != null)
                     {
-                        roleEntity.UserRoleName = newUserRole.RoleName;
+                        roleEntity.UserRoleId = newUserRole.Id;
                         return roleEntity;
                     }
                 }
@@ -41,12 +46,37 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
         return null!;
     }
 
-    public UserRoleDto UpdateRole(UserRoleDto user) // very basic, might want to include checks.
+    /// <summary>
+    /// Gets all existing UserRoles from database.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<UserRoleDto> GetAll()
     {
         try
         {
-            var entity = UserRoleFactory.Create(user);
-            var result = _userRoleRepository.Update(x => x.RoleName == user.RoleName, entity);
+            var existingUserRoles = _userRoleRepository.GetAll();
+            if (existingUserRoles != null && existingUserRoles.Count() >= 1)
+            {
+                return UserRoleFactory.Create(existingUserRoles);
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+
+        return new List<UserRoleDto>();
+    }
+
+    /// <summary>
+    /// Updates a userRole with new details. Doesnt currently have checks but should probably have a password check to make sure not anyone can make themselves an admin.
+    /// </summary>
+    /// <param name="userRole"></param>
+    /// <param name="updatedUserRoleDetails"></param>
+    /// <returns></returns>
+    public UserRoleDto UpdateRole(UserRoleDto userRole, UserRoleDto updatedUserRoleDetails) // very basic, might want to include checks.
+    {
+        try
+        {
+            var updatedEntityDetails = UserRoleFactory.Create(updatedUserRoleDetails);
+            var result = _userRoleRepository.Update(x => x.RoleName == userRole.RoleName, updatedEntityDetails);
             var dto = UserRoleFactory.Create(result);
             return dto;
         }
@@ -55,7 +85,13 @@ public class UserRoleService(IUserRoleRepository userRoleRepository)
         return null!;
     }
 
-    public UserRoleDto DeleteRole(UserRoleDto role) // very basic, might want to include checks.
+    /// <summary>
+    /// Deletes a userRole. Doesnt currently have checks but should probably have a password check to make sure not anyone can delete a role.
+    /// </summary>
+    /// <param name="userRole"></param>
+    /// <param name="updatedUserRoleDetails"></param>
+    /// <returns></returns>
+    public UserRoleDto DeleteRole(UserRoleDto role)
     {
         try
         {

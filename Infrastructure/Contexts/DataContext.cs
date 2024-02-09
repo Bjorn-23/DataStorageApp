@@ -22,18 +22,21 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
         //----------------------Users & UserRoles--------------------
 
         modelBuilder.Entity<UserEntity>()
-            .HasOne(u => u.UserRole)
-            .WithMany(ur => ur.Users)
-            .HasForeignKey(u => u.UserRoleName)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Restrict);
-
-
-        modelBuilder.Entity<UserEntity>()
             .HasIndex(x => x.Email)
             .IsUnique();
 
-        //----------------------Users & UserRoles--------------------
+        modelBuilder.Entity<UserRoleEntity>()
+            .HasIndex(x => x.RoleName)
+            .IsUnique();
+
+        modelBuilder.Entity<UserEntity>()
+            .HasOne(u => u.UserRole)
+            .WithMany(ur => ur.Users)
+            .HasForeignKey(u => u.UserRoleId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+
 
         //---------------------Customers & Adresses------------------
 
@@ -50,13 +53,13 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             .HasOne(ca => ca.Customer)
             .WithMany(c => c.CustomerAddresses)
             .HasForeignKey(ca => ca.CustomerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Customer_AddressEntity>()
             .HasOne(ca => ca.Address)
             .WithMany(a => a.CustomerAddresses)
             .HasForeignKey(ca => ca.AddressId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
 }

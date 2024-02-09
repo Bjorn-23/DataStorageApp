@@ -126,33 +126,36 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar");
 
-                    b.Property<string>("UserRoleName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("UserRoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("UserRoleName");
+                    b.HasIndex("UserRoleId");
 
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserRoleEntity", b =>
                 {
-                    b.Property<string>("RoleName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.HasKey("RoleName");
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleName")
+                        .IsUnique();
 
                     b.ToTable("Roles");
                 });
@@ -173,13 +176,13 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.AddressEntity", "Address")
                         .WithMany("CustomerAddresses")
                         .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.CustomerEntity", "Customer")
                         .WithMany("CustomerAddresses")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Address");
@@ -191,8 +194,8 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Infrastructure.Entities.UserRoleEntity", "UserRole")
                         .WithMany("Users")
-                        .HasForeignKey("UserRoleName")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("UserRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserRole");

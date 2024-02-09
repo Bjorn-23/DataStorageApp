@@ -15,6 +15,7 @@ public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntit
         _context = context;
     }
 
+  
     public virtual TEntity Create(TEntity entity)
     {
         try

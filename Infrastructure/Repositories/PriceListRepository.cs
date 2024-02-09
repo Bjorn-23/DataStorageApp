@@ -17,7 +17,7 @@ public class PriceListRepository(ProductCatalog context) : BaseRepository<PriceL
         {
             var exisitingPriceListDetails = _context.PriceLists
                 .Where(predicate)
-                .Include(i => i.Products)
+                .Include(i => i.Products).ThenInclude(i => i.Category)
                 .FirstOrDefault();
 
             if (exisitingPriceListDetails != null )
